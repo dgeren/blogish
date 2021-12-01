@@ -1,0 +1,31 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blogish</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <header>
+    <h1><a href="/">[/B] Blogish</a></h1>
+    <h2>A Career-Change Mis-Adventure</h2>
+    <nav>
+      <ul>
+        <li><a href="/about">About</a></li>
+        <% if(user){ %>
+        <li><a href="/editor">Create Post</a></li>
+        <li><a href="/admin">Admin</a></li>
+        <li>Signed is as '<%= user.email %>' [<a href="/logout">Log Out</a>]</li>
+        <% } else { %>
+        <form>
+          <label for`="email">Email</label>
+          <input type="text" name="email" required>
+          <div class="email error"></div>
+          <label for="password">Password</label>
+          <input type="password" name="password" required>
+          <div class="password error"></div>
+          <button>Log in</button>
+        </form>
+        <% } %>
+      </ul>
+    </nav>

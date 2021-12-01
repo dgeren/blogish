@@ -1,0 +1,27 @@
+<%- include('partials/header'); -%>
+
+    <div class="headings">
+      <h3>Recent Posts</h3>
+    </div>
+  </header>
+  <main>
+    <hr>
+    <% // full-version article %>
+      <h4><a href="">01 Placeholder Title</a></h4>
+      <h5>Placeholder Subtitle</h5>
+      <div>00 Month, 'YY</div>
+      <% if(user) { %>
+      <div><a href="/editor?123456789abc">Edit Post</a></div>
+      <% } %>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Neque laoreet suspendisse interdum consectetur. Eget duis at tellus at urna condimentum mattis pellentesque. At tempor commodo ullamcorper a lacus vestibulum sed arcu. Viverra adipiscing at in tellus integer feugiat scelerisque. Sit amet venenatis urna cursus eget nunc scelerisque viverra. At tempor commodo ullamcorper a lacus vestibulum. Fames ac turpis egestas integer eget aliquet nibh praesent tristique. Sed faucibus turpis in eu mi. Sed risus pretium quam vulputate dignissim suspendisse. Dictum fusce ut placerat orci nulla pellentesque dignissim.</p>
+      <p>Fermentum leo vel orci porta non pulvinar. Imperdiet sed euismod nisi porta. Ut morbi tincidunt augue interdum velit euismod in pellentesque. Congue nisi vitae suscipit tellus mauris a. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet. Eu sem integer vitae justo eget. Et pharetra pharetra massa massa ultricies. Egestas quis ipsum suspendisse ultrices gravida dictum fusce ut placerat. Facilisis sed odio morbi quis commodo. Ac turpis egestas sed tempus urna et pharetra pharetra massa. Sem viverra aliquet eget sit amet. Dui id ornare arcu odio ut. Ut sem nulla pharetra diam. Sed adipiscing diam donec adipiscing tristique risus nec feugiat in. Et netus et malesuada fames. Id donec ultrices tincidunt arcu non sodales neque sodales. Dui vivamus arcu felis bibendum ut tristique et egestas quis. Nunc mattis enim ut tellus elementum. Cursus mattis molestie a iaculis.</p>
+      <p>Euismod quis viverra nibh cras pulvinar mattis nunc sed blandit. Viverra nibh cras pulvinar mattis nunc sed blandit libero volutpat. Viverra mauris in aliquam sem fringilla. Egestas purus viverra accumsan in nisl nisi scelerisque. Sed augue lacus viverra vitae congue. Proin nibh nisl condimentum id. Auctor neque vitae tempus quam pellentesque. Ultricies mi quis hendrerit dolor magna eget. Tincidunt dui ut ornare lectus sit amet est placerat in. Lectus vestibulum mattis ullamcorper velit sed ullamcorper. Et pharetra pharetra massa massa. Aliquam ut porttitor leo a diam. Scelerisque eleifend donec pretium vulputate sapien nec sagittis. Purus viverra accumsan in nisl. Nunc scelerisque viverra mauris in aliquam.</p>
+      <div>Tags: <a href="">Lorem</a>, <a href="">consectetur</a></div>
+      <hr>
+    </section>
+  </main>
+  <% if(!user){ %>
+  <script src="/scripts/login.js"></script>
+  <% } %>
+
+<%- include('partials/footer'); -%>
