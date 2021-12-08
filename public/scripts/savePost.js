@@ -11,12 +11,12 @@ form.addEventListener('submit', async e => {
   console.log(postData);
 
   try {
-    const res = await fetch('/savePost', {
+    const res = await fetch('/editor', {
       method: 'POST',
       body: JSON.stringify(postData),
       headers: { 'Content-Type': 'application/json' }
     });
-    //* set up the save serverside
+    //* set up the save-post function serverside
     //* then return the new/modified post data
     const response = res.json();
     //* enter the returned fields into the form's fields

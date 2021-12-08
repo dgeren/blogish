@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const { isEmail } = require('validator');
 
 const postSchema = new mongoose.Schema({
   title: {
@@ -17,7 +16,14 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, "admin error message: user id required"]
   },
-  publish: Boolean
+  publish: Boolean,
+  pubDate: Date
+});
+
+userSchema.pre('save', async function(next){
+  const salt = await bcrypt.genSalt();
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 const Post = mongoose.model('user', postSchema);
