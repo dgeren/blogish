@@ -9,7 +9,6 @@ const requireAuth = (req, res, next) => {
         console.log('🟧 authMiddleware > requireAuth() > login error:', err);
         res.redirect('/login');
       } else {
-        console.log('🟩 authMiddleware > requireAuth() > token:', decodedToken);
         next();
       }
     });
@@ -27,7 +26,6 @@ const checkUser = (req, res, next) => {
         res.locals.user = null;
         next();
       } else {
-        console.log('🟩 authMiddleware > checkUser() > token:', decodedToken);
         let user = await User.findById(decodedToken.id);
         res.locals.user = user;
         next();

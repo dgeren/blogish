@@ -1,0 +1,12 @@
+body {
+  background-color: darkslategrey;
+  color: black;
+}
+
+a {
+  color: greenyellow;
+}
+
+hr {
+  border: 1px solid black;
+}

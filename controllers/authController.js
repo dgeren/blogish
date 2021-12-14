@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
+const Post = require('../models/Post.js');
 
 const maxAge = 3600 * 72;
 
@@ -80,5 +81,10 @@ module.exports.editor_get = (req, res) => {
 }
 
 module.exports.editor_post = async (req, res) => {
+  const { title, subtitle, body, tags, publish, author } = req.body;
+  const post = await Post.create({ title, subtitle, body, tags, publish, author });
+  console.log('editor_post, req.body parsed', title, subtitle, body, tags, publish, author); // 🔴
+
+
   res.render('editor');
 }

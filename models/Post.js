@@ -1,10 +1,16 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const slugify = require('slugify');
 
 const postSchema = new mongoose.Schema({
   title: {
     type: String,
+    unique: [true, "This title already exists. Change the title."],
     required: [true, "Titles for posts are required."],
+  },
+  slug: {
+    type: String,
+    unique: [true, "This title's slug already exists. Change the title."]
   },
   subtitle: String,
   body: {
@@ -20,12 +26,10 @@ const postSchema = new mongoose.Schema({
   pubDate: Date
 });
 
-userSchema.pre('save', async function(next){
-  const salt = await bcrypt.genSalt();
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+postSchema.pre('save', async function (next){
+  this.slug = slugify(this.title,{ lower: true });
 });
 
-const Post = mongoose.model('user', postSchema);
+const Post = mongoose.model('post', postSchema);
 
-module.exports = User;
+module.exports = Post;

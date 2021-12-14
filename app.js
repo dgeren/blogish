@@ -17,8 +17,8 @@ app.use(cookieParser());
 // view engine
 app.set('view engine', 'ejs');
 
-// database connection
-const dbURI = 'mongodb+srv://dgeren:nodeauth@cluster0.ajdyi.mongodb.net/node-jwt_auth-tute?retryWrites=true&w=majority';
+// database connection blogishAdminCredentials
+const dbURI = 'mongodb+srv://blogishAdmin:blogishAdminCredentials@blogishcluster.nm071.mongodb.net/blogish?retryWrites=true&w=majority';
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
   .then(result => https.createServer({
     key:  fs.readFileSync('blogish4key.pem'),
@@ -28,6 +28,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCr
 
 // routes
 app.get('*', checkUser);
+app.post('*', checkUser);
 app.get('/about', (req, res) => res.render('about'));
 app.get('/tags', (req, res) => res.render('tags'));
 app.use(authRoutes);

@@ -8,21 +8,18 @@ form.addEventListener('submit', async e => {
     const name = el.attributes.getNamedItem('name').value;
     postData[name] = name === 'publish' ? el.checked : el.value;    
   });
-  console.log(postData);
+  console.log(postData); // 🔴
 
   try {
-    const res = await fetch('/editor', {
+    const res = await fetch('/savePost', {
       method: 'POST',
       body: JSON.stringify(postData),
       headers: { 'Content-Type': 'application/json' }
     });
-    //* set up the save-post function serverside
-    //* then return the new/modified post data
-    const response = res.json();
-    //* enter the returned fields into the form's fields
-    //* any errors should be written near the field with the original value
-    //* from postData instead of the return error message. This way error
-    //* messges don't replace the values. This would be especially important
-    //* for content. or perhaps the data is simply not replaced at all...
-  } catch(err) {}
+    console.log(res);  // 🔴
+    // const response = res.json();
+
+  } catch(err) {
+    console.log('save post error', err);
+  }
 });
