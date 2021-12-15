@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const User = require('../models/User');
-const Post = require('../models/Post.js');
+const User = require('./models/User');
+const Post = require('./models/Post.js');
 
 const maxAge = 3600 * 72;
 
@@ -31,6 +31,14 @@ module.exports.home_get = (req, res) => {
 module.exports.tags_get = async (req, res) => {
   // get logic for getting tags from a previous version of blogish
   res.render('tags');
+}
+
+module.exports.post_get = async(req, res) => {
+  /* 🟢 
+    if slug exists, find post in db else return error page
+    if post exists, send post object to views
+   */
+  res.render('post');
 }
 
 module.exports.admin_get = (req, res) => {
