@@ -35,6 +35,7 @@ module.exports.tags_get = async (req, res) => {
 
 module.exports.post_get = async(req, res) => {
   /* 🟢 
+    
     if slug exists, find post in db else return error page
     if post exists, send post object to views
    */

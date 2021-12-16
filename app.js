@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const https = require('https');
 const fs = require('fs');
@@ -18,8 +19,7 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 // database connection blogishAdminCredentials
-const dbURI = 'mongodb+srv://blogishAdmin:blogishAdminCredentials@blogishcluster.nm071.mongodb.net/blogish?retryWrites=true&w=majority';
-mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
   .then(result => https.createServer({
     key:  fs.readFileSync('blogish4key.pem'),
     cert: fs.readFileSync('blogish4.pem')

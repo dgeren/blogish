@@ -8,10 +8,7 @@ const postSchema = new mongoose.Schema({
     unique: [true, "This title already exists. Change the title."],
     required: [true, "Titles for posts are required."],
   },
-  slug: {
-    type: String,
-    unique: [true, "This title's slug already exists. Change the title."]
-  },
+  slug: String,
   subtitle: String,
   body: {
     type: String,
