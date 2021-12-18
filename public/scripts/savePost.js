@@ -6,7 +6,7 @@ form.addEventListener('submit', async e => {
   const formElements = document.querySelectorAll('.form-el');
   formElements.forEach(el => {
     const name = el.attributes.getNamedItem('name').value;
-    postData[name] = name === 'publish' ? el.checked : el.value;    
+    postData[name] = name === 'published' ? el.checked : el.value;
   });
   console.log(postData); // 🔴
 
@@ -16,7 +16,7 @@ form.addEventListener('submit', async e => {
       body: JSON.stringify(postData),
       headers: { 'Content-Type': 'application/json' }
     });
-    console.log(res);  // 🔴
+    console.log(res); // 🔴
     // const response = res.json();
 
   } catch(err) {

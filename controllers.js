@@ -5,6 +5,8 @@ const Post = require('./models/Post.js');
 
 const maxAge = 3600 * 72;
 
+
+// Functions
 const handleErrors = err => {
   let errors = { email: '', password: '' };
   if(err.message === 'incorrect email') errors.email = 'Email address is not registered.';
@@ -24,7 +26,15 @@ const createToken = id => {
   });
 }
 
-module.exports.home_get = (req, res) => {
+const getRecentPosts = async () => {
+  return await Post.find({}).sort({ date: -1 }).limit(5);
+}
+
+
+// Controllers
+module.exports.home_get = async (req, res) => {
+  res.locals.errorMessage = null;
+  res.locals.posts = await getRecentPosts();
   res.render('home');
 }
 
@@ -34,12 +44,17 @@ module.exports.tags_get = async (req, res) => {
 }
 
 module.exports.post_get = async(req, res) => {
-  /* 🟢 
-    
-    if slug exists, find post in db else return error page
-    if post exists, send post object to views
-   */
-  res.render('post');
+  const { slug } = req.params;
+  res.locals.errorMessage = null;
+  res.locals.post = await Post.findOne({ slug });
+  console.log(res.locals.post); //🔴
+  if(res.locals.post){
+    res.render('post');
+  } else {
+    res.locals.posts = await getRecentPosts();
+    res.locals.errorMessage = `Sorry, but I could not find a post at "/${slug}"`;
+    res.render('home');
+  }
 }
 
 module.exports.admin_get = (req, res) => {
@@ -90,10 +105,12 @@ module.exports.editor_get = (req, res) => {
 }
 
 module.exports.editor_post = async (req, res) => {
-  const { title, subtitle, body, tags, publish, author } = req.body;
-  const post = await Post.create({ title, subtitle, body, tags, publish, author });
-  console.log('editor_post, req.body parsed', title, subtitle, body, tags, publish, author); // 🔴
-
-
+  const { title, subtitle, body, tags, published, author, slug } = req.body;
+  let post = {};
+  if(slug) {
+    post = await Post.findOneAndUpdate({ slug: post.slug });
+  } else {
+    post = await Post.create({ title, subtitle, body, tags, published, author });
+  }
   res.render('editor');
 }

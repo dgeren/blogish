@@ -14,17 +14,24 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, "What's a post without content? Content required."]
   },
+  preview: String,
   tags: [String],
   author: {
     type: String,
     required: [true, "admin error message: user id required"]
   },
-  publish: Boolean,
+  published: Boolean,
   pubDate: Date
 });
 
 postSchema.pre('save', async function (next){
   this.slug = slugify(this.title,{ lower: true });
+  this.preview = this.body.split(" ").slice(0, 50).join(" ");
+  if(this.published && !this.pubDate) this.pubDate = Date.now;
+  let tags = this.tags[0];
+  tags.replace(', ', ',');
+  tags = tags.split(',');
+  this.tags = tags;
 });
 
 const Post = mongoose.model('post', postSchema);

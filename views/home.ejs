@@ -1,40 +1,33 @@
 <%- include('partials/header'); -%>
-
-    <div class="headings">
-      <h3>Recent Posts</h3>
-    </div>
   </header>
+  <div class="headings">
+    <h3>Recent Posts</h3>
+  </div>
   <main>
     <hr>
-    <% // short-version-article list %>
-    <section>
-      <h4><a href="">01 Placeholder Title</a></h4>
-      <h5>Placeholder Subtitle</h5>
-      <div>00 Month, 'YY</div>
-
-      <% if(user) { %>
-      <div><a href="/editor?id=123456789abc">Edit Post</a></div>
-      <% } %>
-
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <a href="/post?id=123456789abc">[Read...]</a></p>
-
-      <div>Tags: <a href="">Lorem</a>, <a href="">consectetur</a></div>
-      
+    <% if(errorMessage){ %>
+      <p><%= errorMessage %></p>
+    <% } %>
+    <hr>
+      <% posts.forEach(post => { %>
+        <section>
+          <h4><a href="reader/<%= post.slug %>"><%= post.title %></a></h4>
+          <h5><%= post.subtitle %></h5>
+          <div class="pubDate"><%= post.pubDate %></div>
+        <% if(user) { %>
+        <div><a href="/editor/<%= post.slug %>">[ Edit Post ]</a></div>
+        <% } %>
+        <%= post.preview %>
+        <div>
+          <% const tagHTML = []; %>
+          <% post.tags.forEach(tag => { %>
+          <%   tagHTML.push(`<a href="/tags/${tag}">${tag}</a>`); %>
+          <% }); %>
+          <%- tagHTML.join(', '); %>
+        </div>
+      </section>
       <hr>
-    </section>
-    <section>
-      <h4><a href="">02 Placeholder Title</a></h4>
-      <h5>Placeholder Subtitle</h5>
-      <div>00 Month, 'YY</div>
-
-      <% if(user) { %>
-      <div><a href="/editor?id=123456789abc">Edit Post</a></div>
-      <% } %>
-
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. <a href="/post?id=123456789abc">[Read...]</a></p>
-      <div>Tags: <a href="/tags?tag=Lorem">Lorem</a>, <a href="/tags?tag=consectetur">consectetur</a></div>
-      <hr>
-    </section>
+      <% }); %>
   </main>
 
   <% if(!user){ %>
