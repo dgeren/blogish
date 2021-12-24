@@ -8,7 +8,6 @@ form.addEventListener('submit', async e => {
     const name = el.attributes.getNamedItem('name').value;
     postData[name] = name === 'published' ? el.checked : el.value;
   });
-  console.log(postData); // 🔴
 
   try {
     const res = await fetch('/savePost', {
@@ -16,8 +15,8 @@ form.addEventListener('submit', async e => {
       body: JSON.stringify(postData),
       headers: { 'Content-Type': 'application/json' }
     });
-    console.log(res); // 🔴
     // const response = res.json();
+    // the response will indicate if the save failed or succeeded
 
   } catch(err) {
     console.log('save post error', err);

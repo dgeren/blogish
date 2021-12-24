@@ -1,33 +1,30 @@
 <%- include('partials/header'); -%>
-  </header>
   <div class="headings">
     <h3>Recent Posts</h3>
   </div>
   <main>
-    <hr>
     <% if(errorMessage){ %>
       <p><%= errorMessage %></p>
     <% } %>
     <hr>
-      <% posts.forEach(post => { %>
-        <section>
-          <h4><a href="reader/<%= post.slug %>"><%= post.title %></a></h4>
-          <h5><%= post.subtitle %></h5>
-          <div class="pubDate"><%= post.pubDate %></div>
-        <% if(user) { %>
-        <div><a href="/editor/<%= post.slug %>">[ Edit Post ]</a></div>
-        <% } %>
-        <%= post.preview %>
-        <div>
-          <% const tagHTML = []; %>
-          <% post.tags.forEach(tag => { %>
-          <%   tagHTML.push(`<a href="/tags/${tag}">${tag}</a>`); %>
-          <% }); %>
-          <%- tagHTML.join(', '); %>
-        </div>
-      </section>
-      <hr>
-      <% }); %>
+    <% posts.forEach(post => { %>
+    <section>
+      <h4 class="preview-el"><a href="reader/<%= post.slug %>"><%= post.title %></a></h4>
+      <h5 class="preview-el"><%= post.subtitle %></h5>
+      <div class="preview-el"><%= post.preview %></div>
+      <p class="preview-el small-text">
+        <% const tagHTML = []; %>
+        <% post.tags.forEach(tag => { %>
+        <%   tagHTML.push(`<a href="/tags/${tag}">${tag}</a>`); %>
+        <% }); %>
+        <%- tagHTML.join(', '); %>
+      </p>
+      <% if(user) { %>
+      <p class="preview-el small-text"><a href="/editor/<%= post.slug %>">[ Edit Post ]</a></p>
+      <% } %>
+    </section>
+    <hr>
+    <% }); %>
   </main>
 
   <% if(!user){ %>

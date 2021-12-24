@@ -1,4 +1,6 @@
 <%- include('partials/header'); -%>
+<% const { title, subtitle, body, tags, published, author } = post; %>
+<% console.log(title); %>
 
     <div class="headings">
       <h3>Editor</h3>
@@ -7,23 +9,47 @@
   <main>
     <hr>
     <form>
-      <label for="title">Title</label><br>
-      <input type="text" name="title" class="form-el" required><br>
+      <div class="toolbar">
+        <button class="btn submit" alt="Updates the server with changes. If the post is published, the changes go live.">Update Post</button>
+        <button class="btn toggleView" alt="Preview with reader CSS.">Preview</button>
+        <button class="btn localSave" alt="Protect changes from unexpected loss by saving changes locally, but don't update the server.">Save Changes</button>
+        <button class="btn revert" alt="Revert the post to the state on the server.">Revert</button>
+        <button class="btn delete" alt="Delete the post from the server. This CANNOT be undone.">Delete</button>
+      </div>
+      <label for="title">Title</label>
+      <div class="element container">
+        <input type="text" name="title" class="form-el"
+        <% if(title) { %>value="<%= title %>" <% } %>
+        autofocus required><br>
+      </div>
+      <label for="subtitle">Subtitle</label>
+      <input type="text" name="subtitle" class="form-el"
+      <% if(subtitle) { %>value="<%= subtitle %>" <% } %>
+      ><br>
 
-      <label for="subtitle">Subtitle</label><br>
-      <input type="text" name="subtitle" class="form-el"><br>
+      <label for="body">Content</label>
+      <div id="content-editor" name="body" class="form-el" required contenteditable>
+      <% if(body) { %><%= body %><% } %>
+      </div><br>
 
-      <label for="body">Content</label><br>
-      <textarea name="body" class="form-el" required></textarea><br>
-
-      <label for="tags">Tags</label><br>
-      <input type="text" name="tags" class="form-el"><br>
+      <label for="tags">Tags</label>
+      <input type="text" name="tags" class="form-el"
+      <% if(tags) { %>value="<%= tags %>" <% } %>
+      ><br>
 
       <label for="published">Publish?</label>
-      <input type="checkbox" name="published" class="form-el"><br>
+      <input type="checkbox" name="published" class="form-el"
+      <% if(published) { %>checked<% } %>
+      ><br>
       
       <input type="hidden" name="author" class="form-el" value="<%= user.id %>">
-      <button>Save Post</button>
+      <div class="toolbar">
+        <button class="btn submit" alt="Updates the server with changes. If the post is published, the changes go live.">Update Post</button>
+        <button class="btn toggleView" alt="Preview with reader CSS.">Preview</button>
+        <button class="btn localSave" alt="Protect changes from unexpected loss by saving changes locally, but don't update the server.">Save Changes</button>
+        <button class="btn revert" alt="Revert the post to the state on the server.">Revert</button>
+        <button class="btn delete" alt="Delete the post from the server. This CANNOT be undone.">Delete</button>
+      </div>
     </form>
     <hr>
   </main>

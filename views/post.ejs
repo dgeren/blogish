@@ -1,19 +1,14 @@
 <%- include('partials/header'); -%>
-
-    <div class="headings">
-      <h3>Recent Posts</h3>
-    </div>
-  </header>
   <main>
-    <hr>
       <section>
-        <h4><a href="reader/<%= post.slug %>"><%= post.title %></a></h4>
+        <hr>
+        <h4><%= post.title %></h4>
         <h5><%= post.subtitle %></h5>
         <div class="pubDate"><%= post.pubDate %></div>
         <% if(user) { %>
         <div><a href="/editor/<%= post.slug %>">[ Edit Post ]</a></div>
         <% } %>
-        <%= post.body %>
+        <div><%= post.body %></div>
         <div>
           <% const tagHTML = []; %>
           <% post.tags.forEach(tag => { %>

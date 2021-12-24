@@ -10,12 +10,12 @@
     <h1><a href="/">[/B] Blogish</a></h1>
     <h2>A Career-Change Mis-Adventure</h2>
     <nav>
-      <ul>
+      <ul class="nav">
         <li><a href="/about">About</a></li>
         <% if(user){ %>
         <li><a href="/editor">Create Post</a></li>
         <li><a href="/admin">Admin</a></li>
-        <li>Signed is as '<%= user.email %>' [<a href="/logout">Log Out</a>]</li>
+        <li class="logging">Signed is as '<%= user.email %>' [ <a href="/logout">Log Out</a> ]</li>
         <% } else { %>
         <form>
           <label for`="email">Email</label>
@@ -29,3 +29,4 @@
         <% } %>
       </ul>
     </nav>
+  </header>

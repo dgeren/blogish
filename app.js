@@ -10,15 +10,23 @@ const { requireAuth, checkUser } = require('./middleware');
 
 const app = express();
 
-// middleware
+/*
+* MIDDLEWARE
+*/
 app.use(express.static('public'));
 app.use(express.json());
 app.use(cookieParser());
 
-// view engine
+/*
+* VIEWS
+*/
 app.set('view engine', 'ejs');
 
-// database connection blogishAdminCredentials
+
+/*
+* MONGODB: blogishAdminCredentials
+* SPIN-UP HTTPS SERVER
+*/
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
   .then(result => https.createServer({
     key:  fs.readFileSync('blogish4key.pem'),
@@ -26,7 +34,9 @@ mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology
   }, app).listen(3000, () => console.log('https: p3000')))
   .catch((err) => console.log(err));
 
-// routes
+/*
+* ROUTES
+*/
 app.get('*', checkUser);
 app.post('*', checkUser);
 app.use(routes);

@@ -1,12 +1,85 @@
+
+/* GENERAL */
 body {
   background-color: darkslategrey;
   color: black;
+  font-family: sans-serif;
+  padding: 5px 25px;
+}
+
+h1 {
+  font-family: monospace;
+  display: inline;
+  font-size: 3em;
+}
+
+h2 {
+  font-size: 1em;
+  float: right;
+}
+
+h4 {
+  margin-bottom: 3px;
+}
+
+h5 {
+  margin: 0;
 }
 
 a {
   color: greenyellow;
+  text-decoration: none;
 }
 
 hr {
   border: 1px solid black;
+}
+
+.small-text {
+  font-size: .75em;
+}
+
+/* NAVIGATION */
+.nav {
+  list-style-type: none;
+  margin: 20px 0;
+  padding: 0;
+}
+
+.nav li {
+  display: inline;
+  padding: 0 10px 0 0;
+  margin: 0;
+}
+
+.logging {
+  float: right;
+}
+
+
+/* EDITOR */
+.toolbar {
+  margin: 10px;
+}
+
+.toolbar .btn {
+  width: 150px;
+}
+
+.form-el {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 10px 20px 10px;
+  background-color: ccc;
+}
+
+#content-editor {
+  border: 1px solid black;
+  font-size: .8em;
+  min-height: 20em;
+}
+
+/* PREVIEW/READER */
+.preview-el {
+  margin: 0 0 8px 0;
 }

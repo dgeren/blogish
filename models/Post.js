@@ -7,21 +7,42 @@ const postSchema = new mongoose.Schema({
     type: String,
     unique: [true, "This title already exists. Change the title."],
     required: [true, "Titles for posts are required."],
+    defualt: null
   },
-  slug: String,
-  subtitle: String,
+  slug: {
+    type: String,
+    default: null
+  },
+  subtitle: {
+    type: String,
+    default: null
+  },
   body: {
     type: String,
-    required: [true, "What's a post without content? Content required."]
+    required: [true, "What's a post without content? Content required."],
+    default: null
   },
-  preview: String,
-  tags: [String],
+  preview: {
+    type: String,
+    default: null
+  },
+  tags: {
+    type: [String],
+    default: []
+  },
   author: {
     type: String,
-    required: [true, "admin error message: user id required"]
+    required: [true, "admin error message: user id required"],
+    default: null
   },
-  published: Boolean,
-  pubDate: Date
+  published: {
+    type: Boolean,
+    default: null
+  },
+  pubDate:  {
+    type: Date,
+    default: null
+  }
 });
 
 postSchema.pre('save', async function (next){

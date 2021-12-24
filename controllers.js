@@ -6,7 +6,9 @@ const Post = require('./models/Post.js');
 const maxAge = 3600 * 72;
 
 
-// Functions
+/*
+* LOCAL METHODS
+*/
 const handleErrors = err => {
   let errors = { email: '', password: '' };
   if(err.message === 'incorrect email') errors.email = 'Email address is not registered.';
@@ -31,7 +33,9 @@ const getRecentPosts = async () => {
 }
 
 
-// Controllers
+/*
+* EXPORTED METHODS
+*/
 module.exports.home_get = async (req, res) => {
   res.locals.errorMessage = null;
   res.locals.posts = await getRecentPosts();
@@ -39,7 +43,7 @@ module.exports.home_get = async (req, res) => {
 }
 
 module.exports.tags_get = async (req, res) => {
-  // get logic for getting tags from a previous version of blogish
+  //* get logic for getting tags from a previous version of blogish
   res.render('tags');
 }
 
@@ -47,7 +51,6 @@ module.exports.post_get = async(req, res) => {
   const { slug } = req.params;
   res.locals.errorMessage = null;
   res.locals.post = await Post.findOne({ slug });
-  console.log(res.locals.post); //🔴
   if(res.locals.post){
     res.render('post');
   } else {
@@ -100,15 +103,19 @@ module.exports.logout_get = async (req, res) => {
   res.redirect('/');
 }
 
-module.exports.editor_get = (req, res) => {
+// 🟢
+module.exports.editor_get =  async(req, res) => {
+  const { slug } = req.params;
+  res.locals.post = slug ? await Post.findOne({ slug }): new Post();
+  //TODO: else return 404 🟠
   res.render('editor');
 }
 
 module.exports.editor_post = async (req, res) => {
   const { title, subtitle, body, tags, published, author, slug } = req.body;
-  let post = {};
+  let post = {}; //TODO: change to terniary structure similar to editor_get 🟠
   if(slug) {
-    post = await Post.findOneAndUpdate({ slug: post.slug });
+    post = await Post.findOneAndUpdate({ slug });
   } else {
     post = await Post.create({ title, subtitle, body, tags, published, author });
   }
