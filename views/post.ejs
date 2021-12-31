@@ -2,19 +2,19 @@
   <main>
       <section>
         <hr>
+        <% if(user) { %>
+          <p class="preview-el small-text editBtn"><a href="/editor/<%= post.slug %>">&#9998;</a></p>
+        <% } %>
         <h4><%= post.title %></h4>
         <h5><%= post.subtitle %></h5>
         <div class="pubDate"><%= post.pubDate %></div>
-        <% if(user) { %>
-        <div><a href="/editor/<%= post.slug %>">[ Edit Post ]</a></div>
-        <% } %>
-        <div><%= post.body %></div>
+        <div><%- post.content -%></div>
         <div>
           <% const tagHTML = []; %>
           <% post.tags.forEach(tag => { %>
           <%   tagHTML.push(`<a href="/tags/${tag}">${tag}</a>`); %>
           <% }); %>
-          <%- tagHTML.join(', '); %>
+          <%- tagHTML.join(, ); %>
         </div>
       </section>
       <hr>

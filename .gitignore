@@ -3,3 +3,4 @@ node_modules/
 .envgit 
 .env.test
 .DS_Store
+dbUtilties.js

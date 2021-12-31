@@ -17,7 +17,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  body: {
+  content: {
     type: String,
     required: [true, "What's a post without content? Content required."],
     default: null
@@ -47,7 +47,7 @@ const postSchema = new mongoose.Schema({
 
 postSchema.pre('save', async function (next){
   this.slug = slugify(this.title,{ lower: true });
-  this.preview = this.body.split(" ").slice(0, 50).join(" ");
+  this.preview = this.content.split(" ").slice(0, 50).join(" ");
   if(this.published && !this.pubDate) this.pubDate = Date.now;
   let tags = this.tags[0];
   tags.replace(', ', ',');

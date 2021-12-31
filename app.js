@@ -11,15 +11,11 @@ const { requireAuth, checkUser } = require('./middleware');
 const app = express();
 
 /*
-* MIDDLEWARE
+* VIEWS AND MIDDLEWARE
 */
 app.use(express.static('public'));
 app.use(express.json());
 app.use(cookieParser());
-
-/*
-* VIEWS
-*/
 app.set('view engine', 'ejs');
 
 
@@ -33,6 +29,7 @@ mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology
     cert: fs.readFileSync('blogish4.pem')
   }, app).listen(3000, () => console.log('https: p3000')))
   .catch((err) => console.log(err));
+
 
 /*
 * ROUTES

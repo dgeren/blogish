@@ -37,7 +37,7 @@ const getRecentPosts = async () => {
 * EXPORTED METHODS
 */
 module.exports.home_get = async (req, res) => {
-  res.locals.errorMessage = null;
+  res.locals.errorMessage = false;
   res.locals.posts = await getRecentPosts();
   res.render('home');
 }
@@ -51,6 +51,7 @@ module.exports.post_get = async(req, res) => {
   const { slug } = req.params;
   res.locals.errorMessage = null;
   res.locals.post = await Post.findOne({ slug });
+  console.log(res.locals.post);
   if(res.locals.post){
     res.render('post');
   } else {
@@ -112,12 +113,16 @@ module.exports.editor_get =  async(req, res) => {
 }
 
 module.exports.editor_post = async (req, res) => {
-  const { title, subtitle, body, tags, published, author, slug } = req.body;
+  const { title, subtitle, preview, content, tags, published, author, slug } = req.body;
   let post = {}; //TODO: change to terniary structure similar to editor_get 🟠
   if(slug) {
     post = await Post.findOneAndUpdate({ slug });
   } else {
-    post = await Post.create({ title, subtitle, body, tags, published, author });
+    post = await Post.create({ title, subtitle, content, tags, published, author });
   }
   res.render('editor');
 }
+
+// module.exports.handle_error = (req, res) => {
+//   res.render('error');
+// }

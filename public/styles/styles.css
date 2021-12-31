@@ -7,6 +7,10 @@ body {
   padding: 5px 25px;
 }
 
+section {
+  padding: 10px 0;
+}
+
 h1 {
   font-family: monospace;
   display: inline;
@@ -59,27 +63,37 @@ hr {
 
 /* EDITOR */
 .toolbar {
-  margin: 10px;
+  width: 100%;
+  margin: 10px 0;
+  padding: 0;
 }
 
 .toolbar .btn {
-  width: 150px;
+  margin: 0;
+  padding: 2px 0;
+  width: 19.55%;
 }
 
 .form-el {
   width: 100%;
-  padding: 10px;
-  margin: 10px 10px 20px 10px;
+  padding: 10px 5px;
+  margin: 10px 0 20px 0;
   background-color: ccc;
 }
 
 #content-editor {
   border: 1px solid black;
-  font-size: .8em;
   min-height: 20em;
+  font-family: monospace;
 }
 
 /* PREVIEW/READER */
 .preview-el {
   margin: 0 0 8px 0;
+}
+
+p.editBtn {
+  float: right;
+  background-color: black;
+  padding: 5px 10px;
 }
