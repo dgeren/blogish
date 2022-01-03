@@ -56,7 +56,11 @@ hr {
   margin: 0;
 }
 
-.logging {
+.signin-el {
+  display: inline;
+}
+
+.signin-form {
   float: right;
 }
 

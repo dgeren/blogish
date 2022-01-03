@@ -10,11 +10,10 @@ const save_server = async () => {
       name === 'published' ? el.checked :
       name === 'content' ? el.innerHTML :
       el.value;
-    console.log(name, postData[name]); // 🔴
   });
 
   try {
-    const res = await fetch('/savePost', {
+    const res = await fetch('/editor', {
       method: 'POST',
       body: JSON.stringify(postData),
       headers: { 'Content-Type': 'application/json' }
@@ -27,21 +26,19 @@ const save_server = async () => {
   }
 }
 
-const save_local = async () => { console.log('save_local was clicked'); }
-const toggleView = () => { console.log('toggleView was clicked'); }
-const revert = async () => { console.log('revert was clicked'); }
-const del = async () => { console.log('del was clicked'); }
+const save_local  = async () => { console.log('save_local was clicked'); }
+const toggleView  =       () => { console.log('toggleView was clicked'); }
+const revert      = async () => { console.log('revert was clicked'); }
+const del         = async () => { console.log('del was clicked'); }
 
 form.addEventListener('click', async e => {
   e.preventDefault();
   const targetName = e.target.name;
 
-  console.log('target name:', targetName); // 🔴
   if(targetName === "save_server") save_server();
   if(targetName === "save_local")  save_local();
   if(targetName === "toggleView")  toggleView();
   if(targetName === "revert")      revert();
   if(targetName === "del")         del();
 
-}, true);
-
+});

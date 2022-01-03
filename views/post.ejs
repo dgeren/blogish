@@ -14,7 +14,7 @@
           <% post.tags.forEach(tag => { %>
           <%   tagHTML.push(`<a href="/tags/${tag}">${tag}</a>`); %>
           <% }); %>
-          <%- tagHTML.join(, ); %>
+          <%- tagHTML.join(', '); %>
         </div>
       </section>
       <hr>

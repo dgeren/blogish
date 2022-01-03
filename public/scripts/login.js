@@ -1,13 +1,11 @@
 
 const form = document.querySelector('form');
-const emailError = document.querySelector('.email.error');
-const passwordError = document.querySelector('.password.error');
+const formError = document.querySelector('.error');
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
   
-  emailError.textContent = '';
-  passwordError.textContent = '';
+  formError.textContent = '';
 
   const email = form.email.value;
   const password = form.password.value;
@@ -20,8 +18,7 @@ form.addEventListener('submit', async e => {
     });
     const data = await res.json();
     if (data.errors) {
-      emailError.textContent = data.errors.email;
-      passwordError.textContent = data.errors.password;
+      formError.textContent = data.errors.email || data.errors.password;
     }
     if (data.user) location.assign('/');
   }

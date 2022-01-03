@@ -15,12 +15,12 @@ router.post('/login',       controllers.login_post);
 router.get('/logout',       controllers.logout_get);
 router.get('/reader/:slug', controllers.post_get);
 
-//Private Pages
+// Private Pages
 router.get('/admin',        requireAuth, controllers.admin_get);
 router.post('/signup',      requireAuth, controllers.signup_post);
+router.get('/editor/:slug', requireAuth, controllers.editor_get);
 router.get('/editor',       requireAuth, controllers.editor_get);
-router.get('/editor/:slug', requireAuth, controllers.editor_get); // 🟢 HERE after savePost response
-router.post('/savePost',    requireAuth, controllers.editor_post); // 🟢 next, set up response for save attempt
+router.post('/editor',      requireAuth, controllers.editor_post); // 🟢 next, get savepost working then return results
 
 // router.get('*', controllers.handle_error); //TODO: set up error handler
 // router.post('*', controllers.handle_error);

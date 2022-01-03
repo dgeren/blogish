@@ -1,9 +1,12 @@
 const jwt = require('jsonwebtoken');
+const slugify = require('slugify');
 
 const User = require('./models/User');
 const Post = require('./models/Post.js');
 
 const maxAge = 3600 * 72;
+
+const limit = 5;
 
 
 /*
@@ -28,8 +31,19 @@ const createToken = id => {
   });
 }
 
-const getRecentPosts = async () => {
-  return await Post.find({}).sort({ date: -1 }).limit(5);
+const getPosts = async (parameters) => {
+  const {
+    id = null,
+    slug = null,
+    tag = null,
+    sortOrder = -1,
+    limit = 1
+  } = parameters;
+  
+  return id ?   await Post.find({ _id: id }) :
+         slug ? await Post.findOne({ slug }) :
+         tag ?  await Post.find({ tag }).sort({ _id: sortOrder }).limit(limit) :
+                await Post.find().sort({ _id: sortOrder}).limit(limit);
 }
 
 
@@ -38,27 +52,49 @@ const getRecentPosts = async () => {
 */
 module.exports.home_get = async (req, res) => {
   res.locals.errorMessage = false;
-  res.locals.posts = await getRecentPosts();
+  res.locals.posts = await getPosts({ limit: 5 });
   res.render('home');
 }
 
 module.exports.tags_get = async (req, res) => {
-  //* get logic for getting tags from a previous version of blogish
+  res.locals.errorMessage = false;
+  res.locals.posts = await getPosts({ tag, limit: 5 });
   res.render('tags');
 }
 
 module.exports.post_get = async(req, res) => {
   const { slug } = req.params;
   res.locals.errorMessage = null;
-  res.locals.post = await Post.findOne({ slug });
-  console.log(res.locals.post);
+  res.locals.post = await getPosts({ slug });
   if(res.locals.post){
     res.render('post');
   } else {
-    res.locals.posts = await getRecentPosts();
+    res.locals.posts = await getPosts({ limit: 5 });
     res.locals.errorMessage = `Sorry, but I could not find a post at "/${slug}"`;
     res.render('home');
   }
+}
+
+module.exports.editor_get =  async (req, res) => {
+  const { slug } = req.params;
+  res.locals.post = slug ? await getPosts({ slug }) : new Post();
+  //TODO: else return 404 🟠
+  res.render('editor');
+}
+
+// 🟢
+module.exports.editor_post = async (req, res) => {
+  const postData = { title, subtitle, content, tags, published, author, postID } = req.body;
+  const slug = slugify(title, { lower: true });
+  console.log('content', content); //🔴
+
+  res.locals.post = await Post.findOneAndUpdate(
+    { _id: postID },
+    { title, subtitle, content, tags, published, author },
+    { new: true, upsert: true }
+  );
+
+  res.render('editor');
 }
 
 module.exports.admin_get = (req, res) => {
@@ -102,25 +138,6 @@ module.exports.login_post = async (req, res) => {
 module.exports.logout_get = async (req, res) => {
   res.cookie('jwt', '', { maxAge: 1 });
   res.redirect('/');
-}
-
-// 🟢
-module.exports.editor_get =  async(req, res) => {
-  const { slug } = req.params;
-  res.locals.post = slug ? await Post.findOne({ slug }): new Post();
-  //TODO: else return 404 🟠
-  res.render('editor');
-}
-
-module.exports.editor_post = async (req, res) => {
-  const { title, subtitle, preview, content, tags, published, author, slug } = req.body;
-  let post = {}; //TODO: change to terniary structure similar to editor_get 🟠
-  if(slug) {
-    post = await Post.findOneAndUpdate({ slug });
-  } else {
-    post = await Post.create({ title, subtitle, content, tags, published, author });
-  }
-  res.render('editor');
 }
 
 // module.exports.handle_error = (req, res) => {

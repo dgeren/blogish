@@ -1,7 +1,6 @@
 const form = document.querySelector('form');
 
-form.addEventListener('submit', async e => {
-  e.preventDefault();
+const saveToServer = () => {
   let postData = {};
   const formElements = document.querySelectorAll('.form-el');
   formElements.forEach(el => {
@@ -21,4 +20,11 @@ form.addEventListener('submit', async e => {
   } catch(err) {
     console.log('save post error', err);
   }
+}
+
+form.addEventListener('click', async e => {
+  e.preventDefault();
+  const target = e.target.name;
+  if(target === 'save_server') saveToServer();
+  // if(target === 'save_local) yada yada
 });
