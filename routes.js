@@ -7,9 +7,10 @@ const router = Router();
 
 // Public pages
 router.get('/',             controllers.home_get);
+router.get('/tags',         controllers.tags_get);
 
-router.get('tags',  (req, res) => res.render('tags'));
-router.get('about', (req, res) => res.render('about'));
+router.get('/about',       (req, res) => res.render('about'));
+router.get('/favicon.ico', (req, res) => res.status(200).send('image/x-icon'));
 
 router.post('/login',       controllers.login_post);
 router.get('/logout',       controllers.logout_get);

@@ -4,10 +4,10 @@ const slugify = require('slugify');
 const User = require('./models/User');
 const Post = require('./models/Post.js');
 
+/*
+* GLOBALS
+*/
 const maxAge = 3600 * 72;
-
-const limit = 5;
-
 
 /*
 * LOCAL METHODS
@@ -33,10 +33,8 @@ const createToken = id => {
 
 const getPosts = async (parameters) => {
   const {
-    id = null,
-    slug = null,
-    tag = null,
-    sortOrder = -1,
+    id = null,  slug = null,
+    tag = null, sortOrder = -1,
     limit = 1
   } = parameters;
   
@@ -65,10 +63,22 @@ module.exports.tags_get = async (req, res) => {
 module.exports.post_get = async(req, res) => {
   const { slug } = req.params;
   res.locals.errorMessage = null;
-  res.locals.post = await getPosts({ slug });
+  const subs = [
+    [ /&lt;/gi, "<" ],
+    [ /&gt;/gi, ">" ],
+    [ /&amp;#34;/gi, "\"" ],
+    [ /&amp;#39;/gi, "\'"]
+  ]
+
+  const post = await getPosts({ slug });
+  subs.forEach(sub => {
+    post.content = post.content.replace(sub[0], sub[1]);
+  });
+  
+  res.locals.post = post;
   if(res.locals.post){
     res.render('post');
-  } else {
+  } else { 
     res.locals.posts = await getPosts({ limit: 5 });
     res.locals.errorMessage = `Sorry, but I could not find a post at "/${slug}"`;
     res.render('home');
@@ -86,7 +96,6 @@ module.exports.editor_get =  async (req, res) => {
 module.exports.editor_post = async (req, res) => {
   const postData = { title, subtitle, content, tags, published, author, postID } = req.body;
   const slug = slugify(title, { lower: true });
-  console.log('content', content); //🔴
 
   res.locals.post = await Post.findOneAndUpdate(
     { _id: postID },
