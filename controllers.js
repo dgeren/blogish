@@ -44,6 +44,19 @@ const getPosts = async (parameters) => {
                 await Post.find().sort({ _id: sortOrder}).limit(limit);
 }
 
+const fixTags = content => {
+  const subs = [
+    [ /&lt;/gi, "<" ],
+    [ /&gt;/gi, ">" ],
+    [ /&amp;#34;/gi, "\"" ],
+    [ /&amp;#39;/gi, "\'"]
+  ]
+  subs.forEach(sub => {
+    content = content.replace(sub[0], sub[1]);
+  });
+  return content;
+}
+
 
 /*
 * EXPORTED METHODS
@@ -61,22 +74,12 @@ module.exports.tags_get = async (req, res) => {
 }
 
 module.exports.post_get = async(req, res) => {
-  const { slug } = req.params;
   res.locals.errorMessage = null;
-  const subs = [
-    [ /&lt;/gi, "<" ],
-    [ /&gt;/gi, ">" ],
-    [ /&amp;#34;/gi, "\"" ],
-    [ /&amp;#39;/gi, "\'"]
-  ]
-
+  const { slug } = req.params;
   const post = await getPosts({ slug });
-  subs.forEach(sub => {
-    post.content = post.content.replace(sub[0], sub[1]);
-  });
-  
-  res.locals.post = post;
-  if(res.locals.post){
+  if(post){
+    post.content = fixTags(post.content);
+    res.locals.post = post;
     res.render('post');
   } else { 
     res.locals.posts = await getPosts({ limit: 5 });
@@ -87,9 +90,16 @@ module.exports.post_get = async(req, res) => {
 
 module.exports.editor_get =  async (req, res) => {
   const { slug } = req.params;
-  res.locals.post = slug ? await getPosts({ slug }) : new Post();
-  //TODO: else return 404 🟠
+  const post = await getPosts({ slug });
+  if(post) {
+    post.content = fixTags(post.content);
+    res.locals.post = post;
+  } else {
+    res.locals.errorMessage = `I did not find anything at &#34/${slug}. Would you like to write it now?`;
+    res.locals.post = new Post();
+  }
   res.render('editor');
+  
 }
 
 // 🟢
@@ -102,7 +112,6 @@ module.exports.editor_post = async (req, res) => {
     { title, subtitle, content, tags, published, author },
     { new: true, upsert: true }
   );
-
   res.render('editor');
 }
 

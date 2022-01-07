@@ -8,7 +8,7 @@ const save_server = async () => {
     const name = el.attributes.getNamedItem('name').value;
     postData[name] =
       name === 'published' ? el.checked :
-      name === 'content' ? el.innerHTML :
+      name === 'content' ? el.value :
       el.value;
   });
 
