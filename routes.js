@@ -1,16 +1,16 @@
 const { Router } = require('express');
 
 const controllers = require('./controllers');
-const { requireAuth, checkUser } = require('./middleware');
+const { requireAuth } = require('./middleware');
 
 const router = Router();
 
 // Public pages
 router.get('/',             controllers.home_get);
-router.get('/tags',         controllers.tags_get);
+router.get('/tag/:tag',     controllers.tag_get);
 
 router.get('/about',       (req, res) => res.render('about'));
-router.get('/favicon.ico', (req, res) => res.status(200).send('image/x-icon'));
+router.get('/favicon.ico', (req, res) => res.status(200).send('image/x-icon')); // 🟠 create favicon
 
 router.post('/login',       controllers.login_post);
 router.get('/logout',       controllers.logout_get);

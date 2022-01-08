@@ -28,6 +28,7 @@ const save_server = async () => {
 
 const save_local  = async () => { console.log('save_local was clicked'); }
 const toggleView  =       () => { console.log('toggleView was clicked'); }
+const reader      =       () => { console.log('reader was clicked'); }
 const revert      = async () => { console.log('revert was clicked'); }
 const del         = async () => { console.log('del was clicked'); }
 

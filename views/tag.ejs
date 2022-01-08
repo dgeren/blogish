@@ -1,6 +1,6 @@
 <%- include('partials/header'); -%>
   <div class="headings">
-    <h3>Recent Posts</h3>
+    <h3>Posts Tagged with "<%- requestedTag -%>"</h3>
   </div>
   <main>
     <% if(errorMessage){ %>
@@ -10,15 +10,15 @@
     <% posts.forEach(post => { %>
     <section>
       <% if(user) { %>
-      <p class="preview-el small-text editBtn"><a href="/editor/<%= post.slug %>">&#9998;</a></p>
+      <p class="preview-el small-text editBtn"><a href="../editor/<%= post.slug %>">&#9998;</a></p>
       <% } %>
-      <h4 class="preview-el"><a href="reader/<%= post.slug %>"><%- post.title %></a></h4>
+      <h4 class="preview-el"><a href="../reader/<%= post.slug %>"><%- post.title %></a></h4>
       <h5 class="preview-el"><%- post.subtitle %></h5>
       <p class="preview-el"><%- post.preview %></p>
       <p class="preview-el small-text">
         <% const tagHTML = []; %>
         <% post.tags.forEach(tag => { %>
-        <%   tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`); %>
+        <%   tagHTML.push(`<a href="../tag/${tag}">${tag}</a>`); %>
         <% }); %>
         <%- tagHTML.join(', '); %>
       </p>
@@ -28,7 +28,7 @@
   </main>
 
   <% if(!user){ %>
-  <script src="/scripts/login.js"></script>
+  <script src="../scripts/login.js"></script>
   <% } %>
 
 <%- include('partials/footer'); -%>

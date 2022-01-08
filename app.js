@@ -10,6 +10,7 @@ const { requireAuth, checkUser } = require('./middleware');
 
 const app = express();
 
+
 /*
 * VIEWS AND MIDDLEWARE
 */
@@ -20,10 +21,10 @@ app.set('view engine', 'ejs');
 
 
 /*
-* MONGODB: blogishAdminCredentials
-* SPIN-UP HTTPS SERVER
+* MONGODB: blogishAdminCredentials 🔴
+* HTTPS SERVER
 */
-mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true, useFindAndModify: false })
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false })
   .then(result => https.createServer({
     key:  fs.readFileSync('blogish4key.pem'),
     cert: fs.readFileSync('blogish4.pem')
