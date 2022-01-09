@@ -1,4 +1,4 @@
-module.exports.fixTags = (content, direction) => {
+module.exports.fixTags = (content, task) => {
   const subs = {
     down: [
       [ /&lt;/gi, "<" ],
@@ -11,11 +11,14 @@ module.exports.fixTags = (content, direction) => {
       [ />/gi, "&gt;" ],
       [ /"/gi, "&#34" ],
       [ /'/gi, "&#39" ]
+    ],
+    strip: [
+      [/(<([^>]+)>)/gim, " "]
     ]
   };
 
-  subs[direction].forEach(sub => {
-    content = content.replace(sub[0], sub[1]);
+  subs[task].forEach(sub => {
+    content = content.replace(sub[0], sub[1]).trim();
   });
   return content;
 }

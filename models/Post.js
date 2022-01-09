@@ -24,10 +24,6 @@ const postSchema = new mongoose.Schema({
     required: [true, "What's a post without content? Content required."],
     default: null
   },
-  preview: {
-    type: String,
-    default: null
-  },
   tags: {
     type: [String],
     default: []
@@ -49,7 +45,6 @@ const postSchema = new mongoose.Schema({
 
 postSchema.pre('save', async function (next){
   this.slug = slugify(this.title,{ lower: true });
-  this.preview = this.content.split(" ").slice(0, 50).join(" ");
   if(this.published && !this.pubDate) this.pubDate = Date.now;
   this.content = fixTags(this.content, "up");
   let tags = this.tags[0];
@@ -61,6 +56,10 @@ postSchema.pre('save', async function (next){
 
 postSchema.post('init', function() {
   this.content = fixTags(this.content, "down");
+  let preview = this.content.split(" ").slice(0, 25).join(" ");
+  preview = fixTags(preview, "strip");
+  console.log(preview); // 🔴
+  this.preview = preview;
 });
 
 const Post = mongoose.model('post', postSchema);
