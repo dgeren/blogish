@@ -28,7 +28,7 @@ const save_server = async () => {
 
 const reader = () => {
   const postID = form.postID.value;
-  window.open("../reader/id/" + postID);
+  location.assign("../reader/id/" + postID);
 }
 
 
