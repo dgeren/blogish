@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('./models/User');
 const Post = require('./models/Post');
-const { fixTags, handleErrors } = require('./util');
+const { fixHtmlTags, handleErrors } = require('./util');
 
 
 /*
@@ -28,9 +28,9 @@ const getPosts = async (parameters) => {
     limit = 1
   } = parameters;
   
-  return id ?   await Post.find({ _id: id }) :
+  return id   ? await Post.findOne({ _id: id }) :
          slug ? await Post.findOne({ slug }) :
-         tag ?  await Post.find({ tags: tag }).sort({ _id: sortOrder }).limit(limit) :
+         tag  ? await Post.find({ tags: tag }).sort({ _id: sortOrder }).limit(limit) :
                 await Post.find().sort({ _id: sortOrder}).limit(limit);
 }
 
@@ -39,53 +39,61 @@ const getPosts = async (parameters) => {
 * EXPORTED METHODS
 */
 module.exports.home_get = async (req, res) => {
-  res.locals.errorMessage = null;
-  res.locals.posts = await getPosts({ limit: 5 });
+  res.locals.message = null;
+  const posts = await getPosts({ limit: 5 });
+  posts.forEach(post => {
+    post.content = fixHtmlTags(post.content, "down");
+    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
+  });
+  res.locals.posts = posts;
   res.render('home');
 }
 
 module.exports.tag_get = async (req, res) => {
-  res.locals.errorMessage = null;
+  res.locals.message= null;
   const { tag } = req.params;
   const posts = await getPosts({ tag, limit: 5 });
 
   if(posts) {
+    posts.forEach(post => {
+      post.content = fixHtmlTags(post.content, "down");
+      post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
+    });
     res.locals.posts = posts;
     res.locals.requestedTag = tag;
     res.render('tag');
   } else {
-    res.locals.errorMessage = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;
+    res.locals.message = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;
     res.render('home');
   }
 }
 
 module.exports.post_get = async(req, res) => {
-  res.locals.errorMessage = null;
-  const { slug } = req.params;
-  const post = await getPosts({ slug });
+  res.locals.message= null;
+  const { slug, id } = req.params;
+  const post = slug ? await getPosts({ slug }) : await getPosts({ id });
 
   if(post){
-    post.content = fixTags(post.content, "down");
-    console.log(post.content);
+    post.content = fixHtmlTags(post.content, "down");
     res.locals.post = post;
     res.render('post');
   } else { 
     res.locals.posts = await getPosts({ limit: 5 });
-    res.locals.errorMessage = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
+    res.locals.message = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
     res.render('home');
   }
 }
 
 module.exports.editor_get =  async (req, res) => {
-  res.locals.errorMessage = null;
+  res.locals.message= null;
   const { slug } = req.params;
   const post = await getPosts({ slug });
 
   if(post) {
-    post.content = fixTags(post.content, "down");
+    post.content = fixHtmlTags(post.content, "down");
     res.locals.post = post;
   } else {
-    res.locals.errorMessage = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
+    res.locals.message = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
     res.locals.post = new Post();
   }
 
@@ -93,20 +101,31 @@ module.exports.editor_get =  async (req, res) => {
 }
 
 module.exports.editor_post = async (req, res) => {
-  res.locals.errorMessage = null;
+  res.locals.message = null;
   const postData = { title, subtitle, content, tags, published, author, postID } = req.body;
+  // condition data
   const slug = slugify(title, { lower: true });
-
-  res.locals.post = await Post.findOneAndUpdate(
+  content = fixHtmlTags(content, "up");
+  tags = tags.split(",").map(element => element.trim());
+  
+  const post = await Post.findOneAndUpdate(
     { _id: postID },
-    { title, subtitle, content, tags, published, author },
+    { title, slug, subtitle, content, tags, published, author },
     { new: true, upsert: true }
   );
+
+  if(post){
+    res.locals.message = "Saved to database successful.";
+    res.locals.post = post;
+  } else {
+    res.locals.message = "Something went wrong, but I can't tell you what.";
+    res.locals.post = new Post();
+  }
   res.render('editor');
 }
 
 module.exports.admin_get = (req, res) => {
-  res.locals.errorMessage = null;
+  res.locals.message= null;
   res.render('admin');
 }
 

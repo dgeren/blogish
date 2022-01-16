@@ -12,7 +12,7 @@
         <div>
           <% const tagHTML = []; %>
           <% post.tags.forEach(tag => { %>
-          <%   tagHTML.push(`<a href="/tags/${tag}">${tag}</a>`); %>
+          <%   tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`); %>
           <% }); %>
           <%- tagHTML.join(', '); %>
         </div>

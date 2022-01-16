@@ -1,5 +1,6 @@
 <%- include('partials/header'); -%>
 <% const { title, subtitle, content, tags, published, author, id } = post; %>
+<% const tagString = tags.join(", "); %>
 
     <div class="headings">
       <h3>Editor</h3>
@@ -15,6 +16,9 @@
         <button class="btn" name="reader" alt="Open post in the reder. Leaving may delete unsaved changes.">Reader</button>
         <button class="btn" name="revert" alt="Revert the post to the state on the server.">Revert</button>
         <button class="btn" name="del" alt="Delete the post from the server. This CANNOT be undone.">Delete</button>
+        <% if(message){ %>
+        <p class="message"></p>
+        <% } %>
       </div>
 
       <div class="element container">
@@ -37,7 +41,7 @@
       <div class="element container">
         <label for="tags">Tags</label>
         <input type="text" name="tags" class="form-el"
-        <% if(tags) { %>value="<%= tags %>" <% } %>>
+        <% if(tags) { %>value="<%= tagString %>" <% } %>>
       </div>
 
       <div class="element container">

@@ -26,9 +26,16 @@ const save_server = async () => {
   }
 }
 
+const reader = () => {
+  const postID = form.postID.value;
+  window.open("../reader/id/" + postID);
+}
+
+
+// window.open("/reader/" + )
+
 const save_local  = async () => { console.log('save_local was clicked'); }
 const toggleView  =       () => { console.log('toggleView was clicked'); }
-const reader      =       () => { console.log('reader was clicked'); }
 const revert      = async () => { console.log('revert was clicked'); }
 const del         = async () => { console.log('del was clicked'); }
 
@@ -39,6 +46,7 @@ form.addEventListener('click', async e => {
   if(targetName === "save_server") save_server();
   if(targetName === "save_local")  save_local();
   if(targetName === "toggleView")  toggleView();
+  if(targetName === "reader")      reader();
   if(targetName === "revert")      revert();
   if(targetName === "del")         del();
 
