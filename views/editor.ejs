@@ -9,58 +9,70 @@
   <main>
     <hr>
     <form>
-      <div class="toolbar">
-        <button class="btn" name="save_server" alt="Updates the server with changes. If the post is published, the changes go live.">Save Post</button>
-        <button class="btn" name="save_local" alt="Protect changes from unexpected loss by saving changes locally, but don't update the server.">Preserve Changes</button>
-        <button class="btn" name="toggleView" alt="Preview with reader CSS.">Preview</button>
-        <button class="btn" name="reader" alt="Open post in the reder. Leaving may delete unsaved changes.">Reader</button>
-        <button class="btn" name="revert" alt="Revert the post to the state on the server.">Revert</button>
-        <button class="btn" name="del" alt="Delete the post from the server. This CANNOT be undone.">Delete</button>
-        <% if(message){ %>
-        <p class="message"></p>
-        <% } %>
-      </div>
+      <%- include('partials/editorToolBar'); -%>
+      <% if(message){ %>
+      <p class="message"></p>
+      <% } %>
+      <section class="editor"
+        <div class="element container">
+          <label for="title">Title</label>
+          <input type="text" name="title" class="form-el"
+          <% if(title) { %>value="<%= title %>" <% } %> autofocus required>
+        </div>
 
-      <div class="element container">
-        <label for="title">Title</label>
-        <input type="text" name="title" class="form-el"
-        <% if(title) { %>value="<%= title %>" <% } %> autofocus required>
-      </div>
+        <div class="element container">
+          <label for="subtitle">Subtitle</label>
+          <input type="text" name="subtitle" class="form-el"
+          <% if(subtitle) { %>value="<%= subtitle %>" <% } %>>
+        </div>
 
-      <div class="element container">
-        <label for="subtitle">Subtitle</label>
-        <input type="text" name="subtitle" class="form-el"
-        <% if(subtitle) { %>value="<%= subtitle %>" <% } %>>
-      </div>
+        <div class="element container">
+          <label for="content">Content</label>
+          <textarea id="content-editor" name="content" class="form-el" required><% if(content) { %><%= content %><% } %></textarea>
+        </div>
 
-      <div class="element container">
-        <label for="content">Content</label>
-        <textarea id="content-editor" name="content" class="form-el" required><% if(content) { %><%= content %><% } %></textarea>
-      </div>
+        <div class="element container">
+          <label for="tags">Tags</label>
+          <input type="text" name="tags" class="form-el"
+          <% if(tags) { %>value="<%= tagString %>" <% } %>>
+        </div>
 
-      <div class="element container">
-        <label for="tags">Tags</label>
-        <input type="text" name="tags" class="form-el"
-        <% if(tags) { %>value="<%= tagString %>" <% } %>>
-      </div>
+        <div class="element container">
+          <label for="published">Publish?</label>
+          <input type="checkbox" name="published" class="form-el"
+          <% if(published) { %>checked<% } %>>
+        </div>
+        
+        <input type="hidden" name="authorID" class="form-el" value="<%= user.id %>">
+        <input type="hidden" name="postID" class="form-el" value="<%= id %>"
+      </section>
+      <a href="#preview"></a>
+      <%- include('partials/editorToolBar'); -%>
+      <section class="preview">
+        <h4><%= post.title %></h4>
+        <h5><%= post.subtitle %></h5>
+        <div><%- post.preview %></div>
+        <div>
+          <% const tagHTML = []; %>
+          <% post.tags.forEach(tag => { %>
+          <%   tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`); %>
+          <% }); %>
+          <%- tagHTML.join(', '); %>
+        </div>
+      </section>
 
-      <div class="element container">
-        <label for="published">Publish?</label>
-        <input type="checkbox" name="published" class="form-el"
-        <% if(published) { %>checked<% } %>>
-      </div>
-      
-      <input type="hidden" name="authorID" class="form-el" value="<%= user.id %>">
-      <input type="hidden" name="postID" class="form-el" value="<%= id %>"
-      
-      <div class="toolbar">
-        <button class="btn" name="save_server" alt="Updates the server with changes. If the post is published, the changes go live.">Save Post</button>
-        <button class="btn" name="save_local" alt="Protect changes from unexpected loss by saving changes locally, but don't update the server.">Preserve Changes</button>
-        <button class="btn" name="toggleView" alt="Preview with reader CSS.">Preview</button>
-        <button class="btn" name="reader" alt="Open post in the reder. Leaving may delete unsaved changes.">Reader</button>
-        <button class="btn" name="revert" alt="Revert the post to the state on the server.">Revert</button>
-        <button class="btn" name="del" alt="Delete the post from the server. This CANNOT be undone.">Delete</button>
-      </div>
+      <a href="#reader">
+      <section class="reader">
+        <h4><%= post.title %></h4>
+        <h5><%= post.subtitle %></h5>
+        <div class="pubDate"><%= post.pubDate %></div>
+        <div><%- post.content %></div>
+        <div>
+          <%- tagHTML.join(', '); %>
+        </div>
+      </section>
+
+      <%- include('partials/editorToolBar'); -%>
     </form>
     <hr>
   </main>

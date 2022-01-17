@@ -32,8 +32,6 @@ const reader = () => {
 }
 
 
-// window.open("/reader/" + )
-
 const save_local  = async () => { console.log('save_local was clicked'); }
 const toggleView  =       () => { console.log('toggleView was clicked'); }
 const revert      = async () => { console.log('revert was clicked'); }
