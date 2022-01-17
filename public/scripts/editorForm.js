@@ -1,9 +1,10 @@
 const form = document.querySelector('form');
 const formElements = document.querySelectorAll('.form-el');
+const message = document.querySelector('#message');
+
 
 const save_server = async () => {
   let postData = {};
-  // const formElements = document.querySelectorAll('.form-el');
   formElements.forEach(el => {
     const name = el.attributes.getNamedItem('name').value;
     postData[name] =
@@ -12,18 +13,32 @@ const save_server = async () => {
       el.value;
   });
 
-  try {
-    const res = await fetch('/editor', {
-      method: 'POST',
-      body: JSON.stringify(postData),
-      headers: { 'Content-Type': 'application/json' }
-    });
-    // const response = res.json();
-    // the response will indicate if the save failed or succeeded
 
-  } catch(err) {
-    console.log('save post error', err);
-  }
+  await fetch('/editor', {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(postData)
+  })
+  .then(res => res.json())
+  .then(res => {
+    console.log(res.post);
+    if(res.message) message.innerHTML = res.message;
+  })
+  .catch(() => {
+    console.log('error - error');
+  });
+
+  // try {
+  //   const res = await fetch('/editor', {
+  //     method: 'POST',
+  //     body: JSON.stringify(postData),
+  //     headers: { 'Content-Type': 'application/json' }
+  //   });
+  //   console.log(res);
+
+  // } catch(err) {
+  //   console.log('save post error', err);
+  // }
 }
 
 const reader = () => {

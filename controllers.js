@@ -38,17 +38,20 @@ const getPosts = async (parameters) => {
 /*
 * EXPORTED METHODS
 */
+
+// * GET LIST OF RECENT ARTICLES FOR HOME PAGE
 module.exports.home_get = async (req, res) => {
   res.locals.message = null;
   const posts = await getPosts({ limit: 5 });
   posts.forEach(post => {
     post.content = fixHtmlTags(post.content, "down");
-    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
+    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
   });
   res.locals.posts = posts;
   res.render('home');
 }
 
+// * GET ARTICLE LIST BASED ON A TAG
 module.exports.tag_get = async (req, res) => {
   res.locals.message= null;
   const { tag } = req.params;
@@ -68,6 +71,7 @@ module.exports.tag_get = async (req, res) => {
   }
 }
 
+// * OPEN ARTICLES IN READER
 module.exports.post_get = async(req, res) => {
   res.locals.message= null;
   const { slug, id } = req.params;
@@ -76,6 +80,7 @@ module.exports.post_get = async(req, res) => {
   if(post){
     post.content = fixHtmlTags(post.content, "down");
     res.locals.post = post;
+    res.locals.message = "Save successful.";
     res.render('post');
   } else { 
     res.locals.posts = await getPosts({ limit: 5 });
@@ -84,6 +89,7 @@ module.exports.post_get = async(req, res) => {
   }
 }
 
+// * OPEN ARTICLES IN EDITOR
 module.exports.editor_get =  async (req, res) => {
   res.locals.message= null;
   const { slug } = req.params;
@@ -100,6 +106,7 @@ module.exports.editor_get =  async (req, res) => {
   res.render('editor');
 }
 
+// * SAVE NEW OR EXISTING POSTS
 module.exports.editor_post = async (req, res) => {
   res.locals.message = null;
   const postData = { title, subtitle, content, tags, published, author, postID } = req.body;
@@ -114,9 +121,11 @@ module.exports.editor_post = async (req, res) => {
     { new: true, upsert: true }
   );
 
+  // not sure we even need the post to be returned. But maybe this could be used for the revert button to work.
   if(post){
-    res.locals.message = "Saved to database successful.";
-    res.locals.post = post;
+    post.content = fixHtmlTags(post.content, "down");
+    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
+    res.status(200).send({ message: "Save successful.", post }); // 🟢 ended here trying to send a success message back to the browser
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
     res.locals.post = new Post();
@@ -124,11 +133,13 @@ module.exports.editor_post = async (req, res) => {
   res.render('editor');
 }
 
+// * RENDER ADMIN PAGE
 module.exports.admin_get = (req, res) => {
   res.locals.message= null;
   res.render('admin');
 }
 
+// * CREATER NEW USERS
 module.exports.signup_post = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -146,6 +157,7 @@ module.exports.signup_post = async (req, res) => {
   }
 }
 
+// * ALLOW SIGN IN
 module.exports.login_post = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -163,6 +175,7 @@ module.exports.login_post = async (req, res) => {
   }
 }
 
+// * EXPIRE TOKEN TO SIGN USER OUT
 module.exports.logout_get = async (req, res) => {
   res.cookie('jwt', '', { maxAge: 1 });
   res.redirect('/');
