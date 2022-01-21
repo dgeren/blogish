@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('./models/User');
 const Post = require('./models/Post');
-const { fixHtmlTags, handleErrors } = require('./util');
+const { fixHtmlTags, handleErrors, prepPreview } = require('./util');
 
 
 /*
@@ -92,17 +92,18 @@ module.exports.post_get = async(req, res) => {
 // * OPEN ARTICLES IN EDITOR
 module.exports.editor_get =  async (req, res) => {
   res.locals.message= null;
+  res.locals.post = new Post();
   const { slug } = req.params;
-  const post = await getPosts({ slug });
-
-  if(post) {
-    post.content = fixHtmlTags(post.content, "down");
-    res.locals.post = post;
-  } else {
-    res.locals.message = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
-    res.locals.post = new Post();
+  if(slug){
+    const post = await getPosts({ slug });
+    if(post) {
+      post.content = fixHtmlTags(post.content, "down");
+      post.preview = prepPreview(post.content);
+      res.locals.post = post;
+    } else {
+      res.locals.message = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
+    }
   }
-
   res.render('editor');
 }
 
@@ -129,8 +130,8 @@ module.exports.editor_post = async (req, res) => {
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
     res.locals.post = new Post();
+    res.render('editor');
   }
-  res.render('editor');
 }
 
 // * RENDER ADMIN PAGE

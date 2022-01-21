@@ -11,66 +11,68 @@
     <form>
       <%- include('partials/editorToolBar'); -%>
       <div class="message" name="message" id="message"></div>
-      <section class="editor"
+      <section class="editorSection">
         <div class="element container">
           <label for="title">Title</label>
-          <input type="text" name="title" class="form-el" id="title"
+          <input type="text" name="title" class="form-el editor" id="editor_title"
           <% if(title) { %>value="<%= title %>" <% } %> autofocus required>
         </div>
 
         <div class="element container">
           <label for="subtitle">Subtitle</label>
-          <input type="text" name="subtitle" class="form-el" id="subtitle"
+          <input type="text" name="subtitle" class="form-el editor" id="editor_subtitle"
           <% if(subtitle) { %>value="<%= subtitle %>" <% } %>>
         </div>
 
         <div class="element container">
           <label for="content">Content</label>
-          <textarea id="content-editor" name="content" class="form-el" id="content" required><% if(content) { %><%= content %><% } %></textarea>
+          <textarea id="content-editor" name="content" class="form-el editor" id="editor_content" required><% if(content) { %><%= content %><% } %></textarea>
         </div>
 
         <div class="element container">
           <label for="tags">Tags</label>
-          <input type="text" name="tags" class="form-el" id="tags"
+          <input type="text" name="tags" class="form-el editor" id="editor_tags"
           <% if(tags) { %>value="<%= tagString %>" <% } %>>
         </div>
 
         <div class="element container">
           <label for="published">Publish?</label>
-          <input type="checkbox" name="published" class="form-el" id="published"
+          <input type="checkbox" name="published" class="form-eld" id="published"
           <% if(published) { %>checked<% } %>>
         </div>
         
         <input type="hidden" name="authorID" class="form-el" id="authorID" value="<%= user.id %>">
         <input type="hidden" name="postID" class="form-el" id="postID" value="<%= id %>"
       </section>
-      <a href="#preview"></a>
-      <%- include('partials/editorToolBar'); -%>
-      <section class="preview">
-        <h4><%= post.title %></h4>
-        <h5><%= post.subtitle %></h5>
-        <div><%- post.preview %></div>
-        <div>
-          <% const tagHTML = []; %>
-          <% post.tags.forEach(tag => { %>
-          <%   tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`); %>
-          <% }); %>
-          <%- tagHTML.join(', '); %>
-        </div>
-      </section>
+      
+      <div id="preview">
+        <section class="listSection">
+          <%- include('partials/editorToolBar'); -%>
+          <h4 id="list_title" class="list"><a><%= post.title %></a></h4>
+          <h5 id="list_subtitle" class="list"><%= post.subtitle %></h5>
+          <p id="list_preview" class="list" ><%- post.preview %></div>
+          <div id="list_tags" class="list">
+            <% const tagHTML = []; %>
+            <% post.tags.forEach(tag => { %>
+            <%   tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`); %>
+            <% }); %>
+            <%- tagHTML.join(', '); %>
+          </div>
+        </section>
 
-      <a href="#reader">
-      <section class="reader">
-        <h4><%= post.title %></h4>
-        <h5><%= post.subtitle %></h5>
-        <div class="pubDate"><%= post.pubDate %></div>
-        <div><%- post.content %></div>
-        <div>
-          <%- tagHTML.join(', '); %>
-        </div>
-      </section>
+        <section class="readerSection">
+          <h4 id="reader_title" class="reader"><a><%= post.title %></a></h4>
+          <h5 id="reader_subtitle" class="reader"><%= post.subtitle %></h5>
+          <div class="pubDate" class="reader"><%= post.pubDate %></div>
+          <div id="reader_content" class="reader"><%- post.content %></div>
+          <div id="reader_tags" class="reader">
+            <%- tagHTML.join(', '); %>
+          </div>
+        </section>
+      </div>
 
       <%- include('partials/editorToolBar'); -%>
+
     </form>
     <hr>
   </main>

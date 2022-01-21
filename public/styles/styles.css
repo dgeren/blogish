@@ -85,6 +85,10 @@ hr {
   font-family: monospace;
 }
 
+section.preview, section.reader{
+  display: none;
+}
+
 /* PREVIEW/READER */
 .preview-el {
   margin: 0 0 8px 0;

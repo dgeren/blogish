@@ -1,5 +1,4 @@
 module.exports.fixHtmlTags = (content, task) => {
-  console.log(content); // 🔴
   const subs = {
     down: [
       [ /&lt;/gi, "<" ],
@@ -25,7 +24,7 @@ module.exports.fixHtmlTags = (content, task) => {
 }
 
 module.exports.prepPreview = content => {
-  return fixHtmltTags(content.split(" ").slice(0, 25).join(" "), "strip");
+  return content.split(" ").slice(0, 25).join(" ");
 }
 
 module.exports.handleErrors = err => {
