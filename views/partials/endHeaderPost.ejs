@@ -1,0 +1,28 @@
+  <link rel="stylesheet" href="/styles/post.css">
+</head>
+<body>
+  <div id="container">
+    <header>
+      <h1><a href="/">[/B] Blogish</a> <span id="subtitle">|| A Career-Change Mis-Adventure</span></h1>
+      <nav>
+        <ul class="nav">
+          <div class="signin-form">
+            <li><a href="/about">About</a></li>
+            <% if(user){ %>
+            <li><a href="/editor">Create Post</a></li>
+            <li><a href="/admin">Admin</a></li>
+            <li class="signedIn small-text">Signed in as '<%= user.email %>' [ <a href="/logout">Log Out</a> ]</li>
+          </div>
+          <% } else { %>
+          <form class="signin-form small-text">
+            <p class="signin-el">Sign in: &nbsp; </p>
+            <label for="email">Email: &nbsp;</label>
+            <input class="signin-el" type="text" name="email" required>
+            <label for="password">&nbsp; Password: &nbsp;</label>
+            <input class="signin-el" type="password" name="password" required>
+            <button class="signin-el">Log in</button>
+            <div class="signin-el error"></div>
+          </form>
+          <% } %>
+        </ul>
+      </nav>

@@ -1,56 +1,63 @@
-<%- include('partials/header'); -%>
+<%- include('partials/startHeader'); -%><%- include('partials/endHeaderEditor'); -%>
 <% const { title, subtitle, content, tags, published, author, id } = post; %>
 <% const tagString = tags.join(", "); %>
 
     <div class="headings">
       <h3>Editor</h3>
     </div>
+    <div class="message" name="message" id="message"></div>
+    <form id="toolbar">
+      <button class="tools" name="save_server" alt="Updates the server with changes. If the post is published, the changes go live.">Save Post</button>
+      <button class="tools" name="save_local" alt="Protect changes from unexpected loss by saving changes locally, but don't update the server.">Preserve Changes</button>
+      <button class="tools" name="updatePreview" alt="Preview with reader CSS.">Preview</button>
+      <button class="tools" name="reader" alt="Open post in the reder. Leaving may delete unsaved changes.">Reader</button>
+      <button class="tools" name="revert" alt="Revert the post to the state on the server.">Revert</button>
+      <button class="tools" name="del" alt="Delete the post from the server. This CANNOT be undone.">Delete</button>
+    </form>
+    <hr>
   </header>
   <main>
-    <hr>
-    <form>
-      <%- include('partials/editorToolBar'); -%>
-      <div class="message" name="message" id="message"></div>
+    <form id="editor">
       <section class="editorSection">
-        <div class="element container">
-          <label for="title">Title</label>
+        <div class="elementContainer">
+          <label for="title">Title</label><br>
           <input type="text" name="title" class="form-el editor" id="editor_title"
           <% if(title) { %>value="<%= title %>" <% } %> autofocus required>
         </div>
 
-        <div class="element container">
-          <label for="subtitle">Subtitle</label>
+        <div class="elementContainer">
+          <label for="subtitle">Subtitle</label><br>
           <input type="text" name="subtitle" class="form-el editor" id="editor_subtitle"
           <% if(subtitle) { %>value="<%= subtitle %>" <% } %>>
         </div>
 
-        <div class="element container">
-          <label for="content">Content</label>
+        <div class="elementContainer">
+          <label for="content">Content</label><br>
           <textarea id="content-editor" name="content" class="form-el editor" id="editor_content" required><% if(content) { %><%= content %><% } %></textarea>
         </div>
 
-        <div class="element container">
-          <label for="tags">Tags</label>
+        <div class="elementContainer">
+          <label for="tags">Tags</label><br>
           <input type="text" name="tags" class="form-el editor" id="editor_tags"
           <% if(tags) { %>value="<%= tagString %>" <% } %>>
         </div>
 
-        <div class="element container">
+        <div class="elementContainer">
           <label for="published">Publish?</label>
           <input type="checkbox" name="published" class="form-eld" id="published"
           <% if(published) { %>checked<% } %>>
         </div>
         
         <input type="hidden" name="authorID" class="form-el" id="authorID" value="<%= user.id %>">
-        <input type="hidden" name="postID" class="form-el" id="postID" value="<%= id %>"
+        <input type="hidden" name="postID" class="form-el" id="postID" value="<%= id %>">
       </section>
       
       <div id="preview">
+        <h3>List View</h3>
         <section class="listSection">
-          <%- include('partials/editorToolBar'); -%>
           <h4 id="list_title" class="list"><a><%= post.title %></a></h4>
           <h5 id="list_subtitle" class="list"><%= post.subtitle %></h5>
-          <p id="list_preview" class="list" ><%- post.preview %></div>
+          <p id="list_preview" class="list" ><%- post.preview %></p>
           <div id="list_tags" class="list">
             <% const tagHTML = []; %>
             <% post.tags.forEach(tag => { %>
@@ -61,6 +68,7 @@
         </section>
 
         <section class="readerSection">
+          <h3>Reader View</h3>
           <h4 id="reader_title" class="reader"><a><%= post.title %></a></h4>
           <h5 id="reader_subtitle" class="reader"><%= post.subtitle %></h5>
           <div class="pubDate" class="reader"><%= post.pubDate %></div>
@@ -71,13 +79,10 @@
         </section>
       </div>
 
-      <%- include('partials/editorToolBar'); -%>
-
     </form>
     <hr>
   </main>
 
-  <!-- <script src="/scripts/savePost.js"></script> -->
   <script src="/scripts/editorForm.js"></script>
 
 <%- include('partials/footer'); -%>

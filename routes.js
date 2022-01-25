@@ -30,7 +30,7 @@ router.get('/admin',         requireAuth, controllers.admin_get);
 router.post('/signup',       requireAuth, controllers.signup_post);
 router.get('/editor/:slug',  requireAuth, controllers.editor_get);
 router.get('/editor',        requireAuth, controllers.editor_get);
-router.post('/editor',       requireAuth, controllers.editor_post); // 🟢 next, get savepost working then return results
+router.post('/editor',       requireAuth, controllers.editor_post); // 🟢 next, get savepost working then return message
 
 // router.get('*', controllers.handle_error); //TODO: set up error handler
 // router.post('*', controllers.handle_error);

@@ -1,5 +1,6 @@
-const form = document.querySelector('form');
+const form = document.querySelectorAll('form');
 const formElements = document.querySelectorAll('.form-el'); // used to upload changes
+const tools = document.querySelectorAll('.tools'); // toolbar for editor
 const message = document.querySelector('#message'); // used to populate any incoming messages
 const preview = document.querySelector('#preview'); // used to toggle display
 const editorElements = document.querySelectorAll('.editor'); // used in toggleView
@@ -23,13 +24,8 @@ const save_server = async () => {
     body: JSON.stringify(postData)
   })
   .then(res => res.json())
-  .then(res => {
-    console.log(res.post);
-    if(res.message) message.innerHTML = res.message;
-  })
-  .catch(() => {
-    console.log('error - error');
-  });
+  .then(res => { if(res.message) message.innerHTML = res.message; })
+  .catch(() => { console.log('error - error'); });
 }
 
 const reader = () => {
@@ -37,8 +33,8 @@ const reader = () => {
   location.assign("../reader/id/" + postID);
 }
 
-const toggleView  =       () => {
-  console.log('toggleView clicked');
+const toggleView  = () => {
+  console.log('updatePreview clicked');
 
   // prep title
   const title = `<a>${editorElements[0].value}</a>`
@@ -69,15 +65,16 @@ const save_local  = async () => { console.log('save_local clicked'); }
 const revert      = async () => { console.log('revert clicked'); }
 const del         = async () => { console.log('del clicked'); }
 
-form.addEventListener('click', async e => {
+
+form[0].addEventListener('click', async e => {
   e.preventDefault();
   const targetName = e.target.name;
 
-  if(targetName === "save_server") save_server();
-  if(targetName === "save_local")  save_local();
-  if(targetName === "toggleView")  toggleView();
-  if(targetName === "reader")      reader();
-  if(targetName === "revert")      revert();
-  if(targetName === "del")         del();
+  if(targetName === "save_server")    save_server();
+  if(targetName === "save_local")     save_local();
+  if(targetName === "updatePreview")  toggleView();
+  if(targetName === "reader")         reader();
+  if(targetName === "revert")         revert();
+  if(targetName === "del")            del();
 
 });

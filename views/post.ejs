@@ -1,12 +1,15 @@
-<%- include('partials/header'); -%>
+<%- include('partials/startHeader'); -%><%- include('partials/endHeaderPost'); -%>
+<div class="headings">
+  <h3><%= post.title %></h3>
+</div>
+</header>
   <main>
       <section>
         <hr>
         <% if(user) { %>
           <p class="preview-el small-text editBtn"><a href="/editor/<%= post.slug %>">&#9998;</a></p>
         <% } %>
-        <h4><%= post.title %></h4>
-        <h5><%= post.subtitle %></h5>
+        <h4><%= post.subtitle %></h4>
         <div class="pubDate"><%= post.pubDate %></div>
         <div><%- post.content %></div>
         <div>

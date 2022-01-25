@@ -126,7 +126,7 @@ module.exports.editor_post = async (req, res) => {
   if(post){
     post.content = fixHtmlTags(post.content, "down");
     post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
-    res.status(200).send({ message: "Save successful.", post }); // 🟢 ended here trying to send a success message back to the browser
+    res.status(200).send({ message: "Save successful.", post });
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
     res.locals.post = new Post();
