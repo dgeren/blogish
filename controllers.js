@@ -138,7 +138,7 @@ module.exports.editor_delete = async (req, res) => {
   res.locals.message = "Post deleted. Here are some recents posts.";
   const { _id } = req.params;
   const post = await Post.deleteOne({ _id }, err => {
-    res.locals.message = "I failed to delete a post. Are you sure this post is not alreayd deleted?";
+    res.locals.message = "I failed to delete a post. Are you sure this post is not already deleted?";
   });
   // 🟠 DRY: this is repeated in home_get; make into a support function
   res.locals.message = null;
