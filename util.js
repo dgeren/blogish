@@ -24,7 +24,12 @@ module.exports.fixHtmlTags = (content, task) => {
 }
 
 module.exports.prepPreview = content => {
-  return content.split(" ").slice(0, 25).join(" ");
+  return content
+  .replace(/(<([^>]+)>)/gim, " ")
+  .trim()
+  .split(" ")
+  .slice(0, 25)
+  .join(" ");
 }
 
 module.exports.handleErrors = err => {

@@ -17,7 +17,12 @@ const populatePreviews = () => {
 
   // prep content & shortened content
   const content = editorElements[2].value;
-  const shortContent = content.split(" ").slice(0, 25).join(" ");
+  const shortContent = content
+    .replace(/(<([^>]+)>)/gim, " ")
+    .trim()
+    .split(" ")
+    .slice(0, 25)
+    .join(" ");
   console.log('shortContent', shortContent); // 🔴
 
   // prep tags
@@ -32,6 +37,7 @@ const populatePreviews = () => {
   // populate data
   listElements[0].innerHTML = readerElements[0].innerHTML = title;
   listElements[1].innerHTML = readerElements[1].innerHTML = editorElements[1].value;
+  listElements[2].innerHTML = "";
   listElements[2].innerHTML = shortContent;
   readerElements[2].innerHTML = content;
   listElements[3].innerHTML = readerElements[3].innerHTML = tagString;
