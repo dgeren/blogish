@@ -37,4 +37,5 @@ mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology
 */
 app.get('*', checkUser);
 app.post('*', checkUser);
+app.delete('*', checkUser);
 app.use(routes);

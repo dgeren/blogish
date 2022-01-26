@@ -134,6 +134,23 @@ module.exports.editor_post = async (req, res) => {
   }
 }
 
+module.exports.editor_delete = async (req, res) => {
+  res.locals.message = "Post deleted. Here are some recents posts.";
+  const { _id } = req.params;
+  const post = await Post.deleteOne({ _id }, err => {
+    res.locals.message = "I failed to delete a post. Are you sure this post is not alreayd deleted?";
+  });
+  // 🟠 DRY: this is repeated in home_get; make into a support function
+  res.locals.message = null;
+  const posts = await getPosts({ limit: 5 });
+  posts.forEach(post => {
+    post.content = fixHtmlTags(post.content, "down");
+    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
+  });
+  res.locals.posts = posts;
+  res.render('home');
+}
+
 // * RENDER ADMIN PAGE
 module.exports.admin_get = (req, res) => {
   res.locals.message= null;

@@ -53,7 +53,7 @@
       </section>
       
       <div id="preview">
-        <h3>List View</h3>
+        <h3>List Preview</h3>
         <section class="listSection">
           <h4 id="list_title" class="list"><a><%= post.title %></a></h4>
           <h5 id="list_subtitle" class="list"><%= post.subtitle %></h5>
@@ -68,9 +68,9 @@
         </section>
 
         <section class="readerSection">
-          <h3>Reader View</h3>
-          <h4 id="reader_title" class="reader"><a><%= post.title %></a></h4>
-          <h5 id="reader_subtitle" class="reader"><%= post.subtitle %></h5>
+          <h3>Reader Preview</h3>
+          <h3 id="reader_title" class="reader"><a><%= post.title %></a></h2>
+          <h4 id="reader_subtitle" class="reader"><%= post.subtitle %></h4>
           <div class="pubDate" class="reader"><%= post.pubDate %></div>
           <div id="reader_content" class="reader"><%- post.content %></div>
           <div id="reader_tags" class="reader">

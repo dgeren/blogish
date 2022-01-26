@@ -8,6 +8,9 @@ const listElements = document.querySelectorAll('.list'); // used in toggleView
 const readerElements = document.querySelectorAll('.reader'); // used in toggleView
 
 
+const reader = () => location.assign("../reader/id/" + form.postID.value);
+const revert = () => location.reload(true);
+
 const save_server = async () => {
   let postData = {};
   formElements.forEach(el => {
@@ -26,11 +29,6 @@ const save_server = async () => {
   .then(res => res.json())
   .then(res => { if(res.message) message.innerHTML = res.message; })
   .catch(() => { console.log('error - error'); });
-}
-
-const reader = () => {
-  const postID = form.postID.value;
-  location.assign("../reader/id/" + postID);
 }
 
 const toggleView  = () => {
@@ -60,10 +58,15 @@ const toggleView  = () => {
   listElements[3].innerHTML = readerElements[3].innerHTML = tagString;
 }
 
+const del = () => {
+  const _id = formElements[5].value;
+  const httpRequest = new XMLHttpRequest();
+  httpRequest.open('DELETE', `/${_id}`, false);
+  httpRequest.send();
+}
+
 
 const save_local  = async () => { console.log('save_local clicked'); }
-const revert      = async () => { console.log('revert clicked'); }
-const del         = async () => { console.log('del clicked'); }
 
 
 form[0].addEventListener('click', async e => {
