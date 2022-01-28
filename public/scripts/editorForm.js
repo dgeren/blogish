@@ -43,7 +43,7 @@ const populatePreviews = () => {
   listElements[3].innerHTML = readerElements[3].innerHTML = tagString;
 }
 
-const save_server = async () => {
+const upload = async () => {
   let postData = {};
   formElements.forEach(el => {
     const name = el.attributes.getNamedItem('name').value;
@@ -76,15 +76,15 @@ const del = () => {
 }
 
 
-const save_local  = async () => { console.log('save_local clicked'); }
+const save  = async () => { console.log('save_local clicked'); }
 
 
 form[0].addEventListener('click', async e => {
   e.preventDefault();
   const targetName = e.target.name;
 
-  if(targetName === "save_server")     save_server();
-  if(targetName === "save_local")      save_local();
+  if(targetName === "upload")          upload();
+  if(targetName === "save")      save();
   if(targetName === "updatePreviews")  updatePreviews();
   if(targetName === "reader")          reader();
   if(targetName === "revert")          revert();
