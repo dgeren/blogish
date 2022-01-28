@@ -84,7 +84,6 @@ form[0].addEventListener('click', async e => {
   const targetName = e.target.name;
 
   if(targetName === "upload")          upload();
-  if(targetName === "save")      save();
   if(targetName === "updatePreviews")  updatePreviews();
   if(targetName === "reader")          reader();
   if(targetName === "revert")          revert();
