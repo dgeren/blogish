@@ -1,5 +1,5 @@
 <%- include('partials/startHeader'); -%><%- include('partials/endHeaderEditor'); -%>
-<% const { title, subtitle, content, tags, published, author, id } = post; %>
+<% const { title, subtitle, content, tags, date = "", dateString = "", author, id } = post; %>
 <% const tagString = tags.join(", "); %>
 
     <div class="headings">
@@ -34,7 +34,7 @@
 
         <div class="elementContainer">
           <label for="content">Content</label><br>
-          <textarea id="content-editor" name="content" class="form-el editor" id="editor_content" required><% if(content) { %><%= content %><% } %></textarea>
+          <textarea id="content-editor" name="content" class="form-el editor" required><% if(content) { %><%= content %><% } %></textarea>
         </div>
 
         <div class="elementContainer">
@@ -44,9 +44,9 @@
         </div>
 
         <div class="elementContainer">
-          <label for="published">Publish?</label>
-          <input type="checkbox" name="published" class="form-eld" id="published"
-          <% if(published) { %>checked<% } %>>
+          <label>Publish Date</label>
+          <input type="date" name="datepicker" class="form-el" id="datepicker">
+          <input type="hidden" name="date" class="form-el" id="date" value="<%- date %>">
         </div>
         
         <input type="hidden" name="authorID" class="form-el" id="authorID" value="<%= user.id %>">
@@ -58,6 +58,7 @@
         <section class="listSection">
           <h4 id="list_title" class="list"><a><%= post.title %></a></h4>
           <h5 id="list_subtitle" class="list"><%= post.subtitle %></h5>
+          <h5 class="preview-el"><%- post.dateString %></h5>
           <p id="list_preview" class="list" ><%- post.preview %></p>
           <div id="list_tags" class="list">
             <% const tagHTML = []; %>
@@ -70,8 +71,9 @@
 
         <section class="readerSection">
           <h3>Reader Preview</h3>
-          <h3 id="reader_title" class="reader"><a><%= post.title %></a></h2>
+          <h3 id="reader_title" class="reader"><a><%= post.title %></a></h3>
           <h4 id="reader_subtitle" class="reader"><%= post.subtitle %></h4>
+          <h4 class="preview-el"><%- post.dateString %></h4>
           <div class="pubDate" class="reader"><%= post.pubDate %></div>
           <div id="reader_content" class="reader"><%- post.content %></div>
           <div id="reader_tags" class="reader">

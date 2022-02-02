@@ -29,18 +29,22 @@ const postSchema = new mongoose.Schema({
     required: [true, "admin error message: user id required"],
     default: null
   },
-  published: {
-    type: Boolean,
+  date: {
+    type: Date,
     default: null
   },
-  pubDate:  {
-    type: Date,
+  dateString:  {
+    type: String,
     default: null
   }
 });
 
 postSchema.pre('save', async function (next){
-  if(this.published && !this.pubDate) this.pubDate = Date.now;
+  const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  this.dateString = this.date ?
+    `${fullMonth[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` :
+    null;
+  console.log(this.dateString); // 🔴
   next();
 });
 

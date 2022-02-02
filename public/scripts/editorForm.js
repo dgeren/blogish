@@ -11,6 +11,10 @@ const readerElements = document.querySelectorAll('.reader'); // used in toggleVi
 const reader = () => location.assign("../reader/id/" + form.postID.value);
 const revert = () => location.reload(true);
 
+
+console.log(formElements[4].defaultValue);
+
+
 const populatePreviews = () => {
   // prep title
   const title = `<a>${editorElements[0].value}</a>`
@@ -23,7 +27,6 @@ const populatePreviews = () => {
     .split(" ")
     .slice(0, 25)
     .join(" ");
-  console.log('shortContent', shortContent); // 🔴
 
   // prep tags
   const tagHTML = [];
@@ -43,6 +46,7 @@ const populatePreviews = () => {
   listElements[3].innerHTML = readerElements[3].innerHTML = tagString;
 }
 
+
 const upload = async () => {
   let postData = {};
   formElements.forEach(el => {
@@ -52,6 +56,8 @@ const upload = async () => {
       name === 'content' ? el.value :
       el.value;
   });
+
+  console.log('postData', postData); // 🔴
 
   await fetch('/editor', {
     method: "POST",
@@ -66,7 +72,9 @@ const upload = async () => {
   .catch(() => { console.log('error - error'); });
 }
 
+
 const updatePreviews  = () => populatePreviews();
+
 
 const del = () => {
   const _id = formElements[5].value;
@@ -88,5 +96,15 @@ form[0].addEventListener('click', async e => {
   if(targetName === "reader")          reader();
   if(targetName === "revert")          revert();
   if(targetName === "del")             del();
+});
 
+window.addEventListener('load', () => {
+    const date = new Date(formElements[5].value);
+    const year = date.getFullYear();
+    const m = 1 + date.getMonth();
+    const month = m < 10 ? '0' + m : m;
+    const d = 1 + date.getDate();
+    const day = d < 10 ? '0' + d : d;
+    const string = `${year}-${month}-${day}`;
+    formElements[4].value = string;
 });

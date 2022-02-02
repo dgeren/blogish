@@ -23,13 +23,9 @@ module.exports.fixHtmlTags = (content, task) => {
   return content;
 }
 
-module.exports.prepPreview = content => {
-  return content
-  .replace(/(<([^>]+)>)/gim, " ")
-  .trim()
-  .split(" ")
-  .slice(0, 25)
-  .join(" ");
+module.exports.formatDate = date => {
+  const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return date ? `${fullMonth[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` : null;
 }
 
 module.exports.handleErrors = err => {
@@ -43,4 +39,13 @@ module.exports.handleErrors = err => {
     });
   }
   return errors;
+}
+
+module.exports.prepPreview = content => {
+  return content
+  .replace(/(<([^>]+)>)/gim, " ")
+  .trim()
+  .split(" ")
+  .slice(0, 25)
+  .join(" ");
 }

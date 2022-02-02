@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('./models/User');
 const Post = require('./models/Post');
-const { fixHtmlTags, handleErrors, prepPreview } = require('./util');
+const { fixHtmlTags, formatDate, handleErrors, prepPreview } = require('./util');
 
 
 /*
@@ -30,8 +30,8 @@ const getPosts = async (parameters) => {
   
   return id   ? await Post.findOne({ _id: id }) :
          slug ? await Post.findOne({ slug }) :
-         tag  ? await Post.find({ tags: tag }).sort({ _id: sortOrder }).limit(limit) :
-                await Post.find().sort({ _id: sortOrder}).limit(limit);
+         tag  ? await Post.find({ tags: tag, date: { $ne: null } }).sort({ date: sortOrder }).limit(limit) :
+                await Post.find({ date: { $ne: null } }).sort({ date: sortOrder}).limit(limit);
 }
 
 
@@ -42,7 +42,7 @@ const getPosts = async (parameters) => {
 // * GET LIST OF RECENT ARTICLES FOR HOME PAGE
 module.exports.home_get = async (req, res) => {
   res.locals.message = null;
-  const posts = await getPosts({ limit: 5 });
+  let posts = await getPosts({ limit: 5 });
   posts.forEach(post => {
     post.content = fixHtmlTags(post.content, "down");
     post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
@@ -73,7 +73,7 @@ module.exports.tag_get = async (req, res) => {
 
 // * OPEN ARTICLES IN READER
 module.exports.post_get = async(req, res) => {
-  res.locals.message= null;
+  res.locals.message = null;
   const { slug, id } = req.params;
   const post = slug ? await getPosts({ slug }) : await getPosts({ id });
 
@@ -110,15 +110,18 @@ module.exports.editor_get =  async (req, res) => {
 // * SAVE NEW OR EXISTING POSTS
 module.exports.editor_post = async (req, res) => {
   res.locals.message = null;
-  const postData = { title, subtitle, content, tags, published, author, postID } = req.body;
+  const postData = { title, subtitle, content, tags, date, author, postID } = req.body;
+  console.log(typeof date); // 🔴
   // condition data
   const slug = slugify(title, { lower: true });
   content = fixHtmlTags(content, "up");
   tags = tags.split(",").map(element => element.trim());
+  const dateObj = new Date(date + 'T00:00:00.000');
+  const dateString = formatDate(dateObj);
   
   const post = await Post.findOneAndUpdate(
     { _id: postID },
-    { title, slug, subtitle, content, tags, published, author },
+    { title, slug, subtitle, content, tags, date, dateString, author },
     { new: true, upsert: true }
   );
 
@@ -126,6 +129,7 @@ module.exports.editor_post = async (req, res) => {
   if(post){
     post.content = fixHtmlTags(post.content, "down");
     post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
+    
     res.status(200).send({ message: "Save successful.", post });
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";

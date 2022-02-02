@@ -14,7 +14,9 @@
       <p class="preview-el small-text editBtn"><a href="/editor/<%= post.slug %>">&#9998;</a></p>
       <% } %>
       <h4 class="preview-el"><a href="reader/<%= post.slug %>"><%- post.title %></a></h4>
+      <h5 class="preview-el" name="dateString"></h5>
       <h5 class="preview-el"><%- post.subtitle %></h5>
+      <h5 class="preview-el"><%- post.dateString %></h5>
       <p class="preview-el"><%- post.preview %></p>
       <p class="preview-el small-text">
         <% const tagHTML = []; %>
@@ -27,6 +29,7 @@
     <hr>
     <% }); %>
   </main>
+
 
   <% if(!user){ %>
   <script src="/scripts/login.js"></script>
