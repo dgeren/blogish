@@ -24,13 +24,9 @@ const postSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  author: {
+  authorID: {
     type: String,
     required: [true, "admin error message: user id required"],
-    default: null
-  },
-  date: {
-    type: Date,
     default: null
   },
   dateString:  {
@@ -39,14 +35,9 @@ const postSchema = new mongoose.Schema({
   }
 });
 
-postSchema.pre('save', async function (next){
-  const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  this.dateString = this.date ?
-    `${fullMonth[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` :
-    null;
-  console.log(this.dateString); // 🔴
-  next();
-});
+// postSchema.pre('save', async function (next){
+//   next();
+// });
 
 const Post = mongoose.model('post', postSchema);
 

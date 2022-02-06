@@ -1,6 +1,6 @@
 <%- include('partials/startHeader'); -%><%- include('partials/endHeaderList'); -%>
     <div class="headings">
-      <h3>Recent Posts</h3>
+      <h3>Recent Entries</h3>
     </div>
   </header>
   <main>
@@ -8,23 +8,17 @@
       <p><%- message %></p>
     <% } %>
     <hr>
-    <% posts.forEach(post => { %>
+    <% entries.forEach(entry => { %>
+      <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay = "", author } = entry; %>
     <section>
       <% if(user) { %>
-      <p class="preview-el small-text editBtn"><a href="/editor/<%= post.slug %>">&#9998;</a></p>
+      <p class="preview-el small-text editBtn"><a href="/editor/<%= slug %>">&#9998;</a></p>
       <% } %>
-      <h4 class="preview-el"><a href="reader/<%= post.slug %>"><%- post.title %></a></h4>
-      <h5 class="preview-el" name="dateString"></h5>
-      <h5 class="preview-el"><%- post.subtitle %></h5>
-      <h5 class="preview-el"><%- post.dateString %></h5>
-      <p class="preview-el"><%- post.preview %></p>
-      <p class="preview-el small-text">
-        <% const tagHTML = []; %>
-        <% post.tags.forEach(tag => { %>
-        <%   tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`); %>
-        <% }); %>
-        <%- tagHTML.join(', '); %>
-      </p>
+      <h4 class="preview-el"><a href="reader/<%= slug %>"><%- title %></a></h4>
+      <h5 class="preview-el"><%- subtitle %></h5>
+      <h5 class="preview-el"><%- dateDisplay %></h5>
+      <p class="preview-el"><%- preview %></p>
+      <p class="preview-el small-text"><%- tagHTML %></p>
     </section>
     <hr>
     <% }); %>

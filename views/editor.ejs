@@ -1,19 +1,21 @@
 <%- include('partials/startHeader'); -%><%- include('partials/endHeaderEditor'); -%>
-<% const { title, subtitle, content, tags, date = "", dateString = "", author, id } = post; %>
-<% const tagString = tags.join(", "); %>
+<% const { title, subtitle, content, preview, tags = "", dateString = "", dateDisplay = "", _id } = entry; %>
+<% const tagString = tags.join(", "), tagArray = []; %>
+<% entry.tags.forEach(tag => tagArray.push(`<a href="/tag/${tag}">${tag}</a>`)); %>
+<% const tagHTML = tagArray.join(', '); %>
 
     <div class="headings">
       <h3>Editor</h3>
     </div>
     <div class="message" name="message" id="message"></div>
     <form id="toolbar">
-      <button class="tools" name="updatePreviews" alt="Update Preview section.">Preview</button>
+      <button id="tools_update" class="tools" name="updatePreviews" alt="Update Preview section.">Preview</button>
       &nbsp; | &nbsp;
-      <button class="tools" name="upload" alt="Update the server.">Upload</button>
-      <button class="tools" name="revert" alt="Revert the post to the state on the server.">Revert</button>
-      <button class="tools" name="reader" alt="Open post in the reder. Does not save or upload.">Reader</button>
+      <button id="tools_upload" class="tools" name="upload" alt="Update the server.">Upload</button>
+      <button id= "tools_revert" class="tools" name="revert" alt="Revert the post to the state on the server.">Revert</button>
+      <button id="tools_openReader" class="tools" name="openReader" alt="Open post in a reader. Does not save or upload.">Reader</button>
       &nbsp; | &nbsp;
-      <button class="tools red" name="del" alt="Permanently delete the post.">Delete</button>
+      <button id="tools_del" class="tools red" name="del" alt="Permanently delete the post.">Delete</button>
     </form>
     <hr>
   </header>
@@ -34,7 +36,7 @@
 
         <div class="elementContainer">
           <label for="content">Content</label><br>
-          <textarea id="content-editor" name="content" class="form-el editor" required><% if(content) { %><%= content %><% } %></textarea>
+          <textarea id="editor_content" name="content" class="form-el editor" required><% if(content) { %><%= content %><% } %></textarea>
         </div>
 
         <div class="elementContainer">
@@ -45,40 +47,32 @@
 
         <div class="elementContainer">
           <label>Publish Date</label>
-          <input type="date" name="datepicker" class="form-el" id="datepicker">
-          <input type="hidden" name="date" class="form-el" id="date" value="<%- date %>">
+          <input type="date" name="datepicker" class="form-el editor" id="editor_datepicker" value="<%- dateString %>">
         </div>
-        
-        <input type="hidden" name="authorID" class="form-el" id="authorID" value="<%= user.id %>">
-        <input type="hidden" name="postID" class="form-el" id="postID" value="<%= id %>">
+
+        <div class="elementContainer">        
+          <input type="hidden" name="authorID" class="form-el editor" id="editor_authorID" value="<%= user.id %>">
+          <input type="hidden" name="entryID" class="form-el editor" id="editor_entryID" value="<%- _id %>">
+        </div>
       </section>
       
       <div id="preview">
         <h3>List Preview</h3>
         <section class="listSection">
-          <h4 id="list_title" class="list"><a><%= post.title %></a></h4>
-          <h5 id="list_subtitle" class="list"><%= post.subtitle %></h5>
-          <h5 class="preview-el"><%- post.dateString %></h5>
-          <p id="list_preview" class="list" ><%- post.preview %></p>
-          <div id="list_tags" class="list">
-            <% const tagHTML = []; %>
-            <% post.tags.forEach(tag => { %>
-            <%   tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`); %>
-            <% }); %>
-            <%- tagHTML.join(', '); %>
-          </div>
+          <h4 id="list_title" class="list"><a><%= title %></a></h4>
+          <h5 id="list_subtitle" class="list"><%= subtitle %></h5>
+          <h5 id="list_dateString" class="list"><%- dateDisplay %></h5>
+          <p id="list_content" class="list" ><%- preview %></p>
+          <div id="list_tags" class="list"><%- tagHTML %></div>
         </section>
 
         <section class="readerSection">
           <h3>Reader Preview</h3>
-          <h3 id="reader_title" class="reader"><a><%= post.title %></a></h3>
-          <h4 id="reader_subtitle" class="reader"><%= post.subtitle %></h4>
-          <h4 class="preview-el"><%- post.dateString %></h4>
-          <div class="pubDate" class="reader"><%= post.pubDate %></div>
-          <div id="reader_content" class="reader"><%- post.content %></div>
-          <div id="reader_tags" class="reader">
-            <%- tagHTML.join(', '); %>
-          </div>
+          <h3 id="reader_title" class="reader"><a><%= title %></a></h3>
+          <h4 id="reader_subtitle" class="reader"><%= subtitle %></h4>
+          <h4 id="reader_dateString" class="reader"><%- dateDisplay %></h4>
+          <div id="reader_content" class="reader"><%- content %></div>
+          <div id="reader_tags" class="reader"><%- tagHTML %></div>
         </section>
       </div>
 

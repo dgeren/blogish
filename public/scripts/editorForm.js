@@ -1,26 +1,41 @@
-const form = document.querySelectorAll('form');
-const formElements = document.querySelectorAll('.form-el'); // used to upload changes
-const tools = document.querySelectorAll('.tools'); // toolbar for editor
+const allElements = document.querySelectorAll('*');
+const toolbar = document.getElementById('toolbar');
+const formElements = document.querySelectorAll('.form-el'); // * used to upload changes
 const message = document.querySelector('#message'); // used to populate any incoming messages
-const preview = document.querySelector('#preview'); // used to toggle display
-const editorElements = document.querySelectorAll('.editor'); // used in toggleView
-const listElements = document.querySelectorAll('.list'); // used in toggleView
-const readerElements = document.querySelectorAll('.reader'); // used in toggleView
+
+const els = {};
+allElements.forEach(el => {
+  const _class = el.getAttribute('class');
+  if(['form-el editor', 'list', 'reader'].includes(_class)) Object.defineProperty(els, el.getAttribute('id'), { value: el });
+});
+
+const getDateString = date => {
+  const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return `${fullMonth[date.getMonth()]} ${date.getDate() + 1}, ${date.getFullYear()}`;
+}
+
+const getDashedDate = date => {
+  const year = date.getFullYear();
+  const m = 1 + date.getMonth();
+  const month = m < 10 ? '0' + m : m;
+  const d = date.getDate();
+  const day = d < 10 ? '0' + d : d;
+  const string = `${year}-${month}-${day}`;
+  return string;
+}
 
 
-const reader = () => location.assign("../reader/id/" + form.postID.value);
+// * CONTROLS
+const openReader = () => location.assign("../reader/id/" + els.editor_entryID.value);
 const revert = () => location.reload(true);
 
 
-console.log(formElements[4].defaultValue);
-
-
-const populatePreviews = () => {
+const updatePreviews = () => {
   // prep title
-  const title = `<a>${editorElements[0].value}</a>`
+  const title = `<a>${els.editor_title.value}</a>`
 
   // prep content & shortened content
-  const content = editorElements[2].value;
+  const content = els.editor_content.value;
   const shortContent = content
     .replace(/(<([^>]+)>)/gim, " ")
     .trim()
@@ -30,81 +45,71 @@ const populatePreviews = () => {
 
   // prep tags
   const tagHTML = [];
-  let tags = editorElements[3].value;
+  let tags = els.editor_tags.value;
   tags = tags.split(", ");
   tags.forEach(tag => {
     tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`);
   });
   const tagString = tagHTML.join(', ');
-  
+
+  // prep date
+  const datePicked = new Date(els.editor_datepicker.value);
+  const date = datePicked.toString() === "Invalid Date" ? "" : getDateString(datePicked);
+
   // populate data
-  listElements[0].innerHTML = readerElements[0].innerHTML = title;
-  listElements[1].innerHTML = readerElements[1].innerHTML = editorElements[1].value;
-  listElements[2].innerHTML = "";
-  listElements[2].innerHTML = shortContent;
-  readerElements[2].innerHTML = content;
-  listElements[3].innerHTML = readerElements[3].innerHTML = tagString;
+  // todo: try to loop instead
+  els.list_title.innerHTML = els.reader_title.innerHTML = title;
+  els.list_subtitle.innerHTML = els.reader_subtitle.innerHTML = els.editor_subtitle.value;
+  els.list_content.innerHTML = shortContent;
+  els.reader_content.innerHTML = content;
+  els.list_tags.innerHTML = els.reader_tags.innerHTML = tagString;
+  els.list_dateString.innerHTML = els.reader_dateString.innerHTML = date;
 }
 
 
 const upload = async () => {
-  let postData = {};
+  const entryData = {};
   formElements.forEach(el => {
     const name = el.attributes.getNamedItem('name').value;
-    postData[name] =
-      name === 'published' ? el.checked :
-      name === 'content' ? el.value :
-      el.value;
+    if(name === 'datepicker') { entryData.dateString = el.value; }
+    else if(name === 'entryID') { entryData._id = el.value; }
+    else { entryData[name] = el.value; }
   });
-
-  console.log('postData', postData); // 🔴
 
   await fetch('/editor', {
     method: "POST",
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(postData)
+    body: JSON.stringify(entryData)
   })
   .then(res => res.json())
   .then(res => {
     if(res.message) message.innerHTML = res.message;
-    populatePreviews();
+    updatePreviews();
   })
-  .catch(() => { console.log('error - error'); });
+  .catch(e => { console.log('error - error', e); });
 }
 
 
-const updatePreviews  = () => populatePreviews();
-
-
 const del = () => {
-  const _id = formElements[5].value;
+  const _id = els.editor_postID.value;
   const httpRequest = new XMLHttpRequest();
   httpRequest.open('DELETE', `/${_id}`, false);
   httpRequest.send();
 }
 
 
+// todo Post launch feature addition
 const save  = async () => { console.log('save_local clicked'); }
 
 
-form[0].addEventListener('click', async e => {
+// * OPERATIONS
+toolbar.addEventListener('click', async e => {
   e.preventDefault();
   const targetName = e.target.name;
 
   if(targetName === "upload")          upload();
   if(targetName === "updatePreviews")  updatePreviews();
-  if(targetName === "reader")          reader();
+  if(targetName === "openReader")      openReader();
   if(targetName === "revert")          revert();
   if(targetName === "del")             del();
-});
-
-window.addEventListener('load', () => {
-    const date = new Date(formElements[5].value);
-    const year = date.getFullYear();
-    const m = 1 + date.getMonth();
-    const month = m < 10 ? '0' + m : m;
-    const d = 1 + date.getDate();
-    const day = d < 10 ? '0' + d : d;
-    const string = `${year}-${month}-${day}`;
-    formElements[4].value = string;
 });

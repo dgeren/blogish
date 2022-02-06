@@ -3,7 +3,11 @@ const jwt = require('jsonwebtoken');
 
 const User = require('./models/User');
 const Post = require('./models/Post');
-const { fixHtmlTags, formatDate, handleErrors, prepPreview } = require('./util');
+const {
+  fixHtmlTags,      formatDateString,
+  formatDashedDate, handleErrors,
+  prepPreview,      prepTags
+} = require('./util');
 
 
 /*
@@ -28,10 +32,10 @@ const getPosts = async (parameters) => {
     limit = 1
   } = parameters;
   
-  return id   ? await Post.findOne({ _id: id }) :
-         slug ? await Post.findOne({ slug }) :
-         tag  ? await Post.find({ tags: tag, date: { $ne: null } }).sort({ date: sortOrder }).limit(limit) :
-                await Post.find({ date: { $ne: null } }).sort({ date: sortOrder}).limit(limit);
+  return id   ? await Post.findOne({ _id: id }).lean() :
+         slug ? await Post.findOne({ slug }).lean() :
+         tag  ? await Post.find({ tags: tag, dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder }).limit(limit) :
+                await Post.find({ dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder}).limit(limit);
 }
 
 
@@ -40,29 +44,33 @@ const getPosts = async (parameters) => {
 */
 
 // * GET LIST OF RECENT ARTICLES FOR HOME PAGE
-module.exports.home_get = async (req, res) => {
+module.exports.getHome = async (req, res) => {
   res.locals.message = null;
-  let posts = await getPosts({ limit: 5 });
-  posts.forEach(post => {
-    post.content = fixHtmlTags(post.content, "down");
-    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
+  let entries = await getPosts({ limit: 3 });
+  entries.forEach(entry => {
+    entry.content = fixHtmlTags(entry.content, "down");
+    entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
+    entry.dateDisplay = formatDateString(entry.dateString);
+    entry.tagHTML = prepTags(entry.tags);
   });
-  res.locals.posts = posts;
+  res.locals.entries = entries;
   res.render('home');
 }
 
 // * GET ARTICLE LIST BASED ON A TAG
-module.exports.tag_get = async (req, res) => {
-  res.locals.message= null;
+module.exports.getEntriesByTag = async (req, res) => {
+  res.locals.message = null;
   const { tag } = req.params;
-  const posts = await getPosts({ tag, limit: 5 });
+  const entries = await getPosts({ tag, limit: 5 });
 
-  if(posts) {
-    posts.forEach(post => {
-      post.content = fixHtmlTags(post.content, "down");
-      post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
+  if(entries) {
+    entries.forEach(entry => {
+      entry.content = fixHtmlTags(entry.content, "down");
+      entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
+      entry.dateDisplay = formatDateString(entry.dateString);
+      entry.tagHTML = prepTags(entry.tags);
     });
-    res.locals.posts = posts;
+    res.locals.entries = entries;
     res.locals.requestedTag = tag;
     res.render('tag');
   } else {
@@ -72,34 +80,38 @@ module.exports.tag_get = async (req, res) => {
 }
 
 // * OPEN ARTICLES IN READER
-module.exports.post_get = async(req, res) => {
+module.exports.getOneEntry = async(req, res) => {
   res.locals.message = null;
   const { slug, id } = req.params;
-  const post = slug ? await getPosts({ slug }) : await getPosts({ id });
+  const entry = slug ? await getPosts({ slug }) : await getPosts({ id });
 
-  if(post){
-    post.content = fixHtmlTags(post.content, "down");
-    res.locals.post = post;
+  if(entry){
+    entry.content = fixHtmlTags(entry.content, "down");
+    entry.tagHTML = prepTags(entry.tags);
+
+    res.locals.entry = entry;
     res.locals.message = "Save successful.";
-    res.render('post');
+    res.render('reader');
   } else { 
-    res.locals.posts = await getPosts({ limit: 5 });
+    res.locals.entries = await getPosts({ limit: 5 });
     res.locals.message = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
     res.render('home');
   }
 }
 
 // * OPEN ARTICLES IN EDITOR
-module.exports.editor_get =  async (req, res) => {
-  res.locals.message= null;
-  res.locals.post = new Post();
+module.exports.getEditor =  async (req, res) => {
+  res.locals.message = null;
+  res.locals.entry = new Post();
   const { slug } = req.params;
   if(slug){
-    const post = await getPosts({ slug });
-    if(post) {
-      post.content = fixHtmlTags(post.content, "down");
-      post.preview = prepPreview(post.content);
-      res.locals.post = post;
+    const entry = await getPosts({ slug });
+    if(entry) {
+      entry.content = fixHtmlTags(entry.content, "down");
+      entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
+      entry.dateDisplay = formatDateString(entry.dateString);
+      entry.tagHTML = prepTags(entry.tags);
+      res.locals.entry = entry;
     } else {
       res.locals.message = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
     }
@@ -108,37 +120,36 @@ module.exports.editor_get =  async (req, res) => {
 }
 
 // * SAVE NEW OR EXISTING POSTS
-module.exports.editor_post = async (req, res) => {
+module.exports.postEntry = async (req, res) => {
   res.locals.message = null;
-  const postData = { title, subtitle, content, tags, date, author, postID } = req.body;
-  console.log(typeof date); // 🔴
+  const { title, subtitle, dateString, authorID, _id } = req.body;
+  let { content, tags } = req.body;
+
+  
   // condition data
   const slug = slugify(title, { lower: true });
   content = fixHtmlTags(content, "up");
   tags = tags.split(",").map(element => element.trim());
-  const dateObj = new Date(date + 'T00:00:00.000');
-  const dateString = formatDate(dateObj);
   
-  const post = await Post.findOneAndUpdate(
-    { _id: postID },
-    { title, slug, subtitle, content, tags, date, dateString, author },
+  const entry = await Post.findOneAndUpdate(
+    { _id },
+    { title, slug, subtitle, content, tags, dateString, authorID },
     { new: true, upsert: true }
   );
 
   // not sure we even need the post to be returned. But maybe this could be used for the revert button to work.
-  if(post){
-    post.content = fixHtmlTags(post.content, "down");
-    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip");
+  if(entry){
+    entry.content = fixHtmlTags(entry.content, "up");
     
-    res.status(200).send({ message: "Save successful.", post });
+    res.status(200).send({ message: "Save successful.", entry });
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
-    res.locals.post = new Post();
+    res.locals.entry = new Post();
     res.render('editor');
   }
 }
 
-module.exports.editor_delete = async (req, res) => {
+module.exports.deleteEntry = async (req, res) => {
   res.locals.message = "Post deleted. Here are some recents posts.";
   const { _id } = req.params;
   const post = await Post.deleteOne({ _id }, err => {
@@ -146,23 +157,23 @@ module.exports.editor_delete = async (req, res) => {
   });
   // 🟠 DRY: this is repeated in home_get; make into a support function
   res.locals.message = null;
-  const posts = await getPosts({ limit: 5 });
-  posts.forEach(post => {
-    post.content = fixHtmlTags(post.content, "down");
-    post.preview = fixHtmlTags(post.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
+  const entries = await getPosts({ limit: 5 });
+  entries.forEach(entry => {
+    entry.content = fixHtmlTags(entry.content, "down");
+    entry.preview = fixHtmlTags(entry.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
   });
-  res.locals.posts = posts;
+  res.locals.entries = entries;
   res.render('home');
 }
 
 // * RENDER ADMIN PAGE
-module.exports.admin_get = (req, res) => {
+module.exports.getAdmin = (req, res) => {
   res.locals.message= null;
   res.render('admin');
 }
 
 // * CREATER NEW USERS
-module.exports.signup_post = async (req, res) => {
+module.exports.signup = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.create({ email, password });
@@ -180,7 +191,7 @@ module.exports.signup_post = async (req, res) => {
 }
 
 // * ALLOW SIGN IN
-module.exports.login_post = async (req, res) => {
+module.exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.login(email, password);
@@ -198,7 +209,7 @@ module.exports.login_post = async (req, res) => {
 }
 
 // * EXPIRE TOKEN TO SIGN USER OUT
-module.exports.logout_get = async (req, res) => {
+module.exports.logout = async (req, res) => {
   res.cookie('jwt', '', { maxAge: 1 });
   res.redirect('/');
 }

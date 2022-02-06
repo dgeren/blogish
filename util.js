@@ -23,10 +23,21 @@ module.exports.fixHtmlTags = (content, task) => {
   return content;
 }
 
-module.exports.formatDate = date => {
+module.exports.formatDateString = date => {
+  const dateUTC = new Date(date);
   const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return date ? `${fullMonth[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` : null;
+  return `${fullMonth[dateUTC.getMonth()]} ${dateUTC.getDate()}, ${dateUTC.getFullYear()}`;
 }
+
+module.exports.formatDashedDate = date => {
+    const year = date.getFullYear();
+    const m = 1 + date.getMonth();
+    const month = m < 10 ? '0' + m : m;
+    const d = date.getDate();
+    const day = d < 10 ? '0' + d : d;
+    const string = `${year}-${month}-${day}`;
+    return string;
+  }
 
 module.exports.handleErrors = err => {
   let errors = { email: '', password: '' };
@@ -48,4 +59,9 @@ module.exports.prepPreview = content => {
   .split(" ")
   .slice(0, 25)
   .join(" ");
+}
+
+module.exports.prepTags = tags => {
+  const tagArray = tags.map(tag => `<a href="/tag/${tag}">${tag}</a>`);
+  return tagArray.join(", ");
 }
