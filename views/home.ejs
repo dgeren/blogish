@@ -1,12 +1,12 @@
-<%- include('partials/startHeader'); -%><%- include('partials/endHeaderList'); -%>
+<%- include('partials/header'); -%>
     <div class="headings">
       <h3>Recent Entries</h3>
     </div>
-  </header>
   <main>
     <% if(message){ %>
       <p><%- message %></p>
     <% } %>
+    <%- include('partials/navigateEntries'); -%>
     <hr>
     <% entries.forEach(entry => { %>
       <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay = "", author } = entry; %>

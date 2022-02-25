@@ -16,7 +16,6 @@ body {
 }
 
 header {
-  position: fixed;
   background-color: #C5D2BC;
   margin: 0;
   padding: 0;
@@ -25,6 +24,11 @@ header {
 }
 
 footer {
+  margin: 0;
+  padding: 0;
+}
+
+main {
   margin: 0;
   padding: 0;
 }

@@ -8,11 +8,6 @@ const {
   formatDashedDate, handleErrors,
   prepPreview,      prepTags
 } = require('./util');
-
-
-/*
-* GLOBALS
-*/
 const maxAge = 3600 * 72;
 
 
@@ -25,7 +20,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
   });
 }
 
-const getPosts = async (parameters) => {
+const getEntries = async (parameters) => {
   const {
     id = null,  slug = null,
     tag = null, sortOrder = -1,
@@ -46,7 +41,7 @@ const getPosts = async (parameters) => {
 // * GET LIST OF RECENT ARTICLES FOR HOME PAGE
 module.exports.getHome = async (req, res) => {
   res.locals.message = null;
-  let entries = await getPosts({ limit: 3 });
+  let entries = await getEntries({ limit: 3 });
   entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
@@ -54,6 +49,7 @@ module.exports.getHome = async (req, res) => {
     entry.tagHTML = prepTags(entry.tags);
   });
   res.locals.entries = entries;
+  res.locals.pagination = { next: null, previous: null };
   res.render('home');
 }
 
@@ -61,7 +57,7 @@ module.exports.getHome = async (req, res) => {
 module.exports.getEntriesByTag = async (req, res) => {
   res.locals.message = null;
   const { tag } = req.params;
-  const entries = await getPosts({ tag, limit: 5 });
+  const entries = await getEntries({ tag, limit: 5 });
 
   if(entries) {
     entries.forEach(entry => {
@@ -83,7 +79,7 @@ module.exports.getEntriesByTag = async (req, res) => {
 module.exports.getOneEntry = async(req, res) => {
   res.locals.message = null;
   const { slug, id } = req.params;
-  const entry = slug ? await getPosts({ slug }) : await getPosts({ id });
+  const entry = slug ? await getEntries({ slug }) : await getEntries({ id });
 
   if(entry){
     entry.content = fixHtmlTags(entry.content, "down");
@@ -93,7 +89,7 @@ module.exports.getOneEntry = async(req, res) => {
     res.locals.message = "Save successful.";
     res.render('reader');
   } else { 
-    res.locals.entries = await getPosts({ limit: 5 });
+    res.locals.entries = await getEntries({ limit: 5 });
     res.locals.message = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
     res.render('home');
   }
@@ -105,7 +101,7 @@ module.exports.getEditor =  async (req, res) => {
   res.locals.entry = new Post();
   const { slug } = req.params;
   if(slug){
-    const entry = await getPosts({ slug });
+    const entry = await getEntries({ slug });
     if(entry) {
       entry.content = fixHtmlTags(entry.content, "down");
       entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
@@ -157,7 +153,7 @@ module.exports.deleteEntry = async (req, res) => {
   });
   // 🟠 DRY: this is repeated in home_get; make into a support function
   res.locals.message = null;
-  const entries = await getPosts({ limit: 5 });
+  const entries = await getEntries({ limit: 5 });
   entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(entry.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
@@ -213,3 +209,5 @@ module.exports.logout = async (req, res) => {
   res.cookie('jwt', '', { maxAge: 1 });
   res.redirect('/');
 }
+
+//* CREATE LIST ARRAY CONSISTING OF 

@@ -9,6 +9,7 @@ const routes = require('./routes');
 const { requireAuth, checkUser } = require('./middleware');
 
 const app = express();
+global.limit = 3;
 
 
 /*

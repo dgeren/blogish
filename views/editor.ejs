@@ -1,9 +1,9 @@
-<%- include('partials/startHeader'); -%><%- include('partials/endHeaderEditor'); -%>
+<%- include('partials/header'); -%>
 <% const { title, subtitle, content, preview, tags = "", dateString = "", dateDisplay = "", _id } = entry; %>
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/tag/${tag}">${tag}</a>`)); %>
 <% const tagHTML = tagArray.join(', '); %>
-
+<%- include('partials/navigateEntries'); -%>
     <div class="headings">
       <h3>Editor</h3>
     </div>
