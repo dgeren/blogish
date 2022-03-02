@@ -3,7 +3,6 @@
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/tag/${tag}">${tag}</a>`)); %>
 <% const tagHTML = tagArray.join(', '); %>
-<%- include('partials/navigateEntries'); -%>
     <div class="headings">
       <h3>Editor</h3>
     </div>
@@ -79,6 +78,9 @@
     </form>
     <hr>
   </main>
+  <nav class="pagination">
+    <%- include('partials/navigateEntries'); -%>
+  </nav>
 
   <script src="/scripts/editorForm.js"></script>
 

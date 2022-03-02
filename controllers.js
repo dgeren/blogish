@@ -95,10 +95,11 @@ module.exports.getOneEntry = async(req, res) => {
   }
 }
 
-// * OPEN ARTICLES IN EDITOR
+// * OPEN ARTICLE IN EDITOR OR EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
   res.locals.message = null;
   res.locals.entry = new Post();
+  res.locals.pagination = { next: null, previous: null };
   const { slug } = req.params;
   if(slug){
     const entry = await getEntries({ slug });
