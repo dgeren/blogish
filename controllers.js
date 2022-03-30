@@ -2,13 +2,13 @@ const slugify = require('slugify');
 const jwt = require('jsonwebtoken');
 
 const User = require('./models/User');
-const Post = require('./models/Post');
+const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 const {
   fixHtmlTags,      formatDateString,
   formatDashedDate, handleErrors,
   prepPreview,      prepTags
 } = require('./util');
-const maxAge = 3600 * 72;
+const maxAge = 3600 * 72, limit = 3;
 
 
 /*
@@ -24,13 +24,13 @@ const getEntries = async (parameters) => {
   const {
     id = null,  slug = null,
     tag = null, sortOrder = -1,
-    limit = 1
+    skip = null
   } = parameters;
   
-  return id   ? await Post.findOne({ _id: id }).lean() :
-         slug ? await Post.findOne({ slug }).lean() :
-         tag  ? await Post.find({ tags: tag, dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder }).limit(limit) :
-                await Post.find({ dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder}).limit(limit);
+  return id   ? await Entry.findOne({ _id: id }).lean() :
+         slug ? await Entry.findOne({ slug }).lean() :
+         tag  ? await Entry.find({ tags: tag, dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder }).skip(skip).limit(limit) :
+                await Entry.find({ dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder}).skip(skip).limit(limit);
 }
 
 
@@ -38,23 +38,45 @@ const getEntries = async (parameters) => {
 * EXPORTED METHODS
 */
 
-// * GET LIST OF RECENT ARTICLES FOR HOME PAGE
-module.exports.getHome = async (req, res) => {
+//* GET LIST: NEW VERSION FOR PAGINATION
+module.exports.getList = async (req, res) => {
+  // set message attribute for views
   res.locals.message = null;
-  let entries = await getEntries({ limit: 3 });
-  entries.forEach(entry => {
+
+  // get possible inputs
+  const {
+    recent, tag, reader, editor,
+    next, prev, page = 0,
+    tags, slug, id } = req.params;
+
+    if(recent){
+      // const direction = next ? 1 : 
+    }
+}
+
+
+
+// * GET LIST OF RECENT ARTICLES FOR HOME PAGE
+module.exports.getListByPubDate = async (req, res) => {
+  res.locals.message = null;
+  const page = parseInt(req.params.page) || 1;
+  const docs = await Entry.countDocuments({ dateString: { $ne: "yyyy-mm-dd" } });
+  const skip = (page * limit) - limit;
+
+  res.locals.pages = parseInt(Math.ceil(docs / limit));
+  res.locals.entries = await getEntries({ skip, limit });
+  res.locals.entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
     entry.dateDisplay = formatDateString(entry.dateString);
     entry.tagHTML = prepTags(entry.tags);
   });
-  res.locals.entries = entries;
-  res.locals.pagination = { next: null, previous: null };
+  res.locals.page = page;
   res.render('home');
 }
 
 // * GET ARTICLE LIST BASED ON A TAG
-module.exports.getEntriesByTag = async (req, res) => {
+module.exports.getListByTag = async (req, res) => {
   res.locals.message = null;
   const { tag } = req.params;
   const entries = await getEntries({ tag, limit: 5 });
@@ -76,7 +98,7 @@ module.exports.getEntriesByTag = async (req, res) => {
 }
 
 // * OPEN ARTICLES IN READER
-module.exports.getOneEntry = async(req, res) => {
+module.exports.getEntry = async(req, res) => {
   res.locals.message = null;
   const { slug, id } = req.params;
   const entry = slug ? await getEntries({ slug }) : await getEntries({ id });
@@ -98,7 +120,7 @@ module.exports.getOneEntry = async(req, res) => {
 // * OPEN ARTICLE IN EDITOR OR EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
   res.locals.message = null;
-  res.locals.entry = new Post();
+  res.locals.entry = new Entry();
   res.locals.pagination = { next: null, previous: null };
   const { slug } = req.params;
   if(slug){
@@ -116,7 +138,7 @@ module.exports.getEditor =  async (req, res) => {
   res.render('editor');
 }
 
-// * SAVE NEW OR EXISTING POSTS
+// * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
   res.locals.message = null;
   const { title, subtitle, dateString, authorID, _id } = req.body;
@@ -128,36 +150,36 @@ module.exports.postEntry = async (req, res) => {
   content = fixHtmlTags(content, "up");
   tags = tags.split(",").map(element => element.trim());
   
-  const entry = await Post.findOneAndUpdate(
+  const entry = await Entry.findOneAndUpdate(
     { _id },
     { title, slug, subtitle, content, tags, dateString, authorID },
     { new: true, upsert: true }
   );
 
-  // not sure we even need the post to be returned. But maybe this could be used for the revert button to work.
+  // not sure we even need the entry to be returned. But maybe this could be used for the revert button to work.
   if(entry){
     entry.content = fixHtmlTags(entry.content, "up");
     
     res.status(200).send({ message: "Save successful.", entry });
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
-    res.locals.entry = new Post();
+    res.locals.entry = new Entry();
     res.render('editor');
   }
 }
 
 module.exports.deleteEntry = async (req, res) => {
-  res.locals.message = "Post deleted. Here are some recents posts.";
+  res.locals.message = "Entry deleted. Here are some recents entries.";
   const { _id } = req.params;
-  const post = await Post.deleteOne({ _id }, err => {
-    res.locals.message = "I failed to delete a post. Are you sure this post is not already deleted?";
+  const entry = await Entry.deleteOne({ _id }, err => {
+    res.locals.message = "I failed to delete an entry. Are you sure this entry still exists?";
   });
   // 🟠 DRY: this is repeated in home_get; make into a support function
   res.locals.message = null;
   const entries = await getEntries({ limit: 5 });
-  entries.forEach(entry => {
-    entry.content = fixHtmlTags(entry.content, "down");
-    entry.preview = fixHtmlTags(entry.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
+  entries.forEach(element => {
+    element.content = fixHtmlTags(element.content, "down");
+    element.preview = fixHtmlTags(element.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
   });
   res.locals.entries = entries;
   res.render('home');

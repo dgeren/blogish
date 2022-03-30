@@ -1,14 +1,6 @@
     <nav>
-      <% if(pagination.next) { %>
-      <div class="next">
-        <a href="pagination/next/<%- entries[0].dateString %>">Next</a>
-      </div>
-      <% } %>
-      <% if(pagination.previous) { %>
-      <div class="next">
-        <a href="pagination/previous/<%- entries[0].dateString %>">Previous</a>
-      </div>
-      <% } %>
+      <% if(page > 1) { %> <a href="/listByDate/<%= page - 1 %>">Previous </a> <% } %>
+      <% if(page < pages) { %> <a href="/listByDate/<%= page + 1 %>">Next</a><br> <% } %>
       <h5>Recent Entries</h5>
       <ul class="recentTitles">
         <li><a href="">Most Recent Example Entry Title & January 1, 2023</a></li>
