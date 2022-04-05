@@ -13,6 +13,9 @@
       <% if(user) { %>
       <p class="preview-el small-text editBtn"><a href="/editor/<%= slug %>">&#9998;</a></p>
       <% } %>
+      <% if(message) { %>
+      <p class="err_message"><%= message %></p>
+      <% } %>
       <h4 class="preview-el"><a href="reader/<%= slug %>"><%- title %></a></h4>
       <h5 class="preview-el"><%- subtitle %></h5>
       <h5 class="preview-el"><%- dateDisplay %></h5>
@@ -22,9 +25,9 @@
     <hr>
     <% }); %>
   </main>
-  <nav class="pagination">
+  <div class="pagination">
     <%- include('partials/navigateEntries'); %>
-  </nav>
+  </div>
 
   <% if(!user){ %>
   <script src="/scripts/login.js"></script>

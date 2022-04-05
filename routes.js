@@ -9,6 +9,7 @@ const router = Router();
 // NEW ROUTES
 router.get('/', controllers.getListByPubDate);
 router.get('/listByDate/:page', controllers.getListByPubDate);
+router.get('/listByTags/:tag', controllers.getListByTag);
 router.get('/listByTags/:tag/:page', controllers.getListByTag);
 router.get('/reader/slug/:slug', controllers.getEntry);
 router.get('/reader/id/:_id', controllers.getEntry);

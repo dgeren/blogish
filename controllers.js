@@ -37,25 +37,6 @@ const getEntries = async (parameters) => {
 /*
 * EXPORTED METHODS
 */
-
-//* GET LIST: NEW VERSION FOR PAGINATION
-module.exports.getList = async (req, res) => {
-  // set message attribute for views
-  res.locals.message = null;
-
-  // get possible inputs
-  const {
-    recent, tag, reader, editor,
-    next, prev, page = 0,
-    tags, slug, id } = req.params;
-
-    if(recent){
-      // const direction = next ? 1 : 
-    }
-}
-
-
-
 // * GET LIST OF RECENT ARTICLES FOR HOME PAGE
 module.exports.getListByPubDate = async (req, res) => {
   res.locals.message = null;
@@ -79,21 +60,26 @@ module.exports.getListByPubDate = async (req, res) => {
 module.exports.getListByTag = async (req, res) => {
   res.locals.message = null;
   const { tag } = req.params;
-  const entries = await getEntries({ tag, limit: 5 });
+  res.locals.page = parseInt(req.params.page) || 1;
+  const docs = await Entry.countDocuments({ tag, dateString: { $ne: "yyyy-mm-dd" } });
+  const skip = (res.locals.page * limit) - limit;
 
-  if(entries) {
-    entries.forEach(entry => {
+  res.locals.pages = parseInt(Math.ceil(docs / limit));
+  res.locals.entries = await getEntries({ tag, skip, limit });
+
+  if(res.locals.entries.length > 0) {
+    res.locals.entries.forEach(entry => {
       entry.content = fixHtmlTags(entry.content, "down");
       entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
       entry.dateDisplay = formatDateString(entry.dateString);
       entry.tagHTML = prepTags(entry.tags);
     });
-    res.locals.entries = entries;
     res.locals.requestedTag = tag;
     res.render('tag');
   } else {
+    
     res.locals.message = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;
-    res.render('home');
+    res.redirect('/');
   }
 }
 

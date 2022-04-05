@@ -62,6 +62,6 @@ module.exports.prepPreview = content => {
 }
 
 module.exports.prepTags = tags => {
-  const tagArray = tags.map(tag => `<a href="/tag/${tag}">${tag}</a>`);
+  const tagArray = tags.map(tag => `<a href="/listByTags/${tag}">${tag}</a>`);
   return tagArray.join(", ");
 }
