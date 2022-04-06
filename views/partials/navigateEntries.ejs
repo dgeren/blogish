@@ -1,4 +1,11 @@
-    <nav>
-      <% if(page > 1) { %> <a href="/listByDate/<%= page - 1 %>">Previous </a> <% } %>
-      <% if(page < pages) { %> <a href="/listByDate/<%= page + 1 %>">Next</a><br> <% } %>
-    </nav>
+    <% if(page) { %>
+    <%   if(page > 1) { %>
+      <a href="/listByDate/<%= page - 1 %>">Previous </a>
+    <% } %>
+    <%   if(page < pages) { %>
+      <a href="/listByDate/<%= page + 1 %>">Next</a><br>
+    <% } %>
+    <% } else { %>
+      <a href="/reader/slug/<%  %>">Previous</a>
+      <a href="/reader/slug/<%  %>">Next</a><br>
+    <% } %>

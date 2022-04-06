@@ -94,6 +94,7 @@ module.exports.getEntry = async(req, res) => {
     entry.tagHTML = prepTags(entry.tags);
 
     res.locals.entry = entry;
+    res.locals.page = null;
     res.locals.message = "Save successful.";
     res.render('reader');
   } else { 
