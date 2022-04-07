@@ -1,11 +1,17 @@
-    <% if(page) { %>
-    <%   if(page > 1) { %>
+    <% if (page > 1) { %>
       <a href="/listByDate/<%= page - 1 %>">Previous </a>
     <% } %>
-    <%   if(page < pages) { %>
+
+    <% if (page < pages) { %>
       <a href="/listByDate/<%= page + 1 %>">Next</a><br>
     <% } %>
-    <% } else { %>
-      <a href="/reader/slug/<%  %>">Previous</a>
-      <a href="/reader/slug/<%  %>">Next</a><br>
+    
+<% if (adjacentSlugs) { %>
+    <% if (adjacentSlugs.prev) { %>
+      <a href="/reader/slug/<%= adjacentSlugs.prev %>">Previous </a>
     <% } %>
+    
+    <% if (adjacentSlugs.next) { %>
+      <a href="/reader/slug/<%= adjacentSlugs.next %>">Next</a><br>
+    <% } %>
+<% } %>

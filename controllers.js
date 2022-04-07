@@ -20,7 +20,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
   });
 }
 
-const getEntries = async (parameters) => {
+const getEntries = async parameters => {
   const {
     id = null,  slug = null,
     tag = null, sortOrder = -1,
@@ -31,6 +31,14 @@ const getEntries = async (parameters) => {
          slug ? await Entry.findOne({ slug }).lean() :
          tag  ? await Entry.find({ tags: tag, dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder }).skip(skip).limit(limit) :
                 await Entry.find({ dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder}).skip(skip).limit(limit);
+}
+
+const getAdjacentSlugs = async dateString => {
+  const next = await Entry.find({ dateString: { $gt: dateString } }).lean().sort({ dateString:  1 }).limit(1);
+  const prev = await Entry.find({ dateString: { $lt: dateString } }).lean().sort({ dateString: -1 }).limit(1);
+
+
+  return { next: next[0].slug, prev: prev[0].slug }; 
 }
 
 
@@ -45,7 +53,9 @@ module.exports.getListByPubDate = async (req, res) => {
   const skip = (page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
+  console.log(res.locals.pages); // 🔴
   res.locals.entries = await getEntries({ skip, limit });
+  res.locals.adjacentSlugs = null;
   res.locals.entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
@@ -65,6 +75,7 @@ module.exports.getListByTag = async (req, res) => {
   const skip = (res.locals.page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
+  res.locals.adjacentSlugs = null;
   res.locals.entries = await getEntries({ tag, skip, limit });
 
   if(res.locals.entries.length > 0) {
@@ -95,6 +106,8 @@ module.exports.getEntry = async(req, res) => {
 
     res.locals.entry = entry;
     res.locals.page = null;
+    res.locals.pages = null;
+    res.locals.adjacentSlugs = await getAdjacentSlugs(entry.dateString);
     res.locals.message = "Save successful.";
     res.render('reader');
   } else { 
