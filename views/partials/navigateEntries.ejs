@@ -6,12 +6,12 @@
       <a href="/listByDate/<%= page + 1 %>">Next</a><br>
     <% } %>
     
-<% if (adjacentSlugs) { %>
-    <% if (adjacentSlugs.prev) { %>
-      <a href="/reader/slug/<%= adjacentSlugs.prev %>">Previous </a>
+<% if (adjacentEntries) { %>
+    <% if (adjacentEntries.prev) { %>
+      <a href="/reader/slug/<%= adjacentEntries.prev.slug %>">Previous: <%= adjacentEntries.prev.title %></a>
     <% } %>
-    
-    <% if (adjacentSlugs.next) { %>
-      <a href="/reader/slug/<%= adjacentSlugs.next %>">Next</a><br>
+    || 
+    <% if (adjacentEntries.next) { %>
+      <a href="/reader/slug/<%= adjacentEntries.next.slug %>">Next: <%= adjacentEntries.next.title %></a><br>
     <% } %>
 <% } %>

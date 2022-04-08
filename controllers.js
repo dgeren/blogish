@@ -38,7 +38,7 @@ const getAdjacentSlugs = async dateString => {
   const prev = await Entry.find({ dateString: { $lt: dateString } }).lean().sort({ dateString: -1 }).limit(1);
 
 
-  return { next: next[0].slug, prev: prev[0].slug }; 
+  return { next: next[0], prev: prev[0] }; 
 }
 
 
@@ -53,9 +53,8 @@ module.exports.getListByPubDate = async (req, res) => {
   const skip = (page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  console.log(res.locals.pages); // 🔴
   res.locals.entries = await getEntries({ skip, limit });
-  res.locals.adjacentSlugs = null;
+  res.locals.adjacentEntries = null;
   res.locals.entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
@@ -75,7 +74,7 @@ module.exports.getListByTag = async (req, res) => {
   const skip = (res.locals.page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.adjacentSlugs = null;
+  res.locals.adjacentEntries = null;
   res.locals.entries = await getEntries({ tag, skip, limit });
 
   if(res.locals.entries.length > 0) {
@@ -107,7 +106,7 @@ module.exports.getEntry = async(req, res) => {
     res.locals.entry = entry;
     res.locals.page = null;
     res.locals.pages = null;
-    res.locals.adjacentSlugs = await getAdjacentSlugs(entry.dateString);
+    res.locals.adjacentEntries = await getAdjacentSlugs(entry.dateString);
     res.locals.message = "Save successful.";
     res.render('reader');
   } else { 
