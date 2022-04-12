@@ -24,13 +24,13 @@ const getEntries = async parameters => {
   const {
     id = null,  slug = null,
     tag = null, sortOrder = -1,
-    skip = null
+    skip = null, filter = { $ne: "yyyy-mm-dd" }
   } = parameters;
   
   return id   ? await Entry.findOne({ _id: id }).lean() :
          slug ? await Entry.findOne({ slug }).lean() :
          tag  ? await Entry.find({ tags: tag, dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder }).skip(skip).limit(limit) :
-                await Entry.find({ dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder}).skip(skip).limit(limit);
+                await Entry.find({ dateString: filter }).lean().sort({ dateString: sortOrder}).skip(skip).limit(limit);
 }
 
 const getAdjacentSlugs = async dateString => {
@@ -55,12 +55,37 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await getEntries({ skip, limit });
   res.locals.adjacentEntries = null;
+  res.locals.published = true;
+
   res.locals.entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
     entry.dateDisplay = formatDateString(entry.dateString);
     entry.tagHTML = prepTags(entry.tags);
   });
+
+  res.locals.page = page;
+  res.render('home');
+}
+
+module.exports.getListUnpublished = async (req, res) => {
+  res.locals.message = null;
+  const page = parseInt(req.params.page) || 1;
+  const docs = await Entry.countDocuments({ dateString: { $eq: "yyyy-mmm-dd" } });
+  const skip = (page * limit) - limit;
+
+  res.locals.pages = parseInt(Math.ceil(docs / limit));
+  res.locals.entries = await getEntries({ skip, limit, filter:{ $eq: "yyyy-mm-dd"}});
+  res.locals.adjacentEntries = null;
+  res.locals.published = false;
+
+  res.locals.entries.forEach(entry => {
+    entry.content = fixHtmlTags(entry.content, "down");
+    entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
+    entry.dateDisplay = formatDateString(entry.dateString);
+    entry.tagHTML = prepTags(entry.tags);
+  });
+
   res.locals.page = page;
   res.render('home');
 }
@@ -76,6 +101,7 @@ module.exports.getListByTag = async (req, res) => {
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.adjacentEntries = null;
   res.locals.entries = await getEntries({ tag, skip, limit });
+  res.locals.published = true;
 
   if(res.locals.entries.length > 0) {
     res.locals.entries.forEach(entry => {

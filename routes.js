@@ -17,7 +17,8 @@ router.get('/editor/slug/:slug', controllers.getEditor);
 router.get('/editor/id/:_id', controllers.getEditor);
 router.get('/editor', controllers.getEditor);
 
-router.get('/admin', controllers.getAdmin);
+router.get('/admin', requireAuth, controllers.getAdmin);
+router.get('/listUnpublished', requireAuth, controllers.getListUnpublished);
 router.post('/signup', requireAuth, controllers.signup);
 router.post('/login', controllers.login);
 router.get('/logout', controllers.logout);
