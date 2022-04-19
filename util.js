@@ -29,6 +29,10 @@ module.exports.formatDateString = date => {
   return `${fullMonth[dateUTC.getMonth()]} ${dateUTC.getDate()}, ${dateUTC.getFullYear()}`;
 }
 
+module.exports.formatUTCDateString = (date, time) => {
+  return `${date} ${time}`;
+};
+
 module.exports.formatDashedDate = date => {
     const year = date.getFullYear();
     const m = 1 + date.getMonth();

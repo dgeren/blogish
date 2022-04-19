@@ -69,12 +69,7 @@ const updatePreviews = () => {
 
 const upload = async () => {
   const entryData = {};
-  formElements.forEach(el => {
-    const name = el.attributes.getNamedItem('name').value;
-    if(name === 'datepicker') { entryData.dateString = el.value; }
-    else if(name === 'entryID') { entryData._id = el.value; }
-    else { entryData[name] = el.value; }
-  });
+  formElements.forEach(el => entryData[el.attributes.getNamedItem('name').value] = el.value);
 
   await fetch('/editor', {
     method: "POST",

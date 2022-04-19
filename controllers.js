@@ -169,14 +169,17 @@ module.exports.postEntry = async (req, res) => {
   const { title, subtitle, dateString, timeString, authorID, _id } = req.body;
   let { content, tags } = req.body;
   
+// 61ccfa6ea201a53715cf2cf0
+
   // condition data
   const slug = slugify(title, { lower: true });
+  const pubDate = new Date(`${dateString} ${timeString}`);
   content = fixHtmlTags(content, "up");
   tags = tags.split(",").map(element => element.trim());
   
   const entry = await Entry.findOneAndUpdate(
-    { _id },
-    { title, slug, subtitle, content, tags, dateString, timeString, authorID },
+    _id ? { _id } : {},
+    { title, slug, subtitle, content, tags, dateString, timeString, pubDate, authorID },
     { new: true, upsert: true }
   );
 
@@ -192,6 +195,8 @@ module.exports.postEntry = async (req, res) => {
   }
 }
 
+
+// * DELETE EXISTING ENTRIES
 module.exports.deleteEntry = async (req, res) => {
   res.locals.message = "Entry deleted. Here are some recents entries.";
   const { _id } = req.params;
