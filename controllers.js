@@ -166,9 +166,8 @@ module.exports.getEditor =  async (req, res) => {
 // * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
   res.locals.message = null;
-  const { title, subtitle, dateString, authorID, _id } = req.body;
+  const { title, subtitle, dateString, timeString, authorID, _id } = req.body;
   let { content, tags } = req.body;
-
   
   // condition data
   const slug = slugify(title, { lower: true });
@@ -177,7 +176,7 @@ module.exports.postEntry = async (req, res) => {
   
   const entry = await Entry.findOneAndUpdate(
     { _id },
-    { title, slug, subtitle, content, tags, dateString, authorID },
+    { title, slug, subtitle, content, tags, dateString, timeString, authorID },
     { new: true, upsert: true }
   );
 

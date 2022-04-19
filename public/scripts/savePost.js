@@ -5,9 +5,8 @@ const saveToServer = () => {
   const formElements = document.querySelectorAll('.form-el');
   formElements.forEach(el => {
     const name = el.attributes.getNamedItem('name').value;
-    postData[name] = name === 'published' ? el.checked : el.value;
   });
-
+  console.log(formElements);
   try {
     const res = await fetch('/savePost', {
       method: 'POST',

@@ -16,6 +16,7 @@ router.get('/reader/id/:_id', controllers.getEntry);
 router.get('/editor/slug/:slug', controllers.getEditor);
 router.get('/editor/id/:_id', controllers.getEditor);
 router.get('/editor', controllers.getEditor);
+router.post('/editor', controllers.postEntry);
 
 router.get('/admin', requireAuth, controllers.getAdmin);
 router.get('/listUnpublished', requireAuth, controllers.getListUnpublished);

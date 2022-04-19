@@ -32,6 +32,10 @@ const postSchema = new mongoose.Schema({
   dateString:  {
     type: String,
     default: null
+  },
+  timeString: {
+    type: String,
+    default: null
   }
 });
 

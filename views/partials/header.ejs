@@ -13,15 +13,16 @@
       <nav>
         <ul class="nav">
           <div class="signin-form">
-            <li><a href="/about">About</a></li>
             <% if(user){ %>
+              <li><a href="/about">About</a></li>
             | <li><a href="/listUnpublished">Unpublished Entries</a></li>
             | <li><a href="/editor">Create Entry</a></li>
             | <li><a href="/admin">Admin</a></li>
-            | <li class="signedIn small-text">Signed in as '<%= user.email %>' [ <a href="/logout">Log Out</a> ]</li>
+            | <li class="signedIn small-text">Logged in as '<%= user.email %>' [ <a href="/logout">Log Out</a> ]</li>
           </div>
           <% } else { %>
           <form class="signin-form small-text">
+            <li><a href="/about">About</a></li> | &nbsp;
             <span class="signin-el">Sign in: &nbsp; </span>
             <label for="email">Email: &nbsp;</label>
             <input class="signin-el" type="text" name="email" required>

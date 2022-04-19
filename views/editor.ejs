@@ -1,5 +1,5 @@
 <%- include('partials/header'); -%>
-<% const { title, subtitle, content, preview, tags = "", dateString = "", dateDisplay = "", _id } = entry; %>
+<% const { title, subtitle, content, preview, tags = "", dateString = "", pubDate = "", dateDisplay = "", _id } = entry; %>
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
 <% const tagHTML = tagArray.join(', '); %>
@@ -45,8 +45,10 @@
         </div>
 
         <div class="elementContainer">
-          <label>Publish Date</label>
-          <input type="date" name="datepicker" class="form-el editor" id="editor_datepicker" value="<%- dateString %>">
+          <label>Publish Date &amp; Time</label>
+          <input type="date" name="dateString" class="form-el editor" id="editor_datepicker" value="<%- dateString %>">
+          <input type="time" name="timeString" class="form-el editor" id="editor_timepicker" value="<%-  %>">
+          
         </div>
 
         <div class="elementContainer">        
