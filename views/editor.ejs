@@ -1,5 +1,5 @@
 <%- include('partials/header'); -%>
-<% const { title, subtitle, content, preview, tags = "", dateString = "", pubDate = "", dateDisplay = "", _id } = entry; %>
+<% const { title, subtitle, content, preview, tags = "", pubDate = "", dateDisplay = "", dateString = "", timeString = "", isPublishedChecked, _id } = entry; %>
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
 <% const tagHTML = tagArray.join(', '); %>
@@ -45,9 +45,12 @@
         </div>
 
         <div class="elementContainer">
-          <label>Publish Date &amp; Time</label>
-          <input type="date" name="dateString" class="form-el editor" id="editor_datepicker" value="<%- dateString %>">
-          <input type="time" name="timeString" class="form-el editor" id="editor_timepicker" value="<%-  %>">
+          <label for="editor_checkbox" class="publish">Publish?</label>
+          <input type="checkbox" name="isPublished" class="form-el editor publish" id="editor_checkbox" <%= isPublishedChecked %>>
+          <label class="publish"> Date &amp; Time</label>
+          <input type="date" name="dateString" class="form-el editor publish" id="editor_datepicker" value="<%- dateString %>">
+          <input type="time" name="timeString" class="form-el editor publish" id="editor_timepicker" value="<%- timeString %>">
+          <p class="message" name="publishError" id="publishError">Please select a date or deselect "Publish?"</p>
           
         </div>
 
@@ -62,7 +65,7 @@
         <section class="listSection">
           <h4 id="list_title" class="list"><a><%= title %></a></h4>
           <h5 id="list_subtitle" class="list"><%= subtitle %></h5>
-          <h5 id="list_dateString" class="list"><%= dateDisplay %></h5>
+          <h5 id="list_dateDisplay" class="list"><%= dateDisplay %></h5>
           <p id="list_content" class="list" ><%= preview %></p>
           <div id="list_tags" class="list"><%= tagHTML %></div>
         </section>
@@ -71,7 +74,7 @@
           <h3>Reader Preview</h3>
           <h3 id="reader_title" class="reader"><a><%= title %></a></h3>
           <h4 id="reader_subtitle" class="reader"><%= subtitle %></h4>
-          <h4 id="reader_dateString" class="reader"><%= dateDisplay %></h4>
+          <h4 id="reader_dateDisplay" class="reader"><%= dateDisplay %></h4>
           <div id="reader_content" class="reader"><%= content %></div>
           <div id="reader_tags" class="reader"><%= tagHTML %></div>
         </section>

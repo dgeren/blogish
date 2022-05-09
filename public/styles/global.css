@@ -153,6 +153,23 @@ hr {
   font-family: monospace;
 }
 
+#editor_checkbox {
+  width: 20px;
+  accent-color: white;
+}
+
+#editor_datepicker, #editor_timepicker {
+  width: 100px;
+}
+
+.publish {
+  display: inline-block;
+}
+
+#publishError {
+  display: none;
+}
+
 #preview {
   border-top: 1px solid black;
   margin: 0;

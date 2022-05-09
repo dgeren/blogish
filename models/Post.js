@@ -25,18 +25,8 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, "admin error message: user id required"]
   },
-  dateString:  {
-    type: String,
-    default: null
-  },
-  timeString: {
-    type: String,
-    default: null
-  },
-  pubDate: {
-    type: Date,
-    default: null
-  }
+  isPublished: Boolean,
+  pubDate: Date
 });
 
 const Post = mongoose.model('post', postSchema);

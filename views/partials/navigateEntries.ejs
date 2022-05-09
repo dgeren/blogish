@@ -1,10 +1,12 @@
-    <% if (page > 1) { %>
-      <a href="/listByDate/<%= page - 1 %>">Previous </a>
-    <% } %>
+<% const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`; %>
 
-    <% if (page < pages) { %>
-      <a href="/listByDate/<%= page + 1 %>">Next</a><br>
-    <% } %>
+<% if (page > 1) { %>
+  <a href="<%= `/${pageType}/${page - 1 }` %>">Previous </a>
+<% } %>
+
+<% if (page < pages) { %>
+  <a href="<%= `/${pageType}/${ page + 1 }` %>">Next</a><br>
+<% } %>
     
 <% if (adjacentEntries) { %>
     <% if (adjacentEntries.prev) { %>

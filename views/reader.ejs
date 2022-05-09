@@ -1,5 +1,5 @@
 <%- include('partials/Header'); -%>
-<% const { title, slug, subtitle, content, tagHTML = "", dateDisplay = "", } = entry; %>
+<% const { title, slug, subtitle, content, tagHTML = "", dateDisplay = "" } = entry; %>
 <div class="headings">
   <h3><%= title %></h3>
 </div>
@@ -10,7 +10,8 @@
           <p class="preview-el small-text editBtn"><a href="/editor/slug/<%= slug %>">&#9998;</a></p>
         <% } %>
         <h4><%- subtitle %></h4>
-        <div class="dateDisplay"><%= dateDisplay %></div>
+        <div class="dateDisplay">
+        <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
         <div><%- content %></div>
         <p><%- tagHTML %></p>
       </section>

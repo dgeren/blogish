@@ -7,9 +7,8 @@ const {
   fixHtmlTags,      formatDateString,
   formatDashedDate, handleErrors,
   prepPreview,      prepTags
-} = require('./util');
-const maxAge = 3600 * 72, limit = 3;
-
+} = require('./util'); // 🟠 is formatDashedDate necessary?
+const maxAge = 3600 * 72, limit = 3; // 🟠 add both to dashboard for admin users but nothing lower
 
 /*
 * LOCAL METHODS
@@ -22,92 +21,130 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 
 const getEntries = async parameters => {
   const {
-    id = null,  slug = null,
-    tag = null, sortOrder = -1,
-    skip = null, filter = { $ne: "yyyy-mm-dd" }
+    id = null,  slug = null, tag = null, sortOrder = -1,
+    skip = null, unpub = false, limit = null, pubDate
   } = parameters;
+
+  const _now = new Date();
   
-  return id   ? await Entry.findOne({ _id: id }).lean() :
-         slug ? await Entry.findOne({ slug }).lean() :
-         tag  ? await Entry.find({ tags: tag, dateString: { $ne: "yyyy-mm-dd" } }).lean().sort({ dateString: sortOrder }).skip(skip).limit(limit) :
-                await Entry.find({ dateString: filter }).lean().sort({ dateString: sortOrder}).skip(skip).limit(limit);
+  return id ? await Entry
+    // if given an id, then the reader or editor was called
+          .findOne({ _id: id })
+          .lean() :
+    // if given a slug, then the reader or editor was called
+       slug ? await Entry
+          .findOne({ slug })
+          .lean() :
+    // if given a tag, then the tag list was called
+        tag ? await Entry
+          .find({ tags: tag, isPublished: true , pubDate: { $lt: _now } }) 
+          .lean()
+          .sort({ pubDate: sortOrder })
+          .skip(skip)
+          .limit(limit) :
+    // if unpublished is true
+      unpub ? await Entry
+          .find({ isPublished: false })
+          .lean()
+          .sort({ _id: sortOrder }) :
+    // otherwise a list by pubdate was called
+      await Entry
+          .find({ $and: [
+            { isPublished: true },
+            { pubDate: {$lt: _now }}
+          ] })
+          .lean()
+          .sort({ pubDate: sortOrder })
+          .skip(skip)
+          .limit(limit);
 }
 
-const getAdjacentSlugs = async dateString => {
-  const next = await Entry.find({ dateString: { $gt: dateString } }).lean().sort({ dateString:  1 }).limit(1);
-  const prev = await Entry.find({ dateString: { $lt: dateString } }).lean().sort({ dateString: -1 }).limit(1);
-
-
+const getAdjacentEntries = async date => {
+  const next = await Entry
+                .find({ isPublished: true, pubDate: { $gt: date } })
+                .lean()
+                .sort({ pubDate:  1 })
+                .limit(1);
+  const prev = await Entry
+                .find({ isPublished: true, pubDate: { $lt: date } })
+                .lean()
+                .sort({ pubDate: -1 })
+                .limit(1);
   return { next: next[0], prev: prev[0] }; 
+}
+
+const countDocs = async (tag) => {
+  const _now = new Date();
+  const filterByTag = tag ? { tags: tag } : {};
+  return await Entry.countDocuments({ $and: [
+    { isPublished: true },
+    { pubDate: { $lt: _now }},
+    filterByTag
+  ] });
 }
 
 
 /*
 * EXPORTED METHODS
 */
-// * GET LIST OF RECENT ARTICLES FOR HOME PAGE
+// * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
   res.locals.message = null;
-  const page = parseInt(req.params.page) || 1;
-  const docs = await Entry.countDocuments({ dateString: { $ne: "yyyy-mm-dd" } });
-  const skip = (page * limit) - limit;
+  res.locals.page = parseInt(req.params.page) || 1;
+  const docs = await countDocs();
+  const skip = (res.locals.page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await getEntries({ skip, limit });
   res.locals.adjacentEntries = null;
-  res.locals.published = true;
+  res.locals.isPublished = true;
 
   res.locals.entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
-    entry.dateDisplay = formatDateString(entry.dateString);
+    entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
   });
+  res.locals.requestedTag = null;
 
-  res.locals.page = page;
   res.render('home');
 }
 
+// * GET LIST OF UNPUBLISHED ARTICLES 
 module.exports.getListUnpublished = async (req, res) => {
   res.locals.message = null;
-  const page = parseInt(req.params.page) || 1;
-  const docs = await Entry.countDocuments({ dateString: { $eq: "yyyy-mmm-dd" } });
-  const skip = (page * limit) - limit;
-
-  res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.entries = await getEntries({ skip, limit, filter:{ $eq: "yyyy-mm-dd"}});
+  res.locals.entries = await getEntries({ unpub: true });
+  res.locals.pages = 0;
+  res.locals.page = 0;
   res.locals.adjacentEntries = null;
-  res.locals.published = false;
+  res.locals.isPublished = false;
 
   res.locals.entries.forEach(entry => {
     entry.content = fixHtmlTags(entry.content, "down");
     entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
-    entry.dateDisplay = formatDateString(entry.dateString);
     entry.tagHTML = prepTags(entry.tags);
   });
-
-  res.locals.page = page;
   res.render('home');
 }
 
 // * GET ARTICLE LIST BASED ON A TAG
-module.exports.getListByTag = async (req, res) => {
+module.exports.getListByTag = async (req, res) => { 
   res.locals.message = null;
   const { tag } = req.params;
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await Entry.countDocuments({ tag, dateString: { $ne: "yyyy-mm-dd" } });
+  const docs = await countDocs(tag);
   const skip = (res.locals.page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.adjacentEntries = null;
   res.locals.entries = await getEntries({ tag, skip, limit });
-  res.locals.published = true;
+  res.locals.adjacentEntries = null;
+  res.locals.isPublished = true;
 
   if(res.locals.entries.length > 0) {
     res.locals.entries.forEach(entry => {
       entry.content = fixHtmlTags(entry.content, "down");
       entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
-      entry.dateDisplay = formatDateString(entry.dateString);
+      entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
       entry.tagHTML = prepTags(entry.tags);
     });
     res.locals.requestedTag = tag;
@@ -120,25 +157,28 @@ module.exports.getListByTag = async (req, res) => {
 }
 
 // * OPEN ARTICLES IN READER
-module.exports.getEntry = async(req, res) => {
+module.exports.getEntry = async (req, res) => {
   res.locals.message = null;
   const { slug, id } = req.params;
   const entry = slug ? await getEntries({ slug }) : await getEntries({ id });
 
+  // * PREP ENTRY DATA FOR EJS
   if(entry){
+    if(entry.pubDate) entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
     entry.content = fixHtmlTags(entry.content, "down");
     entry.tagHTML = prepTags(entry.tags);
-
+    
     res.locals.entry = entry;
     res.locals.page = null;
     res.locals.pages = null;
-    res.locals.adjacentEntries = await getAdjacentSlugs(entry.dateString);
+    res.locals.adjacentEntries = await getAdjacentEntries(entry.pubDate);
     res.locals.message = "Save successful.";
     res.render('reader');
-  } else { 
-    res.locals.entries = await getEntries({ limit: 5 });
+  // * OR ALERT VISITOR
+  } else {
     res.locals.message = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
-    res.render('home');
+    res.locals.entries = await getEntries({ limit });
+    res.redirect('/');
   }
 }
 
@@ -148,13 +188,21 @@ module.exports.getEditor =  async (req, res) => {
   res.locals.entry = new Entry();
   res.locals.pagination = { next: null, previous: null };
   const { slug } = req.params;
+  let dates = {};
   if(slug){
     const entry = await getEntries({ slug });
     if(entry) {
+      // * PREP FOR EJS
+      if(entry.pubDate) dates = formatDateString(entry.pubDate);
+      entry.dateDisplay = dates.dateDisplay || "";
+      entry.dateString  = dates.dateString || "";
+      entry.timeString  = dates.timeString || "";
+      entry.isPublishedChecked = entry.isPublished ? "checked" : "";
       entry.content = fixHtmlTags(entry.content, "down");
       entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
-      entry.dateDisplay = formatDateString(entry.dateString);
       entry.tagHTML = prepTags(entry.tags);
+
+      // * EJS
       res.locals.entry = entry;
     } else {
       res.locals.message = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
@@ -166,31 +214,33 @@ module.exports.getEditor =  async (req, res) => {
 // * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
   res.locals.message = null;
-  const { title, subtitle, dateString, timeString, authorID, _id } = req.body;
+
+  // * GET DATA FROM REQ
+  const { title, subtitle, authorID, isPublished, dateString, timeString, entryID } = req.body;
   let { content, tags } = req.body;
   
-// 61ccfa6ea201a53715cf2cf0
-
-  // condition data
+  // * PREP DATA
   const slug = slugify(title, { lower: true });
-  const pubDate = new Date(`${dateString} ${timeString}`);
+  const pubDate = dateString === "" || timeString === "" ? "" : 
+    new Date(`${dateString}T${timeString}`);
   content = fixHtmlTags(content, "up");
   tags = tags.split(",").map(element => element.trim());
+
+  const attributes = { title, slug, subtitle, content, tags, isPublished, pubDate, authorID };
   
+  // * ATTEMPT TO UPDATE AN EXISTING ENTRY OR SAVE AS NEW ENTRY
   const entry = await Entry.findOneAndUpdate(
-    _id ? { _id } : {},
-    { title, slug, subtitle, content, tags, dateString, timeString, pubDate, authorID },
+    entryID ? { _id: entryID } : {},
+    attributes,
     { new: true, upsert: true }
   );
-
-  // not sure we even need the entry to be returned. But maybe this could be used for the revert button to work.
   if(entry){
     entry.content = fixHtmlTags(entry.content, "up");
     
     res.status(200).send({ message: "Save successful.", entry });
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
-    res.locals.entry = new Entry();
+    res.locals.entry = new Entry.updateOne({ _id: entryID }, { isPublished: false });
     res.render('editor');
   }
 }
@@ -261,5 +311,3 @@ module.exports.logout = async (req, res) => {
   res.cookie('jwt', '', { maxAge: 1 });
   res.redirect('/');
 }
-
-//* CREATE LIST ARRAY CONSISTING OF 

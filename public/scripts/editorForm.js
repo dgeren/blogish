@@ -70,6 +70,19 @@ const updatePreviews = () => {
 const upload = async () => {
   const entryData = {};
   formElements.forEach(el => entryData[el.attributes.getNamedItem('name').value] = el.value);
+  entryData.isPublished = formElements[4].checked;
+
+  if(entryData.isPublished && entryData.dateString === "") {
+    const publishError = document.querySelector('#publishError');
+    publishError.style.display = "inline-block";
+    return;
+  }
+
+  if(entryData.dataString != "" && entryData.timeString === "") {
+    const _now = new Date().toUTCString().slice(17,22);
+    entryData.timeString = _now + ":00.000Z";
+  }
+  
 
   await fetch('/editor', {
     method: "POST",

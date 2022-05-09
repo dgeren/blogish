@@ -30,15 +30,4 @@ router.get('/favicon.ico', (req, res) => res.status(200).send('image/x-icon')); 
 router.get('*', controllers.getListByPubDate);
 router.post('*', controllers.getListByPubDate);
 
-
-// ORIIGNAL ROUTES
-// router.get('/',                 controllers.getHome);
-// router.get('/tag/:tag',         controllers.getEntriesByTag);
-// router.get('/editor/:slug',     requireAuth, controllers.getEditor);
-// router.get('/editor',           requireAuth, controllers.getEditor);
-// router.post('/editor',          requireAuth, controllers.postEntry);
-// router.delete('/:_id',          requireAuth, controllers.deleteEntry);
-// router.get('*', controllers.handle_error); //TODO: set up error handler
-// router.post('*', controllers.handle_error);
-
 module.exports = router;

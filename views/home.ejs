@@ -1,10 +1,10 @@
 <%- include('partials/header'); -%>
     <div class="headings">
-      <h3><%= published ? "Posts" : "Unpublished Posts" %></h3>
+      <h3><%= isPublished ? "" : "Unpublished " %>Posts</h3>
     </div>
   <main>
     <% if(message){ %>
-      <p><%- message %></p>
+      <p class="message"><%- message %></p>
     <% } %>
     <hr>
     <% entries.forEach(entry => { %>
@@ -18,7 +18,7 @@
       <% } %>
       <h4 class="preview-el"><a href="/reader/slug/<%= slug %>"><%- title %></a></h4>
       <h5 class="preview-el"><%- subtitle %></h5>
-      <h5 class="preview-el"><%= published ? dateDisplay : "Unpublished" %></h5>
+      <h5 class="preview-el"><%= isPublished ? dateDisplay : "Unpublished" %></h5>
       <p class="preview-el"><%- preview %></p>
       <p class="preview-el small-text"><%- tagHTML %></p>
     </section>

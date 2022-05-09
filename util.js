@@ -24,14 +24,15 @@ module.exports.fixHtmlTags = (content, task) => {
 }
 
 module.exports.formatDateString = date => {
-  const dateUTC = new Date(date);
+  const dateObj = new Date(date);
   const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return `${fullMonth[dateUTC.getMonth()]} ${dateUTC.getDate()}, ${dateUTC.getFullYear()}`;
-}
 
-module.exports.formatUTCDateString = (date, time) => {
-  return `${date} ${time}`;
-};
+  const dateString = dateObj.toISOString().substring(0, 10); //  "-> yyyy-mm-dd"
+  const timeString = dateObj.toISOString().substring(11, 16); // "-> hh:mm"
+  const dateDisplay = `${fullMonth[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+  
+  return { dateDisplay, dateString, timeString };
+}
 
 module.exports.formatDashedDate = date => {
     const year = date.getFullYear();
