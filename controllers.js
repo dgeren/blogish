@@ -24,15 +24,15 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 
 const getEntries = async parameters => {
   const {
-    id = null,  slug = null, tag = null, sortOrder = -1,
+    _id = null,  slug = null, tag = null, sortOrder = -1,
     skip = null, unpub = false, limit = null, pubDate
   } = parameters;
 
   const _now = new Date();
   
-  return id ? await Entry
+  return _id ? await Entry
     // if given an id, then the reader or editor was called
-          .findOne({ _id: id })
+          .findOne({ _id })
           .lean() :
     // if given a slug, then the reader or editor was called
        slug ? await Entry
@@ -155,8 +155,8 @@ module.exports.getListByTag = async (req, res) => {
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
   res.locals.message = null;
-  const { slug, id } = req.params;
-  const entry = slug ? await getEntries({ slug }) : await getEntries({ id });
+  const { slug = null, _id } = req.params;
+  const entry = slug ? await getEntries({ slug }) : await getEntries({ _id });
 
   // * PREP ENTRY DATA FOR EJS
   if(entry){
@@ -286,7 +286,6 @@ module.exports.signup = async (req, res) => {
 // * ALLOW SIGN IN
 module.exports.login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password); // 🔴 
 
   try {
     const user = await User.login(email, password);

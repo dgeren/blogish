@@ -24,9 +24,10 @@ const getDashedDate = date => {
   return string;
 }
 
-
 // * CONTROLS
-const openReader = () => location.assign("../reader/id/" + els.editor_entryID.value);
+const openReader = () => {
+  location.assign(`/reader/id/${ els.editor_entryID.value }`);
+}
 const revert = () => location.reload(true);
 
 
@@ -42,19 +43,6 @@ const updatePreviews = () => {
     .split(" ")
     .slice(0, 25)
     .join(" ");
-
-  // 🟢 NEW - not working yet
-  // const content = await fetch('/editor/preview', {
-  //   method: "GET",
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(els.editor_markdown.value)
-  // })
-  // .then(res => res.json())
-  // .then(res => {
-  //   message.innerHTML = res.message || "";
-  //   els.reader_content.innerHTML = res.markdown || "";
-  // })
-  // .catch(e => console.log('🟠 ERROR: ', e));
 
 
   // prep tags
@@ -96,6 +84,19 @@ const upload = async () => {
     const _now = new Date().toUTCString().slice(17,22);
     entryData.timeString = _now + ":00.000Z";
   }
+
+  // 🟢 NEW - not working yet
+  // const content = await fetch('/editor/preview', {
+  //   method: "GET",
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify(els.editor_markdown.value)
+  // })
+  // .then(res => res.json())
+  // .then(res => {
+  //   message.innerHTML = res.message || "";
+  //   els.reader_content.innerHTML = res.markdown || "";
+  // })
+  // .catch(e => console.log('🟠 ERROR: ', e));
   
 
   await fetch('/editor', {
