@@ -34,7 +34,7 @@ const updatePreviews = () => {
   // prep title
   const title = `<a>${els.editor_title.value}</a>`
 
-  // prep content & shortened content
+  // prep content & shortened content :: ORIGINAL will be deprecated
   const content = els.editor_content.value;
   const shortContent = content
     .replace(/(<([^>]+)>)/gim, " ")
@@ -42,6 +42,20 @@ const updatePreviews = () => {
     .split(" ")
     .slice(0, 25)
     .join(" ");
+
+  // 🟢 NEW - not working yet
+  // const content = await fetch('/editor/preview', {
+  //   method: "GET",
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify(els.editor_markdown.value)
+  // })
+  // .then(res => res.json())
+  // .then(res => {
+  //   message.innerHTML = res.message || "";
+  //   els.reader_content.innerHTML = res.markdown || "";
+  // })
+  // .catch(e => console.log('🟠 ERROR: ', e));
+
 
   // prep tags
   const tagHTML = [];

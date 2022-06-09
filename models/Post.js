@@ -17,6 +17,10 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, "What's a post without content? Content required."]
   },
+  markdown: {
+    type: String,
+    required: [true, "What's an entry without content? Content required."]
+  },
   tags: {
     type: [String],
     default: []

@@ -1,8 +1,8 @@
 
 /* GENERAL */
 body {
-  background-color: #C5D2BC;
-  color: #02240b;
+  background-color: #4a525a;
+  color: #aaa;
   font-family: sans-serif;
   margin: 0;
   padding: 0;
@@ -16,7 +16,7 @@ body {
 }
 
 header {
-  background-color: #C5D2BC;
+  background-color: #4a525a;
   margin: 0;
   padding: 0;
   width: 100%;
@@ -72,13 +72,23 @@ label {
   font-weight: bold;
 }
 
+a, li, p {
+  line-height: 1.5;
+}
+
 a {
-  color: #686B02;
+  color: #f90;
   text-decoration: none;
 }
 
 hr {
   border: 1px solid black;
+}
+
+code {
+  color: #aad;
+  font-weight: bold;
+  padding: 0 7px;
 }
 
 #subtitle {
@@ -136,6 +146,17 @@ hr {
   padding: 0;
 }
 
+input, button {
+  color: white;
+  background-color: black;
+}
+
+textarea {
+  scrollbar-color: #ccc #333;
+  color: white;
+  background-color: black;
+}
+
 .listSection {
   border-bottom: 1px black solid;
 }
@@ -147,7 +168,7 @@ hr {
   background-color: ccc;
 }
 
-#editor_content {
+#editor_content, #editor_markdown {
   border: 1px solid black;
   min-height: 20em;
   font-family: monospace;

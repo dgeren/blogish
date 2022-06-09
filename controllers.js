@@ -1,11 +1,14 @@
 const slugify = require('slugify');
 const jwt = require('jsonwebtoken');
+const showdown = require('showdown');
+const converter = new showdown.Converter({ 'noHeaderId': true });
+
 
 const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
+
 const {
-  fixHtmlTags,      formatDateString,
-  formatDashedDate, handleErrors,
+  fixHtmlTags,      formatDateString,     handleErrors,
   prepPreview,      prepTags
 } = require('./util'); // 🟠 is formatDashedDate necessary?
 const maxAge = 3600 * 72, limit = 3; // 🟠 add both to dashboard for admin users but nothing lower
@@ -100,8 +103,6 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.isPublished = true;
 
   res.locals.entries.forEach(entry => {
-    entry.content = fixHtmlTags(entry.content, "down");
-    entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
     entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
   });
@@ -118,12 +119,9 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.page = 0;
   res.locals.adjacentEntries = null;
   res.locals.isPublished = false;
+  res.locals.requestedTag = null;
 
-  res.locals.entries.forEach(entry => {
-    entry.content = fixHtmlTags(entry.content, "down");
-    entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
-    entry.tagHTML = prepTags(entry.tags);
-  });
+  res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
   res.render('home');
 }
 
@@ -142,8 +140,6 @@ module.exports.getListByTag = async (req, res) => {
 
   if(res.locals.entries.length > 0) {
     res.locals.entries.forEach(entry => {
-      entry.content = fixHtmlTags(entry.content, "down");
-      entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
       entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
       entry.tagHTML = prepTags(entry.tags);
     });
@@ -165,14 +161,15 @@ module.exports.getEntry = async (req, res) => {
   // * PREP ENTRY DATA FOR EJS
   if(entry){
     if(entry.pubDate) entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
-    entry.content = fixHtmlTags(entry.content, "down");
     entry.tagHTML = prepTags(entry.tags);
+    entry.HTML = converter.makeHtml(entry.markdown);
     
     res.locals.entry = entry;
     res.locals.page = null;
     res.locals.pages = null;
+    res.locals.requestedTag = null
     res.locals.adjacentEntries = await getAdjacentEntries(entry.pubDate);
-    res.locals.message = "Save successful.";
+    res.locals.message = "";
     res.render('reader');
   // * OR ALERT VISITOR
   } else {
@@ -182,7 +179,7 @@ module.exports.getEntry = async (req, res) => {
   }
 }
 
-// * OPEN ARTICLE IN EDITOR OR EMPTY EDITOR
+// * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
   res.locals.message = null;
   res.locals.entry = new Entry();
@@ -198,8 +195,7 @@ module.exports.getEditor =  async (req, res) => {
       entry.dateString  = dates.dateString || "";
       entry.timeString  = dates.timeString || "";
       entry.isPublishedChecked = entry.isPublished ? "checked" : "";
-      entry.content = fixHtmlTags(entry.content, "down");
-      entry.preview = fixHtmlTags(prepPreview(entry.content), "down");
+      entry.content = converter.makeHtml(entry.markdown);
       entry.tagHTML = prepTags(entry.tags);
 
       // * EJS
@@ -211,22 +207,23 @@ module.exports.getEditor =  async (req, res) => {
   res.render('editor');
 }
 
+module.exports.getEditorPreview = async (req, res) => {}
+
 // * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
   res.locals.message = null;
 
   // * GET DATA FROM REQ
   const { title, subtitle, authorID, isPublished, dateString, timeString, entryID } = req.body;
-  let { content, tags } = req.body;
+  let { content, markdown, tags } = req.body;
   
   // * PREP DATA
   const slug = slugify(title, { lower: true });
   const pubDate = dateString === "" || timeString === "" ? "" : 
     new Date(`${dateString}T${timeString}`);
-  content = fixHtmlTags(content, "up");
   tags = tags.split(",").map(element => element.trim());
 
-  const attributes = { title, slug, subtitle, content, tags, isPublished, pubDate, authorID };
+  const attributes = { title, slug, subtitle, content, markdown, tags, isPublished, pubDate, authorID };
   
   // * ATTEMPT TO UPDATE AN EXISTING ENTRY OR SAVE AS NEW ENTRY
   const entry = await Entry.findOneAndUpdate(
@@ -235,8 +232,6 @@ module.exports.postEntry = async (req, res) => {
     { new: true, upsert: true }
   );
   if(entry){
-    entry.content = fixHtmlTags(entry.content, "up");
-    
     res.status(200).send({ message: "Save successful.", entry });
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
@@ -291,6 +286,8 @@ module.exports.signup = async (req, res) => {
 // * ALLOW SIGN IN
 module.exports.login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password); // 🔴 
+
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
