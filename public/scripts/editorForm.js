@@ -98,7 +98,6 @@ const upload = async () => {
   // })
   // .catch(e => console.log('🟠 ERROR: ', e));
   
-
   await fetch('/editor', {
     method: "POST",
     headers: { 'Content-Type': 'application/json' },

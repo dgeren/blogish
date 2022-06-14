@@ -1,35 +1,47 @@
 <%- include('partials/header'); -%>
-    <div class="headings">
-      <h3><%= isPublished ? "" : "Unpublished " %>Posts</h3>
-    </div>
-  <main>
-    <% if(message){ %>
-      <p class="message"><%- message %></p>
-    <% } %>
-    <hr>
-    <% entries.forEach(entry => { %>
-      <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay, author } = entry; %>
-    <section>
-      <% if(user) { %>
-      <p class="preview-el small-text editBtn"><a href="/editor/slug/<%= slug %>">&#9998;</a></p>
-      <% } %>
-      <% if(message) { %>
-      <p class="err_message"><%= message %></p>
-      <% } %>
-      <h4 class="preview-el"><a href="/reader/slug/<%= slug %>"><%- title %></a></h4>
-      <h5 class="preview-el"><%- subtitle %></h5>
-      <h5 class="preview-el"><%= isPublished ? dateDisplay : "Unpublished" %></h5>
-      <p class="preview-el"><%- preview %></p>
-      <p class="preview-el small-text"><%- tagHTML %></p>
-    </section>
-    <hr>
-    <% }); %>
-  </main>
-  <div class="pagination">
-    <%- include('partials/navigateEntries'); %>
+
+  <div id="container-gutter">
+    <%- include('partials/gutter'); -%>
   </div>
 
-  <% if(!user){ %>
-  <script src="/scripts/login.js"></script>
-  <% } %>
-<%- include('partials/footer'); %>
+
+  <div id="container-content">
+
+    <div>
+      <h3 id="page-title"><%= isPublished ? "" : "Unpublished " %>Posts</h3>
+    </div>
+
+    <main>
+      <% if(message){ %>
+        <p class="message"><%- message %></p>
+      <% } %>
+      <% entries.forEach(entry => { %>
+        <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay, author } = entry; %>
+      <div class="card">
+        <% if(user) { %>
+        <p class="preview-el small-text editBtn"><a href="/editor/slug/<%= slug %>">&#9998;</a></p>
+        <% } %>
+        <% if(message) { %>
+        <p class="err_message"><%= message %></p>
+        <% } %>
+        <h4 class="preview-el"><a href="/reader/slug/<%= slug %>"><%- title %></a></h4>
+        <h5 class="preview-el"><%- subtitle %></h5>
+        <h5 class="preview-el"><%= isPublished ? dateDisplay : "Unpublished" %></h5>
+        <p class="preview-el"><%- preview %></p>
+        <p class="preview-el small-text"><%- tagHTML %></p>
+        </div>
+      <% }); %>
+    </main>
+    <div class="pagination">
+      <%- include('partials/navigateEntries'); %>
+    </div>
+  
+    <% if(!user){ %>
+    <script src="/scripts/login.js"></script>
+    <script src="/scripts/interface.js"></script>
+    <% } %>
+
+  </div>
+</div>
+</body>
+</html>
