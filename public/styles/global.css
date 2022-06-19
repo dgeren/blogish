@@ -5,18 +5,19 @@ body {
   background-color: #4a525a;
   color: #aaa;
   font-family: sans-serif;
+  margin: 10px;
   padding: 0;
+  min-width: 300px;
+  max-width: 700px;
 }
 
 h1 {
   margin: 0; padding: 0; border: 0;
-  display: inline;
 }
 
 h2 {
   font-size: .75em;
-  margin: 0; padding: 0; border: 0;
-  display: inline;
+  margin: 5px 0 0 0; padding: 0; border: 0;
 }
 
 h3 {
@@ -25,10 +26,6 @@ h3 {
 
 h5 {
   margin: 0; padding: 0; border: 0;  
-}
-
-header {
-  background-color: #4a525a;
 }
 
 a {
@@ -40,6 +37,23 @@ code {
   color: #aad;
 }
 
+#site-title {
+  margin: 0; padding: 0; border: 0;
+}
+
+#basic-nav {
+  float: right;
+}
+
+.not-a-list {
+  margin: 0; padding: 0 5px 0 0; border: 0;
+  list-style-type: none;
+}
+
+.not-a-list li {
+  display: inline;
+}
+
 .card {
   padding-bottom: 10px;
 }
@@ -48,13 +62,33 @@ code {
   font-size: .5em
 }
 
-.message {
-  position: relative;
-  float: right;
-}
-
 #signin-form {
   display: none;
+  float: right;
+  position: absolute;
+  right: 5px;
+  z-index: 10;
+  background-color: #444;
+  padding: 5px;
+  width: 175px;
+  border: 1px solid black;
+}
+
+input.signin-el {
+  width: 150px;
+}
+
+button.signin-el {
+  margin-left: auto;
+}
+
+.signin-el {
+  display: block;
+  margin: 4px;
+}
+
+#gutter li {
+  font-size: .5em;
 }
 
 #dates {
@@ -69,8 +103,20 @@ code {
   margin: 0; padding: 0; border: 0;
 }
 
+#next {
+  float: right;
+  padding-right: 5px;
+}
+
+.button {
+  padding: 1px 3px;
+  border-bottom: 1px solid #333;
+  background-color: #333;
+  vertical-align: 2px;
+}
+
 .small-text {
-  font-size: .75px;
+  font-size: .75em;
 }
 
 .smaller-text {
@@ -85,71 +131,24 @@ code {
 
 /* --- GRID --- */
 
-#container {
+#container-content {
   display: grid;
-  grid-template-columns: 80px 1fr 1fr 80px;
-  grid-template-rows: repeat(4, auto);
+  grid-template-columns: 80px 1fr;
   gap: 15px;
 
-  margin: 0 auto;
-  max-width: 800px;
-  min-width: 300px;
-}
-
-#container-title {
-  grid-column: 1 / span 4;
-  height: fit-content;
-}
-
-#container-basic-nav {
-  grid-column: 3 / span 2;
-  height: fit-content;
-  justify-self: right;
-}
-
-#container-basic-nav ul {
-  list-style-type: none;
-  margin: 0; padding: 0; border: 0;  
-}
-
-#container-basic-nav li {
-  display: inline;
-}
-
-#container-signed-in-nav {
-  grid-column: 1 / span 4;
-  height: fit-content;
-}
-
-#container-signed-in-nav * {
-  display: inline;
-  margin: 0; padding: 0; border: 0;  
-}
-
-#container-signin-form {
-  grid-column: 1 / span 4;
-  height: fit-content;
-}
-
-#container-signin-form ul li {
-  display: inline;
+  margin: 10px auto 0 auto;
 }
 
 #container-gutter {
   margin: 0; padding: 0; border: 0;
   height: fit-content;
-  min-width: 72px;
 }
 
 #container-gutter ul {
   list-style-type: none;
 }
 
-#gutter li {
-  font-size: .5em;
-}
-
-#container-content {
+#container-list {
   grid-column: 2 / span 3;
   margin: 0; padding: 0; border: 0;
 }

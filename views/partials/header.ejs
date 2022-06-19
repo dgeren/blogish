@@ -7,43 +7,31 @@
   <link rel="stylesheet" href="/styles/global.css">
 </head>
 <body>
-  <div id="container">
-
-    <div id="container-title">
-      <h1><a href="/">Blogish</a></h1>
-      <h2>A Career-Change Misadventure</h2>
-    </div>
-
-    <div id="container-basic-nav" class="small-text">
-      <ul>
-        <li><a href="/about">About</a></li>
-        &nbsp; | &nbsp;
-        <li><a id="toggle-login-form" href="">Login</a></li>
-      </ul>
-    </div>
-
-    <div id="container-signed-in-nav">
-      <% if(user){ %>
-      <div class="small-text">
-        <ul>
-          <li><a href="/listUnpublished">Unpublished Entries</a></li>
-          &nbsp; | &nbsp;
-          <li><a href="/editor">Create Entry</a></li>
-          &nbsp; | &nbsp;
-          <li><a href="/admin">Admin</a></li>
-          <br>
-          <li>Logged in: '<%= user.email %>' [<a href="/logout">Log Out</a>]</li>
-        </ul>
-      </div>
-      <% } %>
-    </div>
-      
-    <div id="container-signin-form">
-      <form id="signin-form">
-        <span class="signin-el">Sign in: </span>
-        <input class="signin-el" type="text" name="email" placeholder="Email address" required>
-        <input class="signin-el" type="password" name="password" placeholder="Password" required>
-        <button class="signin-el">Log in</button>
-        <div class="signin-el error"></div>
-      </form>
-    </div>
+  <ul id="basic-nav" class="not-a-list">
+    <li class="not-a-list small-text"><a href="/about">About</a></li>
+    &nbsp; | &nbsp;
+    <li class="not-a-list small-text"><a id="toggle-login-form" href="">Login</a></li>
+  </ul>
+    <h1 id="site-title"><a href="/">Blogish</a></h1>
+    <h2>A Career-Change Misadventure</h2>
+  
+  <% if(user){ %>
+  <div class="small-text">
+    <ul class="not-a-list">
+      <li class="not-a-list"><a href="/listUnpublished">Unpublished Entries</a></li>
+      &nbsp; | &nbsp;
+      <li class="not-a-list"><a href="/editor">Create Entry</a></li>
+      &nbsp; | &nbsp;
+      <li class="not-a-list"><a href="/admin">Admin</a></li>
+      <br>
+      <li class="not-a-list">Logged in: '<%= user.email %>' [<a href="/logout">Log Out</a>]</li>
+    </ul>
+  </div>
+  <% } %>
+  
+  <form id="signin-form">
+    <span class="signin-el">Sign in:</span>
+    <input class="signin-el" type="text" name="email" placeholder="Email address" required>
+    <input class="signin-el" type="password" name="password" placeholder="Password" required>
+    <button class="signin-el">Log in</button>
+  </form>

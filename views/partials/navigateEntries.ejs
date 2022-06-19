@@ -5,17 +5,14 @@
 <% } %>
 
 <% if (page < pages) { %>
-  <a href="<%= `/${pageType}/${ page + 1 }` %>">Next</a><br>
+  <a id="next" href="<%= `/${pageType}/${ page + 1 }` %>">Next</a><br>
 <% } %>
     
 <% if (adjacentEntries) { %>
     <% if (adjacentEntries.prev) { %>
       <a href="/reader/slug/<%= adjacentEntries.prev.slug %>">Previous: <%= adjacentEntries.prev.title %></a>
     <% } %>
-    <% if (adjacentEntries.prev && adjacentEntries.next) { %>
-      ||  
-    <% } %>
     <% if (adjacentEntries.next) { %>
-      <a href="/reader/slug/<%= adjacentEntries.next.slug %>">Next: <%= adjacentEntries.next.title %></a><br>
+      <a href="/reader/slug/<%= adjacentEntries.next.slug %>">Next: <%= adjacentEntries.next.title %></a>
     <% } %>
 <% } %>
