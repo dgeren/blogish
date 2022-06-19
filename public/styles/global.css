@@ -133,7 +133,7 @@ button.signin-el {
 
 #container-content {
   display: grid;
-  grid-template-columns: 80px 1fr;
+  grid-template-columns: 200px 1fr;
   gap: 15px;
 
   margin: 10px auto 0 auto;
@@ -154,11 +154,26 @@ button.signin-el {
 }
 
 
-/* --- LIST --- */
+/* --- GUTTER --- */
 
+.year {
+  font-weight: bold;
+  font-size: .75em;
+}
 
+.month {
+  font-weight: bold;
+  padding-left: 3em;
+}
 
+.day {
+  font-weight: bold;
+  padding-left: 6em;
+}
 
+.item {
+  padding: 0 0 6em 6em ;
+}
 
 /* --- EDITOR --- */
 

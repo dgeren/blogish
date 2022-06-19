@@ -11,7 +11,7 @@ const {
   fixHtmlTags,      formatDateString,     handleErrors,
   prepPreview,      prepTags
 } = require('./util'); // 🟠 is formatDashedDate necessary?
-const maxAge = 3600 * 72, limit = 3; // 🟠 add both to dashboard for admin users but nothing lower
+const maxAge = 3600 * 72, limit = 7; // 🟠 add both to dashboard for admin users but nothing lower
 
 /*
 * LOCAL METHODS
@@ -22,7 +22,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
   });
 }
 
-const getDateData = async () => {
+const getSidebarDateHtml = async () => {
 
   const _now = new Date();
 
@@ -33,14 +33,14 @@ const getDateData = async () => {
   .lean();
 
   let output = `<ul>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let first = true;
-  const closers = `</li>\n</ul>\n`;
 
   for(item of results){
     
     const d = item.pubDate;
     const year = d.getUTCFullYear();
-    const month = d.getUTCMonth() + 1;
+    const month = d.getUTCMonth();
     const day = d.getUTCDay() + 1;
 
     if(!first){
@@ -52,50 +52,20 @@ const getDateData = async () => {
     if(currentYear !== year){
       currentYear = year;
       output += `<li class="year">${year}\n<ul>\n`;
-      // if(!first) output += closers;
     }
     if(currentMonth !== month){
       currentMonth = month;
-      output += `<li class="month">${month}\n<ul>\n`;
-      // if(!first) output += closers;
+      output += `<li class="month">${months[month]}\n<ul>\n`;
     }
     if(currentDay !== day){
       currentDay = day;
       output += `<li class="day">${day}\n<ul>\n`;
-      // if(!first) output +=`${closers} <!-- is this the extra closers? -->`;
     }
     output += `<li class="item"><a href="/reader/slug/${item.slug}">${item.title}</a></li>\n`;
     first = false;
-  }
+    }
 
-
-  // for(item of results) {
-  //   const count = 0;
-  //   const d = item.pubDate;
-  //   const year = d.getUTCFullYear();
-  //   const month = d.getUTCMonth() + 1;
-  //   const day = d.getUTCDay() + 1;
-    
-  //   if(currentYear !== year){
-  //     currentYear = year;
-  //     ++countYear;
-  //     output += `<li class="year">${year}\n`;
-  //   }
-  //   if(currentMonth !== month){
-  //     currentMonth = month;
-  //     ++countMonth;
-  //     temp += `</li>\n  <li class="month">${month}\n`;
-  //   }
-  //   if(currentDay !== day){
-  //     currentDay = day;
-  //     temp += `</li>\n    <li class="day">${day}`;
-  //   }
-  //   temp += `      <li class="listing"><a href="/reader/slug/${item.slug}">${item.title}</li>\n`;
-  // };
-
- console.log(output); // 🔴
-
-  return;
+  return output.trim();
 }
 
 const getEntries = async parameters => {
@@ -169,7 +139,6 @@ const countDocs = async (tag) => {
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
 
-  // getDateData(); // 🔴
   res.locals.message = null;
   res.locals.page = parseInt(req.params.page) || 1;
   const docs = await countDocs();
@@ -185,9 +154,7 @@ module.exports.getListByPubDate = async (req, res) => {
     entry.tagHTML = prepTags(entry.tags);
   });
   res.locals.requestedTag = null;
-
-  getDateData(); // 🔴
-
+  res.locals.sideBarDates = await getSidebarDateHtml();
 
   res.render('home');
 }
