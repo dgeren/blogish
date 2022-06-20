@@ -158,21 +158,20 @@ button.signin-el {
 
 .year {
   font-weight: bold;
-  font-size: .75em;
 }
 
 .month {
   font-weight: bold;
-  padding-left: 3em;
 }
 
 .day {
   font-weight: bold;
-  padding-left: 6em;
 }
 
+#id
+
 .item {
-  padding: 0 0 6em 6em ;
+  margin: 0; padding: 0; border: 0;
 }
 
 /* --- EDITOR --- */

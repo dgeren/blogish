@@ -36,35 +36,36 @@ const getSidebarDateHtml = async () => {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let first = true;
 
-  for(item of results){
+    for(item of results){
+      
+      const d = item.pubDate;
+      const year = d.getUTCFullYear();
+      const month = d.getUTCMonth();
+      const day = d.getUTCDay() + 1;
+
+      if(!first){
+        if(currentDay !== day) output += `</ul>\n</details>\n`;
+        if(currentMonth !== month) output += `</details>\n`;
+        if(currentYear !== year) output += `</details>\n`;
+      }
+
+      if(currentYear !== year) {
+        currentYear = year;
+        output += `<details class="year">\n<summary>${year}</summary>\n`;
+      }
+      if(currentMonth !== month){
+        currentMonth = month;
+        output += `<details class="month">\n<summary>${months[month]}</summary>\n`;
+      }
+      if(currentDay !== day){
+        currentDay = day;
+        output += `<details class="day">\n<summary>${day}</summary>\n<ul>\n`;
+      }
+      output += `<li class="item"><a href="/reader/slug/${item.slug}">${item.title}</a></li>\n`;
+      first = false;
+    }
     
-    const d = item.pubDate;
-    const year = d.getUTCFullYear();
-    const month = d.getUTCMonth();
-    const day = d.getUTCDay() + 1;
-
-    if(!first){
-      if(currentDay !== day) output += `</ul>\n</li>\n`;
-      if(currentMonth !== month) output += `</ul>\n</li>\n`;
-      if(currentYear !== year) output += `</ul>\n</li>\n`;
-    }
-
-    if(currentYear !== year){
-      currentYear = year;
-      output += `<li class="year">${year}\n<ul>\n`;
-    }
-    if(currentMonth !== month){
-      currentMonth = month;
-      output += `<li class="month">${months[month]}\n<ul>\n`;
-    }
-    if(currentDay !== day){
-      currentDay = day;
-      output += `<li class="day">${day}\n<ul>\n`;
-    }
-    output += `<li class="item"><a href="/reader/slug/${item.slug}">${item.title}</a></li>\n`;
-    first = false;
-    }
-
+  output += `</ul>\n</details>\n</details>\n</details>\n`;
   return output.trim();
 }
 
