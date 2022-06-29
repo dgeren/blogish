@@ -1,28 +1,39 @@
 <%- include('partials/Header'); -%>
 <% const { title, slug, subtitle, HTML, tagHTML = "", dateDisplay = "" } = entry; %>
-<div class="headings">
-  <h3><%= title %></h3>
+
+
+<div id="container-gutter" class="medium">
+  <%- include('partials/gutter'); -%>
 </div>
-  <main>
-      <section>
+
+
+<div id="container-content">
+  <div class="headings">
+    <h3><%= title %></h3>
+  </div>
+    <main>
+        <section>
+          <% if(user) { %>
+            <p class="preview-el small-text editBtn"><a href="/editor/slug/<%= slug %>">&#9998;</a></p>
+          <% } %>
+          <h4><%- subtitle %></h4>
+          <div class="date-display">
+          <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
+          </div>
+          <div><%- HTML %></div>
+          <p><%- tagHTML %></p>
+        </section>
         <hr>
-        <% if(user) { %>
-          <p class="preview-el small-text editBtn"><a href="/editor/slug/<%= slug %>">&#9998;</a></p>
-        <% } %>
-        <h4><%- subtitle %></h4>
-        <div class="dateDisplay">
-        <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
-        <div><%- HTML %></div>
-        <p><%- tagHTML %></p>
-      </section>
-      <hr>
-  </main>
-  <nav class="pagination">
-    <%- include('partials/navigateEntries'); -%>
-  </nav>
+    </main>
+    <nav class="pagination">
+      <%- include('partials/navigateEntries'); -%>
+    </nav>
 
-  <% if(!user){ %>
-  <script src="/scripts/login.js"></script>
-  <% } %>
+  <div id="container-footer">
+    <%- include('partials/footer') -%>
+  </div>
+</div>
 
-<%- include('partials/footer'); -%>
+    <% if(!user){ %>
+    <script src="/scripts/login.js"></script>
+    <% } %>

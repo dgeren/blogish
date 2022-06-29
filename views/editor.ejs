@@ -3,6 +3,12 @@
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
 <% const tagHTML = tagArray.join(', '); %>
+
+<div id="container-gutter" class="medium">
+  <%- include('partials/gutter'); -%>
+</div> <!-- close #container-gutter -->
+
+<div id="container-content">
     <div class="headings">
       <h3>Editor</h3>
     </div>
@@ -11,7 +17,9 @@
       <button id="tools_update" class="tools" name="updatePreviews" alt="Update Preview section.">Preview</button>
       &nbsp; | &nbsp;
       <button id="tools_upload" class="tools" name="upload" alt="Update the server.">Upload</button>
+      &nbsp;
       <button id= "tools_revert" class="tools" name="revert" alt="Revert the post to the state on the server.">Revert</button>
+      &nbsp;
       <button id="tools_openReader" class="tools" name="openReader" alt="Open post in a reader. Does not save or upload.">Reader</button>
       &nbsp; | &nbsp;
       <button id="tools_del" class="tools red" name="del" alt="Permanently delete the post.">Delete</button>
@@ -51,7 +59,6 @@
           <input type="date" name="dateString" class="form-el editor publish" id="editor_datepicker" value="<%- dateString %>">
           <input type="time" name="timeString" class="form-el editor publish" id="editor_timepicker" value="<%- timeString %>">
           <p class="message" name="publishError" id="publishError">Please select a date or deselect "Publish?"</p>
-          
         </div>
 
         <div class="elementContainer">        
@@ -81,9 +88,12 @@
       </div>
 
     </form>
-    <hr>
   </main>
+</div> <!-- close #container-content -->
+
+<div id="container-footer">
+  <%- include('partials/footer') -%>
+</div> <!-- close #container-footer -->
+</div>
 
   <script src="/scripts/editorForm.js"></script>
-
-<%- include('partials/footer'); -%>

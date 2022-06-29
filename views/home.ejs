@@ -1,42 +1,43 @@
-<%- include('partials/header'); -%>
+    <%- include('partials/header'); -%>
 
-<div id="container-content">
+      <div id="container-gutter" class="medium">
+        <%- include('partials/gutter'); -%>
+      </div> <!-- close #container-gutter -->
 
-  <div id="container-gutter">
-    <%- include('partials/gutter'); -%>
+      <div id="container-content">
+        <h3 id="page-title"><%= isPublished ? "" : "Unpublished " %>Posts</h3>
+
+        <main>
+          <% entries.forEach(entry => { %>
+            <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay, author } = entry; %>
+          <div class="card">
+            <h4 class="preview-el">
+              <% if(user) { %>
+              <a href="/editor/slug/<%= slug %>" class="preview-el small-text button">&#9998;&nbsp;edit</a>
+              <% } %>
+            <a href="/reader/slug/<%= slug %>"><%- title %></a>
+            </h4>
+            <h5 class="preview-el"><%- subtitle %></h5>
+            <h5 class="preview-el"><%= isPublished ? dateDisplay : "Unpublished" %></h5>
+            <p class="preview-el"><%- preview %></p>
+            <p class="preview-el small-text"><%- tagHTML %></p>
+          </div>
+          <% }); %>
+        </main>
+        <div class="pagination">
+          <%- include('partials/navigateEntries'); %>
+        </div>
+      </div> <!-- close #container-content -->
+
+      <div id="container-footer">
+        <%- include('partials/footer') -%>
+      </div> <!-- close #container-footer -->
   </div>
-
-
-  <div id="container-list">
-    <h3 id="page-title"><%= isPublished ? "" : "Unpublished " %>Posts</h3>
-
-    <main>
-      <% entries.forEach(entry => { %>
-        <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay, author } = entry; %>
-      <div class="card">
-        <h4 class="preview-el">
-          <% if(user) { %>
-          <a href="/editor/slug/<%= slug %>" class="preview-el small-text button">&#9998;&nbsp;edit</a>
-          <% } %>
-        <a href="/reader/slug/<%= slug %>"><%- title %></a>
-        </h4>
-        <h5 class="preview-el"><%- subtitle %></h5>
-        <h5 class="preview-el"><%= isPublished ? dateDisplay : "Unpublished" %></h5>
-        <p class="preview-el"><%- preview %></p>
-        <p class="preview-el small-text"><%- tagHTML %></p>
-      </div>
-      <% }); %>
-    </main>
-    <div class="pagination">
-      <%- include('partials/navigateEntries'); %>
-    </div>
+      
+  <% if(!user){ %>
+  <script src="/scripts/login.js"></script>
+  <script src="/scripts/interface.js"></script>
+  <% } %>
   
-    <% if(!user){ %>
-    <script src="/scripts/login.js"></script>
-    <script src="/scripts/interface.js"></script>
-    <% } %>
-
-  </div>
-</div>
 </body>
 </html>

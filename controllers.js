@@ -11,7 +11,7 @@ const {
   fixHtmlTags,      formatDateString,     handleErrors,
   prepPreview,      prepTags
 } = require('./util'); // 🟠 is formatDashedDate necessary?
-const maxAge = 3600 * 72, limit = 7; // 🟠 add both to dashboard for admin users but nothing lower
+const maxAge = 3600 * 72, limit = 4; // 🟠 add both to dashboard for admin users but nothing lower
 
 /*
 * LOCAL METHODS
@@ -23,6 +23,8 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 }
 
 const getSidebarDateHtml = async () => {
+
+  /* Eventually this function should be broken down and moved to other areas like util and views */
 
   const _now = new Date();
 
@@ -169,6 +171,7 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.adjacentEntries = null;
   res.locals.isPublished = false;
   res.locals.requestedTag = null;
+  res.locals.sideBarDates = await getSidebarDateHtml();
 
   res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
   res.render('home');
@@ -186,6 +189,7 @@ module.exports.getListByTag = async (req, res) => {
   res.locals.entries = await getEntries({ tag, skip, limit });
   res.locals.adjacentEntries = null;
   res.locals.isPublished = true;
+  res.locals.sideBarDates = await getSidebarDateHtml();
 
   if(res.locals.entries.length > 0) {
     res.locals.entries.forEach(entry => {
@@ -199,6 +203,14 @@ module.exports.getListByTag = async (req, res) => {
     res.locals.message = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;
     res.redirect('/');
   }
+}
+
+module.exports.getArchive = async (req, res) => {
+  res.redirect('/');
+}
+
+module.exports.getCategories = async (req, res) => {
+  res.redirect('/');
 }
 
 // * OPEN ARTICLES IN READER
@@ -218,6 +230,7 @@ module.exports.getEntry = async (req, res) => {
     res.locals.pages = null;
     res.locals.requestedTag = null
     res.locals.adjacentEntries = await getAdjacentEntries(entry.pubDate);
+    res.locals.sideBarDates = await getSidebarDateHtml();
     res.locals.message = "";
     res.render('reader');
   // * OR ALERT VISITOR
@@ -233,6 +246,8 @@ module.exports.getEditor =  async (req, res) => {
   res.locals.message = null;
   res.locals.entry = new Entry();
   res.locals.pagination = { next: null, previous: null };
+  res.locals.sideBarDates = await getSidebarDateHtml();
+  
   const { slug } = req.params;
   let dates = {};
   if(slug){

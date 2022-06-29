@@ -1,106 +1,192 @@
-
-/* --- GENERAL --- */
-
 body {
-  background-color: #4a525a;
-  color: #aaa;
+  background-color: #000;
+  color: #fff;
+  margin: 0; padding: 10px; border: 0;
+  display: flex;
+  justify-content: center; 
   font-family: sans-serif;
-  margin: 10px;
-  padding: 0;
-  min-width: 300px;
-  max-width: 700px;
 }
 
-h1 {
+body * {
   margin: 0; padding: 0; border: 0;
+}
+
+h1, h2, h3, h4, h5 {
+  margin: 0; padding: 0 0 10px 0; border: 0;
 }
 
 h2 {
   font-size: .75em;
-  margin: 5px 0 0 0; padding: 0; border: 0;
 }
 
-h3 {
-  margin: 0; padding: 0; border: 0;  
-}
-
-h5 {
-  margin: 0; padding: 0; border: 0;  
+p {
+  margin-bottom: 10px;
 }
 
 a {
-  color: #f90;
   text-decoration: none;
 }
 
-code {
-  color: #aad;
+a:hover, a:visited, a:link, a:focus {
+  color: orange;
 }
 
-#site-title {
-  margin: 0; padding: 0; border: 0;
+main {
+  margin: 20px 0;
 }
+
+.small {
+  font-size: .5em;
+}
+
+.medium {
+  font-size: .75em;
+}
+
+
+
+/* -- GRID -- */
+
+#container {
+  display: grid;
+  grid-template-columns: 125px auto;
+  gap: 25px;
+  min-width: 325px;
+  max-width: 800px;
+  width: 100%;
+}
+
+#container-footer {
+  grid-column: 1 / span 2;
+  text-align: center;
+}
+
+@media screen and (max-width: 599px) {
+
+  #container {
+    padding: 10px 5%;
+  }
+
+  #container-top {
+    grid-column: span 2;
+    position: relative;
+  }
+
+  #container-gutter {
+    display: none;
+  }
+
+  #container-content {
+    grid-column: span 2;
+  }
+
+  .narrow {
+    display: inline;
+  }
+
+  .wide {
+    display: none;
+  }
+
+}
+
+@media screen and (min-width: 600px) {
+
+  #container {
+    padding: 10px;
+  }
+
+  #container-top {
+    grid-column: span 2;
+    position: relative;
+  }
+
+  #container-gutter {
+    display: block;
+  }
+
+  #container-content {
+    grid-column: span 1;
+  }
+
+  .narrow {
+    display: none;
+  }
+
+  .wide {
+    display: inline;
+  }
+
+}
+
+
+
+/* -- HEADER -- */
 
 #basic-nav {
+  margin-top: 3px;
   float: right;
-}
-
-.not-a-list {
-  margin: 0; padding: 0 5px 0 0; border: 0;
-  list-style-type: none;
-}
-
-.not-a-list li {
-  display: inline;
-}
-
-.card {
-  padding-bottom: 10px;
-}
-
-#subtitle {
-  font-size: .5em
+  text-align: right;
+  z-index: 1;
 }
 
 #signin-form {
-  display: none;
   float: right;
   position: absolute;
   right: 5px;
   z-index: 10;
-  background-color: #444;
-  padding: 5px;
-  width: 175px;
-  border: 1px solid black;
-}
-
-input.signin-el {
-  width: 150px;
-}
-
-button.signin-el {
-  margin-left: auto;
+  background-color: #000;
+  padding: 15px;
+  border: 1px solid white;
 }
 
 .signin-el {
+  margin-right: 6px;
+  height: 1.5em;
+  padding-left: 6px;
+}
+
+#logged-in-as {
+  float: right;
+  line-height: 2em;
+  clear: right;
+}
+
+button.signin-el {
+  width: 65px;
+  text-align: center;
+}
+
+#container-top ul {
+  list-style-type: none;
+}
+
+#container-top li {
+  display: inline;
+}
+
+
+
+/* -- GUTTER -- */
+
+#categories ul li {
   display: block;
-  margin: 4px;
 }
 
-#gutter li {
-  font-size: .5em;
+
+
+/* -- ENTRY LIST (home, tags, and archive) -- */
+
+.card {
+  padding: 0 0 7% 0;
 }
 
-#dates {
-  padding-bottom: 10px;
+.card ul {
+  list-style-type: none;
 }
 
-#dates ul {
-  margin: 0; padding: 0; border: 0;
-}
-
-#tag-list ul {
-  margin: 0; padding: 0; border: 0;
+.card li {
+  display: inline;
 }
 
 #next {
@@ -108,73 +194,26 @@ button.signin-el {
   padding-right: 5px;
 }
 
-.button {
-  padding: 1px 3px;
-  border-bottom: 1px solid #333;
-  background-color: #333;
-  vertical-align: 2px;
+
+
+/* PREVIEW/READER */
+
+.preview-el {
+  margin: 0 0 8px 0;
 }
 
-.small-text {
-  font-size: .75em;
+p.editBtn {
+  float: right;
+  background-color: black;
+  padding: 5px 10px;
 }
 
-.smaller-text {
-  font-size: .5em;
-}
-
-.tiny-text {
-  font-size: .15em
-}
-
-
-
-/* --- GRID --- */
-
-#container-content {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 15px;
-
-  margin: 10px auto 0 auto;
-}
-
-#container-gutter {
-  margin: 0; padding: 0; border: 0;
-  height: fit-content;
-}
-
-#container-gutter ul {
-  list-style-type: none;
-}
-
-#container-list {
-  grid-column: 2 / span 3;
-  margin: 0; padding: 0; border: 0;
+.date-display {
+  padding-bottom: 10px;
 }
 
 
-/* --- GUTTER --- */
-
-.year {
-  font-weight: bold;
-}
-
-.month {
-  font-weight: bold;
-}
-
-.day {
-  font-weight: bold;
-}
-
-#id
-
-.item {
-  margin: 0; padding: 0; border: 0;
-}
-
-/* --- EDITOR --- */
+/* -- EDITOR -- */
 
 .toolbar {
   width: 100%;
@@ -198,15 +237,24 @@ button.signin-el {
   padding: 0;
 }
 
-input, button {
+input, button, textarea {
+  background-color: #222;
   color: white;
+}
+
+button {
   background-color: black;
+  color: orange;
+}
+
+input {
+  border: 1px solid white;
 }
 
 textarea {
-  scrollbar-color: #ccc #333;
+  outline: 1px solid white;
+  scrollbar-color: #fff #333;
   color: white;
-  background-color: black;
 }
 
 .listSection {
@@ -248,15 +296,4 @@ textarea {
   margin: 0;
   padding: 10px 0;
   width: 100%;
-}
-
-/* PREVIEW/READER */
-.preview-el {
-  margin: 0 0 8px 0;
-}
-
-p.editBtn {
-  float: right;
-  background-color: black;
-  padding: 5px 10px;
 }

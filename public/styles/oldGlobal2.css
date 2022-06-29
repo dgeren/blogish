@@ -1,0 +1,317 @@
+
+/* --- GENERAL --- */
+
+body {
+  background-color: #4a525a;
+  color: #aaa;
+  font-family: sans-serif;
+  margin: auto;
+  padding: 10px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+h1 {
+  margin: 0; padding: 0; border: 0;
+}
+
+h2 {
+  font-size: .75em;
+  margin: 5px 0 0 0; padding: 0; border: 0;
+}
+
+h3 {
+  margin: 0 0 7px 0; padding: 0; border: 0;
+  padding: 3px 0 3px 7px;
+  background-color: #333;
+}
+
+h4 {
+  margin: 0;
+}
+
+h5 {
+  margin: 0; padding: 0; border: 0;  
+}
+
+a {
+  color: #f90;
+  text-decoration: none;
+}
+
+code {
+  color: #aad;
+}
+
+#site-title {
+  margin: 0; padding: 0; border: 0;
+}
+
+#basic-nav {
+  float: right;
+}
+
+.not-a-list {
+  margin: 0; padding: 0 5px 0 0; border: 0;
+  list-style-type: none;
+}
+
+.not-a-list li {
+  display: inline;
+}
+
+.card {
+  padding: 10px 0;
+}
+
+#subtitle {
+  font-size: .5em
+}
+
+#signin-form {
+  display: none;
+  float: right;
+  position: absolute;
+  right: 5px;
+  z-index: 10;
+  background-color: #444;
+  padding: 5px;
+  width: 175px;
+  border: 1px solid black;
+}
+
+input.signin-el {
+  width: 150px;
+}
+
+button.signin-el {
+  margin-left: auto;
+}
+
+.signin-el {
+  display: block;
+  margin: 4px;
+}
+
+#dates {
+  padding-bottom: 10px;
+}
+
+#dates ul {
+  margin: 0; padding: 0; border: 0;
+}
+
+#tag-list ul {
+  margin: 0; padding: 0; border: 0;
+}
+
+#next {
+  float: right;
+  padding-right: 5px;
+}
+
+.button {
+  padding: 1px 3px;
+  border-bottom: 1px solid #333;
+  background-color: #333;
+  vertical-align: 2px;
+}
+
+.small-text {
+  font-size: .75em;
+}
+
+.smaller-text {
+  font-size: .5em;
+}
+
+.tiny-text {
+  font-size: .15em
+}
+
+
+
+/* --- GRID --- */
+  #container {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    gap: 10px;
+    align-items: center;
+    max-width: 1600px;
+  }
+
+  #container-top {
+    grid-column: span 5;
+    height: fit-content;
+  }
+
+/* -- NARROW SCREENS -- */
+@media screen and (max-width: 599px) {
+
+  #container-gutter {
+    display: none;
+  }
+
+  #container-gutter ul {
+    list-style-type: none;
+  }
+
+  #container-list {
+    margin: 0; padding: 0; border: 0;
+    grid-column: span 5;
+  }
+
+  li.narrow {
+    display: inline;
+  }
+}
+
+
+/* -- WIDE SCREENS -- */
+@media screen and (min-width: 600px) {
+
+  #container-gutter {
+    display: block;
+    margin: 0; padding: 0; border: 0;
+    height: fit-content;
+  }
+
+  #container-gutter ul {
+    list-style-type: none;
+  }
+
+  #container-list {
+    margin: 0; padding: 0; border: 0;
+    grid-column: 2 span 4;
+    height: fit-content;
+  }
+
+  .narrow {
+    display: none;
+  }
+}
+
+/* --- GUTTER --- */
+
+#gutter h3 {
+  font-size: .75em;
+}
+
+.year {
+  font-weight: bold;
+  margin: 7px;
+}
+
+.month {
+  font-weight: bold;
+  font-size: .9em;
+  margin-bottom: 7px;
+  margin-left: 7px;
+}
+
+.day {
+  font-weight: bold;
+  margin-left: 7px;
+}
+
+.item {
+  margin: 0 0 7px -14px; padding: 0; border: 0;
+}
+
+/* --- EDITOR --- */
+
+
+/* remove to retore styles
+.toolbar {
+  width: 100%;
+  margin: 10px 0;
+  padding: 0;
+}
+
+#editor {
+  margin: 0;
+  padding: 0;
+}
+
+.editorSection {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 10px;
+}
+
+.elementContainer {
+  margin: 0;
+  padding: 0;
+}
+
+input, button {
+  color: white;
+  background-color: black;
+}
+
+textarea {
+  scrollbar-color: #ccc #333;
+  color: white;
+  background-color: black;
+}
+
+.listSection {
+  border-bottom: 1px black solid;
+}
+
+.form-el {
+  width: 96%;
+  padding: 10px 2%;
+  margin: 10px 0 20px 0;
+  background-color: ccc;
+}
+
+#editor_content, #editor_markdown {
+  border: 1px solid black;
+  min-height: 20em;
+  font-family: monospace;
+}
+
+#editor_checkbox {
+  width: 20px;
+  accent-color: white;
+}
+
+#editor_datepicker, #editor_timepicker {
+  width: 100px;
+}
+
+.publish {
+  display: inline-block;
+}
+
+#publishError {
+  display: none;
+}
+
+#preview {
+  border-top: 1px solid black;
+  margin: 0;
+  padding: 10px 0;
+  width: 100%;
+}
+
+
+
+remove to restore styles */
+
+/* PREVIEW/READER */
+
+/* remove to retore styles
+.preview-el {
+  margin: 0 0 8px 0;
+}
+
+p.editBtn {
+  float: right;
+  background-color: black;
+  padding: 5px 10px;
+}
+
+remove to retore styles */

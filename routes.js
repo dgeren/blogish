@@ -11,6 +11,8 @@ router.get('/', controllers.getListByPubDate);
 router.get('/listByDate/:page', controllers.getListByPubDate);
 router.get('/listByTags/:tag', controllers.getListByTag);
 router.get('/listByTags/:tag/:page', controllers.getListByTag);
+router.get('/archive', controllers.getArchive);
+router.get('/categories', controllers.getCategories);
 router.get('/reader/slug/:slug', controllers.getEntry);
 router.get('/reader/id/:_id', controllers.getEntry);
 router.get('/editor/slug/:slug', controllers.getEditor);
