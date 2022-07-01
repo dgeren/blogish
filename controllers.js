@@ -43,7 +43,7 @@ const getSidebarDateHtml = async () => {
       const d = item.pubDate;
       const year = d.getUTCFullYear();
       const month = d.getUTCMonth();
-      const day = d.getUTCDay() + 1;
+      const day = d.getUTCDate() + 1;
 
       if(!first){
         if(currentDay !== day) output += `</ul>\n</details>\n`;

@@ -12,10 +12,10 @@
             <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay, author } = entry; %>
           <div class="card">
             <h4 class="preview-el">
-              <% if(user) { %>
-              <a href="/editor/slug/<%= slug %>" class="preview-el small-text button">&#9998;&nbsp;edit</a>
-              <% } %>
             <a href="/reader/slug/<%= slug %>"><%- title %></a>
+            <% if(user) { %>
+            <a href="/editor/slug/<%= slug %>" class="preview-el medium button">&nbsp; [ &#9998;&nbsp;edit ]</a>
+            <% } %>
             </h4>
             <h5 class="preview-el"><%- subtitle %></h5>
             <h5 class="preview-el"><%= isPublished ? dateDisplay : "Unpublished" %></h5>
