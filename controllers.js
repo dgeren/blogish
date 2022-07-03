@@ -61,9 +61,9 @@ const getSidebarDateHtml = async () => {
       }
       if(currentDay !== day){
         currentDay = day;
-        output += `<details class="day">\n<summary>${day}</summary>\n<ul>\n`;
+        output += `<details class="day">\n<summary>${day}</summary>\n<ul class="titles">\n`;
       }
-      output += `<li class="item"><a href="/reader/slug/${item.slug}">${item.title}</a></li>\n`;
+      output += `<li class="title"><a href="/reader/slug/${item.slug}">${item.title}</a></li>\n`;
       first = false;
     }
     

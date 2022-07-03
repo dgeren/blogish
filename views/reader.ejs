@@ -28,12 +28,12 @@
     <nav class="pagination">
       <%- include('partials/navigateEntries'); -%>
     </nav>
-
-  <div id="container-footer">
-    <%- include('partials/footer') -%>
-  </div>
 </div>
-
-    <% if(!user){ %>
-    <script src="/scripts/login.js"></script>
-    <% } %>
+<div id="container-footer">
+  <%- include('partials/footer') -%>
+</div>
+      
+<% if(!user){ %>
+<script src="/scripts/login.js"></script>
+<% } %>
+<script src="/scripts/interface.js"></script>

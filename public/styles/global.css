@@ -49,7 +49,7 @@ main {
 
 #container {
   display: grid;
-  grid-template-columns: 125px auto;
+  grid-template-columns: minmax(125px, 25%) auto;
   gap: 25px;
   min-width: 325px;
   max-width: 800px;
@@ -107,6 +107,10 @@ main {
 
   #container-content {
     grid-column: span 1;
+  }
+
+  #container-footer {
+    grid-column: 1 / span 2;
   }
 
   .narrow {
@@ -169,10 +173,30 @@ button.signin-el {
 
 /* -- GUTTER -- */
 
+#dates {
+  margin-bottom: 20px;
+}
+
+.titles {
+  list-style-type: none;
+}
+
+.year, .month, .day, .title {
+  margin-bottom: 7px;
+}
+
+.month {
+  margin-left: 10px;
+}
+
+.day {
+  margin-left: 20px;
+}
+
+
 #categories ul li {
   display: block;
 }
-
 
 
 /* -- ENTRY LIST (home, tags, and archive) -- */
@@ -296,4 +320,10 @@ textarea {
   margin: 0;
   padding: 10px 0;
   width: 100%;
+}
+
+/* -- FOOTER -- */
+
+footer {
+  margin-top: 30px;
 }
