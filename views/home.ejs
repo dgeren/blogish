@@ -34,10 +34,6 @@
       </div> <!-- close #container-footer -->
     </div>
       
-  <% if(!user){ %>
-  <script src="/scripts/login.js"></script>
-  <% } %>
-  <script src="/scripts/interface.js"></script>
-  
+    <%- include('partials/scripts') %>
 </body>
 </html>

@@ -303,7 +303,7 @@ textarea {
   accent-color: white;
 }
 
-#editor_datepicker, #editor_timepicker {
+#datepicker, #timepicker {
   width: 100px;
 }
 

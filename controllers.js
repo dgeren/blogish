@@ -22,6 +22,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
   });
 }
 
+// * GET ALL PUBLISHED DATES
 const getSidebarDateHtml = async () => {
 
   /* Eventually this function should be broken down and moved to other areas like util and views */
@@ -71,6 +72,7 @@ const getSidebarDateHtml = async () => {
   return output.trim();
 }
 
+// * GET ENTRIES FROM DATABASE
 const getEntries = async parameters => {
   const {
     _id = null,  slug = null, tag = null, sortOrder = -1,
@@ -185,6 +187,7 @@ module.exports.getListByTag = async (req, res) => {
   const docs = await countDocs(tag);
   const skip = (res.locals.page * limit) - limit;
 
+  // * PREP ENTRY DATA FOR EJS
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await getEntries({ tag, skip, limit });
   res.locals.adjacentEntries = null;
@@ -205,10 +208,12 @@ module.exports.getListByTag = async (req, res) => {
   }
 }
 
+// * RETURN LIST OF PUBLISHED DATES AND TITLES
 module.exports.getArchive = async (req, res) => {
   res.redirect('/');
 }
 
+// * RETURN LIST OF CATEGORIES
 module.exports.getCategories = async (req, res) => {
   res.redirect('/');
 }
@@ -252,6 +257,8 @@ module.exports.getEditor =  async (req, res) => {
   let dates = {};
   if(slug){
     const entry = await getEntries({ slug });
+
+    console.log(entry); // 🔴
     if(entry) {
       // * PREP FOR EJS
       if(entry.pubDate) dates = formatDateString(entry.pubDate);
@@ -278,13 +285,13 @@ module.exports.postEntry = async (req, res) => {
   res.locals.message = null;
 
   // * GET DATA FROM REQ
-  const { title, subtitle, authorID, isPublished, dateString, timeString, entryID } = req.body;
+  const { title, subtitle, authorID, isPublished, datePicker, timePicker, timeString, entryID } = req.body;
   let { content, markdown, tags } = req.body;
   
   // * PREP DATA
   const slug = slugify(title, { lower: true });
-  const pubDate = dateString === "" || timeString === "" ? "" : 
-    new Date(`${dateString}T${timeString}`);
+  pubDate = datePicker === "" || timePicker === "" ? "" :
+    new Date(`${datePicker}T${timePicker}`);
   tags = tags.split(",").map(element => element.trim());
 
   const attributes = { title, slug, subtitle, content, markdown, tags, isPublished, pubDate, authorID };
@@ -295,13 +302,28 @@ module.exports.postEntry = async (req, res) => {
     attributes,
     { new: true, upsert: true }
   );
+  entry.content = converter.makeHtml(entry.markdown);
+  entry.markdown = null;
   if(entry){
-    res.status(200).send({ message: "Save successful.", entry });
+    res.locals.entry = entry;
+    res.locals.entry.message = "Save Successful.";
+    res.status(200).render('partials/preview');
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
     res.locals.entry = new Entry.updateOne({ _id: entryID }, { isPublished: false });
     res.render('editor');
   }
+}
+
+// * GET HTML FOR EDITOR PREVIEW
+module.exports.getEditorPreview = async (req, res) => {
+  res.locals.message = null;
+  const { title, subtitle, authorID, isPublished, datePicker, timePicker, entryID } = req.body;
+  let { content, markdown, tags } = req.body;
+  const slug = slugify(title, { lower: true });
+  pubDate = datePicker === "" || timePicker === "" ? "" :
+    new Date(`${datePicker}T${timePicker}`);
+  tags = tags.split(",").map
 }
 
 

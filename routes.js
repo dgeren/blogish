@@ -19,6 +19,7 @@ router.get('/editor/slug/:slug', controllers.getEditor);
 router.get('/editor/preview', controllers.getEditorPreview);
 router.get('/editor/id/:_id', controllers.getEditor);
 router.get('/editor', controllers.getEditor);
+router.get('/editor_preview', controllers.getEditorPreview)
 router.post('/editor', controllers.postEntry);
 
 router.get('/admin', requireAuth, controllers.getAdmin);

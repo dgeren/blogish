@@ -1,5 +1,8 @@
 <%- include('partials/header'); -%>
-<% const { title, subtitle, content = "", markdown = "", preview, tags = "", pubDate = "", dateDisplay = "", dateString = "", timeString = "", isPublishedChecked, _id } = entry; %>
+<% const { title, subtitle, content = "", markdown = "", preview, tags = "",
+           pubDate = "", dateDisplay = "", dateString = "", timeString = "",
+           isPublishedChecked, _id, authorID }
+           = entry; %>
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
 <% const tagHTML = tagArray.join(', '); %>
@@ -56,13 +59,13 @@
           <label for="editor_checkbox" class="publish">Publish?</label>
           <input type="checkbox" name="isPublished" class="form-el editor publish" id="editor_checkbox" <%= isPublishedChecked %>>
           <label class="publish"> Date &amp; Time</label>
-          <input type="date" name="dateString" class="form-el editor publish" id="editor_datepicker" value="<%- dateString %>">
-          <input type="time" name="timeString" class="form-el editor publish" id="editor_timepicker" value="<%- timeString %>">
+          <input type="date" name="datePicker" class="form-el editor publish" id="datePicker" value="<%- dateString %>">
+          <input type="time" name="timePicker" class="form-el editor publish" id="timePicker" value="<%- timeString %>">
           <p class="message" name="publishError" id="publishError">Please select a date or deselect "Publish?"</p>
         </div>
 
         <div class="elementContainer">        
-          <input type="hidden" name="authorID" class="form-el editor" id="editor_authorID" value="<%= user.id %>">
+          <input type="hidden" name="authorID" class="form-el editor" id="editor_authorID" value="<%= authorID %>">
           <input type="hidden" name="entryID" class="form-el editor" id="editor_entryID" value="<%- _id %>">
         </div>
       </section>
@@ -96,4 +99,4 @@
 </div> <!-- close #container-footer -->
 </div>
 
-  <script src="/scripts/editorForm.js"></script>
+  <script src="/scripts/editor_script.js"></script>
