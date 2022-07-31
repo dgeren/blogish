@@ -23,26 +23,30 @@ module.exports.fixHtmlTags = (content, task) => {
   return content;
 }
 
-module.exports.formatDateString = date => {
+
+module.exports.formatDate = date => {
   const dateObj = new Date(date);
   const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-  const dateString = dateObj.toISOString().substring(0, 10); //  "-> yyyy-mm-dd"
-  const timeString = dateObj.toISOString().substring(11, 16); // "-> hh:mm"
+  const dateString = dateObj.toISOString().substring(0, 10); //  -> "yyyy-mm-dd"
+  const timeString = dateObj.toISOString().substring(11, 16); // "-> "hh:mm"
   const dateDisplay = `${fullMonth[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
   
+  // dateString & timeString used in editor.ejs to fill publish date and time fields
   return { dateDisplay, dateString, timeString };
 }
 
+
 module.exports.formatDashedDate = date => {
-    const year = date.getFullYear();
-    const m = 1 + date.getMonth();
-    const month = m < 10 ? '0' + m : m;
-    const d = date.getDate();
-    const day = d < 10 ? '0' + d : d;
-    const string = `${year}-${month}-${day}`;
-    return string;
-  }
+  const year = date.getFullYear();
+  const m = 1 + date.getMonth();
+  const month = m < 10 ? '0' + m : m;
+  const d = date.getDate();
+  const day = d < 10 ? '0' + d : d;
+  const string = `${year}-${month}-${day}`;
+  return string;
+}
+
 
 module.exports.handleErrors = err => {
   let errors = { email: '', password: '' };
@@ -57,6 +61,7 @@ module.exports.handleErrors = err => {
   return errors;
 }
 
+
 module.exports.prepPreview = content => {
   return content
   .replace(/(<([^>]+)>)/gim, " ")
@@ -66,7 +71,38 @@ module.exports.prepPreview = content => {
   .join(" ");
 }
 
+
 module.exports.prepTags = tags => {
   const tagArray = tags.map(tag => `<a href="/listByTags/${tag}">${tag}</a>`);
   return tagArray.join(", ");
+}
+
+
+module.exports.previewHTML = entry => {
+
+  const { title, subtitle, content = "", markdown = "", preview, tags = "",
+             pubDate = "", dateDisplay = "", dateString = "", timeString = "",
+             isPublishedChecked, _id } = entry;
+  const tagString = tags.join(", "), tagArray = [];
+  entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`));
+  const tagHTML = tagArray.join(', ');
+  
+  return `
+    <section class="listSection">
+      <h4 id="list_title" class="list"><a>${title}</a></h4>
+      <h5 id="list_subtitle" class="list">${subtitle}</h5>
+      <h5 id="list_dateDisplay" class="list">${dateDisplay}</h5>
+      <p id="list_content" class="list">${preview}</p>
+      <div id="list_tags" class="list">${tagHTML}</div>
+    </section>
+  
+    <section class="readerSection">
+      <h3>Reader Preview</h3>
+      <h3 id="reader_title" class="reader"><a>${title}</a></h3>
+      <h4 id="reader_subtitle" class="reader">${subtitle}</h4>
+      <h4 id="reader_dateDisplay" class="reader">${dateDisplay}</h4>
+      <div id="reader_content" class="reader">${content}</div>
+      <div id="reader_tags" class="reader">${tagHTML}</div>
+    </section>
+  `
 }

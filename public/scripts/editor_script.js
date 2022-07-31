@@ -6,7 +6,7 @@ const toolbar = document.getElementById('toolbar');
 const formElements = document.querySelectorAll('.form-el'); // * used to upload changes
 const message = document.querySelector('#message'); // used to populate any incoming messages
 
-const els = {};
+const els = { preview: document.getElementById('preview' )};
 allElements.forEach(el => {
   const _class = el.getAttribute('class');
   
@@ -27,17 +27,15 @@ const getDateString = date => {
 // * NEW FUNCTION: USE-FETCH FUNCTION FOR DRY 🟢
 const useFetch = async fetchReq => {
   const { entryData, method, url } = fetchReq;
-  const htmlObj = await fetch(url, {
+  const body = JSON.stringify(entryData);
+
+  return await fetch(url, {
     method,
-    headers: { 'Content-type': 'application/json' },
-    body: JSON.stringify(entryData)    
+    headers: { 'Content-Type': 'application/json'},
+    body
   })
-  .then(res => res.json())
-  .then(res => {
-    if(res.message) message.innerHTML = res.message;
-  })
-  .catch(e => { console.log('error - error', e); });
-  return htmlObj;
+  .then(response => response.text())
+  .then(data => data);
 }
 
 
@@ -54,7 +52,7 @@ const buildEntryObj = () => {
 const updateHtml = entryHtmlObj => {
   // prep data
   const title = `<a>${els.editor_title.value}</a>`;
-  const content = els.editor_markdown.value;
+  const content = entryHtmlObj.content || els.editor_markdown.value;
   const tagHTML = [];
   let tags = els.editor_tags.value;
   tags = tags.split(", ");
@@ -73,22 +71,19 @@ const updateHtml = entryHtmlObj => {
 }
 
 
-// * NEW VERSION OF UPLOAD
+// * NEW VERSION OF UPLOAD   🟢
 const upload = async () => {
   // get entry object from page containing data from the fields
   const entryData = buildEntryObj();
 
   // prep fetch object anm 
-  const entryHtmlObj = await useFetch({
+  const entryHtml = await useFetch({
     method: 'POST',
     url: '/editor',
     entryData
   });
-
-  console.log(entryHtmlObj); // 🔴
-
   // update preview
-  updateHtml(entryHtmlObj);
+  els.preview.innerHTML = entryHtml;
 
 }
 

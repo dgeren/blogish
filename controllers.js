@@ -8,8 +8,8 @@ const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 
 const {
-  fixHtmlTags,      formatDateString,     handleErrors,
-  prepPreview,      prepTags
+  fixHtmlTags,      formatDate,     handleErrors,
+  prepPreview,      prepTags,             previewHTML
 } = require('./util'); // 🟠 is formatDashedDate necessary?
 const maxAge = 3600 * 72, limit = 4; // 🟠 add both to dashboard for admin users but nothing lower
 
@@ -155,7 +155,7 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.isPublished = true;
 
   res.locals.entries.forEach(entry => {
-    entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
+    entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
   });
   res.locals.requestedTag = null;
@@ -163,6 +163,7 @@ module.exports.getListByPubDate = async (req, res) => {
 
   res.render('home');
 }
+
 
 // * GET LIST OF UNPUBLISHED ARTICLES 
 module.exports.getListUnpublished = async (req, res) => {
@@ -178,6 +179,7 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
   res.render('home');
 }
+
 
 // * GET ARTICLE LIST BASED ON A TAG
 module.exports.getListByTag = async (req, res) => { 
@@ -196,7 +198,7 @@ module.exports.getListByTag = async (req, res) => {
 
   if(res.locals.entries.length > 0) {
     res.locals.entries.forEach(entry => {
-      entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
+      entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
       entry.tagHTML = prepTags(entry.tags);
     });
     res.locals.requestedTag = tag;
@@ -208,15 +210,18 @@ module.exports.getListByTag = async (req, res) => {
   }
 }
 
+
 // * RETURN LIST OF PUBLISHED DATES AND TITLES
 module.exports.getArchive = async (req, res) => {
   res.redirect('/');
 }
 
+
 // * RETURN LIST OF CATEGORIES
 module.exports.getCategories = async (req, res) => {
   res.redirect('/');
 }
+
 
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
@@ -226,7 +231,7 @@ module.exports.getEntry = async (req, res) => {
 
   // * PREP ENTRY DATA FOR EJS
   if(entry){
-    if(entry.pubDate) entry.dateDisplay = formatDateString(entry.pubDate).dateDisplay;
+    if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
     entry.HTML = converter.makeHtml(entry.markdown);
     
@@ -246,6 +251,7 @@ module.exports.getEntry = async (req, res) => {
   }
 }
 
+
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
   res.locals.message = null;
@@ -257,14 +263,12 @@ module.exports.getEditor =  async (req, res) => {
   let dates = {};
   if(slug){
     const entry = await getEntries({ slug });
-
-    console.log(entry); // 🔴
     if(entry) {
       // * PREP FOR EJS
-      if(entry.pubDate) dates = formatDateString(entry.pubDate);
-      entry.dateDisplay = dates.dateDisplay || "";
-      entry.dateString  = dates.dateString || "";
-      entry.timeString  = dates.timeString || "";
+      if(entry.pubdate) dates = formatDate(entry.pubDate);
+      entry.dateDisplay = dates.dateDisplay;
+      entry.dateString = dates.dateString;
+      entry.timeString = dates.timeString;
       entry.isPublishedChecked = entry.isPublished ? "checked" : "";
       entry.content = converter.makeHtml(entry.markdown);
       entry.tagHTML = prepTags(entry.tags);
@@ -278,20 +282,23 @@ module.exports.getEditor =  async (req, res) => {
   res.render('editor');
 }
 
+
 module.exports.getEditorPreview = async (req, res) => {}
 
+
 // * SAVE NEW OR EXISTING ENTRIES
-module.exports.postEntry = async (req, res) => {
+module.exports.postEntry = async (req, res) => {  // 🟢
   res.locals.message = null;
 
   // * GET DATA FROM REQ
-  const { title, subtitle, authorID, isPublished, datePicker, timePicker, timeString, entryID } = req.body;
+  const { title, subtitle, authorID, isPublished, datePicker, timePicker, entryID } = req.body;
   let { content, markdown, tags } = req.body;
   
   // * PREP DATA
   const slug = slugify(title, { lower: true });
   pubDate = datePicker === "" || timePicker === "" ? "" :
     new Date(`${datePicker}T${timePicker}`);
+  console.log(pubDate); // 🔴
   tags = tags.split(",").map(element => element.trim());
 
   const attributes = { title, slug, subtitle, content, markdown, tags, isPublished, pubDate, authorID };
@@ -302,12 +309,11 @@ module.exports.postEntry = async (req, res) => {
     attributes,
     { new: true, upsert: true }
   );
+
   entry.content = converter.makeHtml(entry.markdown);
   entry.markdown = null;
   if(entry){
-    res.locals.entry = entry;
-    res.locals.entry.message = "Save Successful.";
-    res.status(200).render('partials/preview');
+    res.status(200).send(previewHTML(entry));
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
     res.locals.entry = new Entry.updateOne({ _id: entryID }, { isPublished: false });
@@ -315,15 +321,10 @@ module.exports.postEntry = async (req, res) => {
   }
 }
 
+
 // * GET HTML FOR EDITOR PREVIEW
 module.exports.getEditorPreview = async (req, res) => {
-  res.locals.message = null;
-  const { title, subtitle, authorID, isPublished, datePicker, timePicker, entryID } = req.body;
-  let { content, markdown, tags } = req.body;
-  const slug = slugify(title, { lower: true });
-  pubDate = datePicker === "" || timePicker === "" ? "" :
-    new Date(`${datePicker}T${timePicker}`);
-  tags = tags.split(",").map
+
 }
 
 
@@ -345,11 +346,13 @@ module.exports.deleteEntry = async (req, res) => {
   res.render('home');
 }
 
+
 // * RENDER ADMIN PAGE
 module.exports.getAdmin = (req, res) => {
   res.locals.message= null;
   res.render('admin');
 }
+
 
 // * CREATER NEW USERS
 module.exports.signup = async (req, res) => {
@@ -369,6 +372,7 @@ module.exports.signup = async (req, res) => {
   }
 }
 
+
 // * ALLOW SIGN IN
 module.exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -387,6 +391,7 @@ module.exports.login = async (req, res) => {
     res.status(400).json({ errors });
   }
 }
+
 
 // * EXPIRE TOKEN TO SIGN USER OUT
 module.exports.logout = async (req, res) => {
