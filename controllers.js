@@ -265,7 +265,8 @@ module.exports.getEditor =  async (req, res) => {
     const entry = await getEntries({ slug });
     if(entry) {
       // * PREP FOR EJS
-      if(entry.pubdate) dates = formatDate(entry.pubDate);
+      if(entry.pubDate) dates = formatDate(entry.pubDate);
+
       entry.dateDisplay = dates.dateDisplay;
       entry.dateString = dates.dateString;
       entry.timeString = dates.timeString;
@@ -296,9 +297,8 @@ module.exports.postEntry = async (req, res) => {  // 🟢
   
   // * PREP DATA
   const slug = slugify(title, { lower: true });
-  pubDate = datePicker === "" || timePicker === "" ? "" :
+  const pubDate = datePicker === "" || timePicker === "" ? "" :
     new Date(`${datePicker}T${timePicker}`);
-  console.log(pubDate); // 🔴
   tags = tags.split(",").map(element => element.trim());
 
   const attributes = { title, slug, subtitle, content, markdown, tags, isPublished, pubDate, authorID };
@@ -311,7 +311,10 @@ module.exports.postEntry = async (req, res) => {  // 🟢
   );
 
   entry.content = converter.makeHtml(entry.markdown);
-  entry.markdown = null;
+  if(entry.pubDate) dates = formatDate(entry.pubDate);
+
+  entry.dateDisplay = dates.dateDisplay;
+  console.log(entry.dateDisplay); // 🔴
   if(entry){
     res.status(200).send(previewHTML(entry));
   } else {

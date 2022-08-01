@@ -92,7 +92,6 @@ module.exports.previewHTML = entry => {
       <h4 id="list_title" class="list"><a>${title}</a></h4>
       <h5 id="list_subtitle" class="list">${subtitle}</h5>
       <h5 id="list_dateDisplay" class="list">${dateDisplay}</h5>
-      <p id="list_content" class="list">${preview}</p>
       <div id="list_tags" class="list">${tagHTML}</div>
     </section>
   

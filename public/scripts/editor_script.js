@@ -65,7 +65,7 @@ const updateHtml = entryHtmlObj => {
 
   els.list_title.innerHTML = els.reader_title.innerHTML = title;
   els.list_subtitle.innerHTML = els.reader_subtitle.innerHTML = els.editor_subtitle.value;
-  els.reader_content.innerHTML = content;
+  // els.reader_content.innerHTML = content;
   els.list_tags.innerHTML = els.reader_tags.innerHTML = tagString;
   els.datePicker.innerHTML = els.reader_dateDisplay.innerHTML = date;
 }
@@ -83,6 +83,7 @@ const upload = async () => {
     entryData
   });
   // update preview
+  console.log(entryHtml); // 🔴
   els.preview.innerHTML = entryHtml;
 
 }
