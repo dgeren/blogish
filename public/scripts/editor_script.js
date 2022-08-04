@@ -65,7 +65,6 @@ const updateHtml = entryHtmlObj => {
 
   els.list_title.innerHTML = els.reader_title.innerHTML = title;
   els.list_subtitle.innerHTML = els.reader_subtitle.innerHTML = els.editor_subtitle.value;
-  // els.reader_content.innerHTML = content;
   els.list_tags.innerHTML = els.reader_tags.innerHTML = tagString;
   els.datePicker.innerHTML = els.reader_dateDisplay.innerHTML = date;
 }
@@ -83,21 +82,25 @@ const upload = async () => {
     entryData
   });
   // update preview
-  console.log(entryHtml); // 🔴
   els.preview.innerHTML = entryHtml;
 
 }
 
 
 // * NEW VERSION: OF UPDATE PREVIEWS FUNCTION
-const updatePreviewSection = () => {
+const updatePreview = async () => {
   // get entry object from page containing data from the fields
+  const entryData = buildEntryObj();
+  console.log(entryData); // 🔴
 
-  // prep entry object from the browser
-
-  // use fetch to send content markdown for conversion to html
-
+  // prep fetch object anm 
+  const entryHtml = await useFetch({
+    method: 'POST',
+    url: '/editor_preview',
+    entryData
+  });
   // update preview
+  els.preview.innerHTML = entryHtml;
 
 }
 
@@ -127,7 +130,7 @@ toolbar.addEventListener('click', async e => {
   const target = e.target.name;
 
   if(target === "upload")          upload();
-  if(target === "updatePreview")   updatePreviewSection();
+  if(target === "updatePreview")   updatePreview();
   if(target === "openReader")      openReader();
   if(target === "revert")          revert();
   if(target === "del")             del();

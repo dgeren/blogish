@@ -288,7 +288,7 @@ module.exports.getEditorPreview = async (req, res) => {}
 
 
 // * SAVE NEW OR EXISTING ENTRIES
-module.exports.postEntry = async (req, res) => {  // 🟢
+module.exports.postEntry = async (req, res) => { 
   res.locals.message = null;
 
   // * GET DATA FROM REQ
@@ -314,7 +314,6 @@ module.exports.postEntry = async (req, res) => {  // 🟢
   if(entry.pubDate) dates = formatDate(entry.pubDate);
 
   entry.dateDisplay = dates.dateDisplay;
-  console.log(entry.dateDisplay); // 🔴
   if(entry){
     res.status(200).send(previewHTML(entry));
   } else {
@@ -326,8 +325,27 @@ module.exports.postEntry = async (req, res) => {  // 🟢
 
 
 // * GET HTML FOR EDITOR PREVIEW
-module.exports.getEditorPreview = async (req, res) => {
+module.exports.getEditorPreview = async (req, res) => { // 🟢
+  res.locals.message = null;
+  const dates = {};
 
+  // * GET DATA FROM REQ
+  const { title, subtitle, authorID, isPublished, datePicker, timePicker, entryID } = req.body;
+  let { content, markdown, tags } = req.body;
+
+  const entry = req.body;
+  console.log(entry); // 🔴
+  
+  // * PREP DATA
+  const slug = slugify(title, { lower: true });
+  const pubDate = datePicker === "" || timePicker === "" ? "" :
+    new Date(`${datePicker}T${timePicker}`);
+  if(entry.pubDate) dates = formatDate(entry.pubDate);
+  entry.dateDisplay = dates.dateDisplay;
+  entry.tags = tags.split(",").map(element => element.trim());
+
+  entry.content = converter.makeHtml(entry.markdown);
+  res.status(200).send(previewHTML(entry));
 }
 
 
