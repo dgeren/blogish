@@ -9,7 +9,7 @@ const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, ch
 
 const {
   fixHtmlTags,      formatDate,     handleErrors,
-  prepPreview,      prepTags,             previewHTML
+  prepPreview,      prepTags
 } = require('./util'); // 🟠 is formatDashedDate necessary?
 const maxAge = 3600 * 72, limit = 4; // 🟠 add both to dashboard for admin users but nothing lower
 
@@ -273,6 +273,7 @@ module.exports.getEditor =  async (req, res) => {
       entry.isPublishedChecked = entry.isPublished ? "checked" : "";
       entry.content = converter.makeHtml(entry.markdown);
       entry.tagHTML = prepTags(entry.tags);
+      entry.previewHTML = prepPreview(entry);
 
       // * EJS
       res.locals.entry = entry;
@@ -282,9 +283,6 @@ module.exports.getEditor =  async (req, res) => {
   }
   res.render('editor');
 }
-
-
-module.exports.getEditorPreview = async (req, res) => {}
 
 
 // * SAVE NEW OR EXISTING ENTRIES
@@ -315,7 +313,7 @@ module.exports.postEntry = async (req, res) => {
 
   entry.dateDisplay = dates.dateDisplay;
   if(entry){
-    res.status(200).send(previewHTML(entry));
+    res.status(200).send(prepPreview(entry));
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
     res.locals.entry = new Entry.updateOne({ _id: entryID }, { isPublished: false });
@@ -330,22 +328,19 @@ module.exports.getEditorPreview = async (req, res) => { // 🟢
   const dates = {};
 
   // * GET DATA FROM REQ
-  const { title, subtitle, authorID, isPublished, datePicker, timePicker, entryID } = req.body;
-  let { content, markdown, tags } = req.body;
+  const { tags } = req.body;
 
   const entry = req.body;
-  console.log(entry); // 🔴
   
   // * PREP DATA
-  const slug = slugify(title, { lower: true });
-  const pubDate = datePicker === "" || timePicker === "" ? "" :
-    new Date(`${datePicker}T${timePicker}`);
-  if(entry.pubDate) dates = formatDate(entry.pubDate);
-  entry.dateDisplay = dates.dateDisplay;
+  entry.slug = slugify(entry.title, { lower: true });
+  const dateUTC = entry.datePicker === "" || entry.timePicker === "" ? "" :
+    new Date(`${entry.datePicker}T${entry.timePicker}`);
+  entry.dateDisplay = formatDate(dateUTC).dateDisplay;
   entry.tags = tags.split(",").map(element => element.trim());
 
   entry.content = converter.makeHtml(entry.markdown);
-  res.status(200).send(previewHTML(entry));
+  res.status(200).send(prepPreview(entry));
 }
 
 

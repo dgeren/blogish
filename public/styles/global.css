@@ -43,6 +43,12 @@ main {
   font-size: .75em;
 }
 
+.spacer {
+  border: 2px sollid white;
+  margin: 10px 0;
+
+}
+
 
 
 /* -- GRID -- */

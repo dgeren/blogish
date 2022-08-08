@@ -1,7 +1,7 @@
 <%- include('partials/header'); -%>
 <% const { title, subtitle, content = "", markdown = "", preview, tags = "",
            pubDate = "", dateDisplay = "", dateString = "", timeString = "",
-           isPublishedChecked, _id, authorID }
+           isPublishedChecked, _id, authorID, previewHTML }
            = entry; %>
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
@@ -69,24 +69,10 @@
           <input type="hidden" name="entryID" class="form-el editor" id="editor_entryID" value="<%- _id %>">
         </div>
       </section>
-      
-      <div id="preview">
-        <h3 class="section-title">Preview</h3>
-        <section class="listSection">
-          <h4 id="list_title" class="list"><a><%= title %></a></h4>
-          <h5 id="list_subtitle" class="list"><%= subtitle %></h5>
-          <h5 id="list_dateDisplay" class="list"><%= dateDisplay %></h5>
-          <div id="list_tags" class="list"><%- tagHTML %></div>
-        </section>
 
-        <section class="readerSection">
-          <h3 id="reader_title" class="reader"><a><%= title %></a></h3>
-          <h4 id="reader_subtitle" class="reader"><%= subtitle %></h4>
-          <h4 id="reader_dateDisplay" class="reader"><%= dateDisplay %></h4>
-          <div id="reader_content" class="reader"><%- content %></div>
-          <div id="reader_tags" class="reader"><%- tagHTML %></div>
-        </section>
-      </div>
+      <section id="preview">
+        <%- previewHTML %>
+      </section>
 
     </form>
   </main>

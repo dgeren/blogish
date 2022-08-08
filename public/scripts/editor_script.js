@@ -48,28 +48,6 @@ const buildEntryObj = () => {
 }
 
 
-// * NEW FUMCTION: UPDATES THE PAGE
-const updateHtml = entryHtmlObj => {
-  // prep data
-  const title = `<a>${els.editor_title.value}</a>`;
-  const content = entryHtmlObj.content || els.editor_markdown.value;
-  const tagHTML = [];
-  let tags = els.editor_tags.value;
-  tags = tags.split(", ");
-  tags.forEach(tag => {
-    tagHTML.push(`<a href="/tag/${tag}">${tag}</a>`);
-  });
-  const tagString = tagHTML.join(', ');
-  const datePicked = new Date(els.datePicker.value);
-  const date = datePicked.toString() === "Invalid Date" ? "" : getDateString(datePicked);
-
-  els.list_title.innerHTML = els.reader_title.innerHTML = title;
-  els.list_subtitle.innerHTML = els.reader_subtitle.innerHTML = els.editor_subtitle.value;
-  els.list_tags.innerHTML = els.reader_tags.innerHTML = tagString;
-  els.datePicker.innerHTML = els.reader_dateDisplay.innerHTML = date;
-}
-
-
 // * NEW VERSION OF UPLOAD   🟢
 const upload = async () => {
   // get entry object from page containing data from the fields
@@ -91,7 +69,6 @@ const upload = async () => {
 const updatePreview = async () => {
   // get entry object from page containing data from the fields
   const entryData = buildEntryObj();
-  console.log(entryData); // 🔴
 
   // prep fetch object anm 
   const entryHtml = await useFetch({

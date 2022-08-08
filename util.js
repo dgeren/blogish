@@ -62,46 +62,35 @@ module.exports.handleErrors = err => {
 }
 
 
-module.exports.prepPreview = content => {
-  return content
-  .replace(/(<([^>]+)>)/gim, " ")
-  .trim()
-  .split(" ")
-  .slice(0, 25)
-  .join(" ");
-}
-
-
 module.exports.prepTags = tags => {
   const tagArray = tags.map(tag => `<a href="/listByTags/${tag}">${tag}</a>`);
   return tagArray.join(", ");
 }
 
 
-module.exports.previewHTML = entry => {
+module.exports.prepPreview = entry => {
 
-  const { title, subtitle, content = "", markdown = "", preview, tags = "",
-             pubDate = "", dateDisplay = "", dateString = "", timeString = "",
-             isPublishedChecked, _id } = entry;
-  const tagString = tags.join(", "), tagArray = [];
-  entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`));
+  const { title, subtitle, content = "", tags = "", dateDisplay = "" } = entry;
+  const tagArray = [];
+  tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`));
   const tagHTML = tagArray.join(', ');
   
   return `
-    <section class="listSection">
+    <h3 class="section-title">Preview</h3>
+    <div class="listSection">
       <h4 id="list_title" class="list"><a>${title}</a></h4>
       <h5 id="list_subtitle" class="list">${subtitle}</h5>
       <h5 id="list_dateDisplay" class="list">${dateDisplay}</h5>
       <div id="list_tags" class="list">${tagHTML}</div>
-    </section>
+    </div>
+    <hr class="spacer">
   
-    <section class="readerSection">
-      <h3>Reader Preview</h3>
+    <div class="readerSection">
       <h3 id="reader_title" class="reader"><a>${title}</a></h3>
       <h4 id="reader_subtitle" class="reader">${subtitle}</h4>
       <h4 id="reader_dateDisplay" class="reader">${dateDisplay}</h4>
       <div id="reader_content" class="reader">${content}</div>
       <div id="reader_tags" class="reader">${tagHTML}</div>
-    </section>
+    </div>
   `
 }
