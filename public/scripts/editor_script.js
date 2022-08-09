@@ -24,7 +24,7 @@ const getDateString = date => {
 }
 
 
-// * NEW FUNCTION: USE-FETCH FUNCTION FOR DRY 🟢
+// * NEW FUNCTION: USE-FETCH FUNCTION FOR DRY
 const useFetch = async fetchReq => {
   const { entryData, method, url } = fetchReq;
   const body = JSON.stringify(entryData);
@@ -39,7 +39,7 @@ const useFetch = async fetchReq => {
 }
 
 
-// * NEW FUNCTION: CREATES ENTRY BJECT TO UPLOAD AND/OR GET HTML VERSION FOR PREVIEW 🟢
+// * NEW FUNCTION: CREATES ENTRY BJECT TO UPLOAD AND/OR GET HTML VERSION FOR PREVIEW
 const buildEntryObj = () => {
   const entryData = {};
   formElements.forEach(el => entryData[el.attributes.getNamedItem('name').value] = el.value);
@@ -48,7 +48,7 @@ const buildEntryObj = () => {
 }
 
 
-// * NEW VERSION OF UPLOAD   🟢
+// * NEW VERSION OF UPLOAD
 const upload = async () => {
   // get entry object from page containing data from the fields
   const entryData = buildEntryObj();

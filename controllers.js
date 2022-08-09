@@ -25,8 +25,6 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 // * GET ALL PUBLISHED DATES
 const getSidebarDateHtml = async () => {
 
-  /* Eventually this function should be broken down and moved to other areas like util and views */
-
   const _now = new Date();
 
   let results = await Entry.find(
@@ -70,6 +68,26 @@ const getSidebarDateHtml = async () => {
     
   output += `</ul>\n</details>\n</details>\n</details>\n`;
   return output.trim();
+}
+
+// * GET CATEGORIES AND THE COUNT OF ENTRIES FOR EACH
+const getSidebarCategoriesHtml = async () => {
+  const _now = new Date();
+
+  let data = {};
+  const results = await Entry.find(
+    { isPublished: true, pubDate: { $lt: _now } },
+    { _id: 1, tags: 1 }).lean();
+  results.forEach(item => {
+    item.tags.forEach(category => {
+      if(category != '' && category in data) data[category] += 1;
+      else data[category] = 1;
+    });
+  });
+
+  let html = `<h3>Categories</h3>\n\t<ul>\n`;
+  Object.keys(data).forEach(key => html += `\t\t<li><a href="/listByTags/${key}">${ key } (${ data[key] })</a></li>\n`);
+  return html += `\t</ul>\n</section>`;
 }
 
 // * GET ENTRIES FROM DATABASE
@@ -158,8 +176,10 @@ module.exports.getListByPubDate = async (req, res) => {
     entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
   });
+
   res.locals.requestedTag = null;
-  res.locals.sideBarDates = await getSidebarDateHtml();
+  res.locals.sidebarDates = await getSidebarDateHtml();
+  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
   res.render('home');
 }
@@ -174,7 +194,8 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.adjacentEntries = null;
   res.locals.isPublished = false;
   res.locals.requestedTag = null;
-  res.locals.sideBarDates = await getSidebarDateHtml();
+  res.locals.sidebarDates = await getSidebarDateHtml();
+  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
   res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
   res.render('home');
@@ -194,7 +215,8 @@ module.exports.getListByTag = async (req, res) => {
   res.locals.entries = await getEntries({ tag, skip, limit });
   res.locals.adjacentEntries = null;
   res.locals.isPublished = true;
-  res.locals.sideBarDates = await getSidebarDateHtml();
+  res.locals.sidebarDates = await getSidebarDateHtml();
+  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
   if(res.locals.entries.length > 0) {
     res.locals.entries.forEach(entry => {
@@ -217,7 +239,7 @@ module.exports.getArchive = async (req, res) => {
 }
 
 
-// * RETURN LIST OF CATEGORIES
+// * RETURN LIST OF CATEGORIES; DEPRECATED?
 module.exports.getCategories = async (req, res) => {
   res.redirect('/');
 }
@@ -240,7 +262,8 @@ module.exports.getEntry = async (req, res) => {
     res.locals.pages = null;
     res.locals.requestedTag = null
     res.locals.adjacentEntries = await getAdjacentEntries(entry.pubDate);
-    res.locals.sideBarDates = await getSidebarDateHtml();
+    res.locals.sidebarDates = await getSidebarDateHtml();
+    res.locals.sidebarCategories = await getSidebarCategoriesHtml();
     res.locals.message = "";
     res.render('reader');
   // * OR ALERT VISITOR
@@ -257,7 +280,8 @@ module.exports.getEditor =  async (req, res) => {
   res.locals.message = null;
   res.locals.entry = new Entry();
   res.locals.pagination = { next: null, previous: null };
-  res.locals.sideBarDates = await getSidebarDateHtml();
+  res.locals.sidebarDates = await getSidebarDateHtml();
+  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
   
   const { slug } = req.params;
   let dates = {};
@@ -297,7 +321,10 @@ module.exports.postEntry = async (req, res) => {
   const slug = slugify(title, { lower: true });
   const pubDate = datePicker === "" || timePicker === "" ? "" :
     new Date(`${datePicker}T${timePicker}`);
-  tags = tags.split(",").map(element => element.trim());
+  tags = tags
+    .split(",")
+    .filter(tag => tag.trim() !== '')
+    .map(element => element.trim());
 
   const attributes = { title, slug, subtitle, content, markdown, tags, isPublished, pubDate, authorID };
   
@@ -309,9 +336,7 @@ module.exports.postEntry = async (req, res) => {
   );
 
   entry.content = converter.makeHtml(entry.markdown);
-  if(entry.pubDate) dates = formatDate(entry.pubDate);
-
-  entry.dateDisplay = dates.dateDisplay;
+  if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
   if(entry){
     res.status(200).send(prepPreview(entry));
   } else {
@@ -323,7 +348,7 @@ module.exports.postEntry = async (req, res) => {
 
 
 // * GET HTML FOR EDITOR PREVIEW
-module.exports.getEditorPreview = async (req, res) => { // 🟢
+module.exports.getEditorPreview = async (req, res) => {
   res.locals.message = null;
   const dates = {};
 
