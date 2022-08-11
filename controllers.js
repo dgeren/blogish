@@ -203,9 +203,13 @@ module.exports.getListUnpublished = async (req, res) => {
 
 
 // * GET ARTICLE LIST BASED ON A TAG
-module.exports.getListByTag = async (req, res) => { 
+module.exports.getListByTag = async (req, res) => {
+
+  // * INITIAL VALUES
   res.locals.message = null;
   const { tag } = req.params;
+
+  // * PAGINATION
   res.locals.page = parseInt(req.params.page) || 1;
   const docs = await countDocs(tag);
   const skip = (res.locals.page * limit) - limit;
@@ -218,6 +222,7 @@ module.exports.getListByTag = async (req, res) => {
   res.locals.sidebarDates = await getSidebarDateHtml();
   res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
+  // * SEND RESPONSE
   if(res.locals.entries.length > 0) {
     res.locals.entries.forEach(entry => {
       entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
@@ -377,14 +382,7 @@ module.exports.deleteEntry = async (req, res) => {
     res.locals.message = "I failed to delete an entry. Are you sure this entry still exists?";
   });
   // 🟠 DRY: this is repeated in home_get; make into a support function
-  res.locals.message = null;
-  const entries = await getEntries({ limit: 5 });
-  entries.forEach(element => {
-    element.content = fixHtmlTags(element.content, "down");
-    element.preview = fixHtmlTags(element.content.split(" ").slice(0, 25).join(" "), "strip"); // 🟠 add a preview function to fixHtmlTags
-  });
-  res.locals.entries = entries;
-  res.render('home');
+  res.redirect('/');
 }
 
 

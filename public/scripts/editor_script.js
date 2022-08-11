@@ -61,7 +61,6 @@ const upload = async () => {
   });
   // update preview
   els.preview.innerHTML = entryHtml;
-
 }
 
 
@@ -94,10 +93,11 @@ const revert = () => location.reload(true);
 
 // * DELETE ENTRY: WARNNING PERMANENT
 const del = () => {
-  const _id = els.editor_postID.value;
+  const _id = els.editor_entryID.value;
   const httpRequest = new XMLHttpRequest();
-  httpRequest.open('DELETE', `/${_id}`, false);
+  httpRequest.open('DELETE', `/${_id}`, true);
   httpRequest.send();
+  revert();
 }
 
 
