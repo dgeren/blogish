@@ -12,7 +12,7 @@ body * {
 }
 
 h1, h2, h3, h4, h5 {
-  margin: 0; padding: 0 0 10px 0; border: 0;
+  margin: 0; padding: 1em 0; border: 0;
 }
 
 h2 {
@@ -227,6 +227,13 @@ button.signin-el {
 
 
 /* PREVIEW/READER */
+
+main section ul {
+  list-style-type: '\2014\2003\2003';
+  list-style-position: initial;
+  margin-left: 20px;
+  margin-bottom: 1em;
+}
 
 .preview-el {
   margin: 0 0 8px 0;

@@ -5,11 +5,11 @@
       </div> <!-- close #container-gutter -->
 
       <div id="container-content">
-        <h3 id="page-title"><%= isPublished ? "" : "Unpublished " %>Posts</h3>
+        <h3 id="page-title"><%= publish ? "" : "Unpublished " %>Posts</h3>
 
         <main>
           <% entries.forEach(entry => { %>
-            <% const { title, subtitle, slug, preview, tagHTML = "", dateDisplay, author } = entry; %>
+            <% const { title, description, slug, preview, tagHTML = "", dateDisplay, author } = entry; %>
           <div class="card">
             <h4 class="preview-el">
             <a href="/reader/slug/<%= slug %>"><%- title %></a>
@@ -17,8 +17,8 @@
             <a href="/editor/slug/<%= slug %>" class="preview-el medium button">&nbsp; [ &#9998;&nbsp;edit ]</a>
             <% } %>
             </h4>
-            <h5 class="preview-el"><%- subtitle %></h5>
-            <h5 class="preview-el"><%= isPublished ? dateDisplay : "Unpublished" %></h5>
+            <h5 class="preview-el"><%- description %></h5>
+            <h5 class="preview-el"><%= publish ? dateDisplay : "Unpublished" %></h5>
             <p class="preview-el"><%- preview %></p>
             <p class="preview-el small-text"><%- tagHTML %></p>
           </div>

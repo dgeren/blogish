@@ -1,5 +1,5 @@
 <%- include('partials/header'); -%>
-<% const { title, subtitle, content = "", markdown = "", preview, tags = "",
+<% const { title, description, markdown = "", preview, tags = "",
            pubDate = "", dateDisplay = "", dateString = "", timeString = "",
            isPublishedChecked, _id, authorID, previewHTML }
            = entry; %>
@@ -39,9 +39,9 @@
         </div>
 
         <div class="elementContainer">
-          <label for="subtitle">Subtitle</label><br>
-          <input type="text" name="subtitle" class="form-el editor" id="editor_subtitle"
-          <% if(subtitle) { %>value="<%= subtitle %>" <% } %>>
+          <label for="subtitle">Description</label><br>
+          <input type="text" name="description" class="form-el editor" id="editor_subtitle"
+          <% if(description) { %>value="<%= description %>" <% } %>>
         </div>
 
         <div class="elementContainer">

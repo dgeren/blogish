@@ -9,13 +9,9 @@ const postSchema = new mongoose.Schema({
   slug: {
     type: String
   },
-  subtitle: {
+  description: {
     type: String,
     default: null
-  },
-  content: {
-    type: String,
-    required: [true, "What's a post without content? Content required."]
   },
   markdown: {
     type: String,
@@ -29,7 +25,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, "admin error message: user id required"]
   },
-  isPublished: Boolean,
+  published: Boolean,
   pubDate: Date
 });
 

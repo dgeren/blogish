@@ -28,7 +28,7 @@ const getSidebarDateHtml = async () => {
   const _now = new Date();
 
   let results = await Entry.find(
-      { isPublished: true, pubDate: { $lt: _now } },
+      { publish: true, pubDate: { $lt: _now } },
       { title: 1, slug: 1, pubDate: 1, _id: 0 })
   .sort({ pubDate: -1 })
   .lean();
@@ -45,23 +45,29 @@ const getSidebarDateHtml = async () => {
       const day = d.getUTCDate() + 1;
 
       if(!first){
-        if(currentDay !== day) output += `</ul>\n</details>\n`;
-        if(currentMonth !== month) output += `</details>\n`;
-        if(currentYear !== year) output += `</details>\n`;
+        if(currentYear !== year) {
+          output += `</ul>\n</details>\n</details>\n</details>\n`;
+        } else if(currentMonth !== month) {
+          output += `</ul>\n</details>\n</details>\n`;
+        } else if(currentDay !== day) {
+          output += `</ul>\n</details>\n`;
+        }
       }
 
       if(currentYear !== year) {
-        currentYear = year;
+        currentYear = year, currentMonth = month, currentDay = day;
         output += `<details class="year">\n<summary>${year}</summary>\n`;
-      }
-      if(currentMonth !== month){
-        currentMonth = month;
         output += `<details class="month">\n<summary>${months[month]}</summary>\n`;
-      }
-      if(currentDay !== day){
+        output += `<details class="day">\n<summary>${day}</summary>\n<ul class="titles">\n`;
+      } else if(currentMonth !== month){
+        currentMonth = month, currentDay = day;
+        output += `<details class="month">\n<summary>${months[month]}</summary>\n`;
+        output += `<details class="day">\n<summary>${day}</summary>\n<ul class="titles">\n`;
+      } else if(currentDay !== day){
         currentDay = day;
         output += `<details class="day">\n<summary>${day}</summary>\n<ul class="titles">\n`;
       }
+
       output += `<li class="title"><a href="/reader/slug/${item.slug}">${item.title}</a></li>\n`;
       first = false;
     }
@@ -76,7 +82,7 @@ const getSidebarCategoriesHtml = async () => {
 
   let data = {};
   const results = await Entry.find(
-    { isPublished: true, pubDate: { $lt: _now } },
+    { publish: true, pubDate: { $lt: _now } },
     { _id: 1, tags: 1 }).lean();
   results.forEach(item => {
     item.tags.forEach(category => {
@@ -109,20 +115,20 @@ const getEntries = async parameters => {
           .lean() :
     // if given a tag, then the tag list was called
         tag ? await Entry
-          .find({ tags: tag, isPublished: true , pubDate: { $lt: _now } }) 
+          .find({ tags: tag, publish: true , pubDate: { $lt: _now } }) 
           .lean()
           .sort({ pubDate: sortOrder })
           .skip(skip)
           .limit(limit) :
     // if unpublished is true
       unpub ? await Entry
-          .find({ isPublished: false })
+          .find({ publish: false })
           .lean()
           .sort({ _id: sortOrder }) :
     // otherwise a list by pubdate was called
       await Entry
           .find({ $and: [
-            { isPublished: true },
+            { publish: true },
             { pubDate: {$lt: _now }}
           ] })
           .lean()
@@ -133,12 +139,12 @@ const getEntries = async parameters => {
 
 const getAdjacentEntries = async date => {
   const next = await Entry
-                .find({ isPublished: true, pubDate: { $gt: date } })
+                .find({ publish: true, pubDate: { $gt: date } })
                 .lean()
                 .sort({ pubDate:  1 })
                 .limit(1);
   const prev = await Entry
-                .find({ isPublished: true, pubDate: { $lt: date } })
+                .find({ publish: true, pubDate: { $lt: date } })
                 .lean()
                 .sort({ pubDate: -1 })
                 .limit(1);
@@ -148,8 +154,9 @@ const getAdjacentEntries = async date => {
 const countDocs = async (tag) => {
   const _now = new Date();
   const filterByTag = tag ? { tags: tag } : {};
+
   return await Entry.countDocuments({ $and: [
-    { isPublished: true },
+    { publish: true },
     { pubDate: { $lt: _now }},
     filterByTag
   ] });
@@ -170,7 +177,7 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await getEntries({ skip, limit });
   res.locals.adjacentEntries = null;
-  res.locals.isPublished = true;
+  res.locals.publish = true;
 
   res.locals.entries.forEach(entry => {
     entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
@@ -192,7 +199,7 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.pages = 0;
   res.locals.page = 0;
   res.locals.adjacentEntries = null;
-  res.locals.isPublished = false;
+  res.locals.publish = false;
   res.locals.requestedTag = null;
   res.locals.sidebarDates = await getSidebarDateHtml();
   res.locals.sidebarCategories = await getSidebarCategoriesHtml();
@@ -218,7 +225,7 @@ module.exports.getListByTag = async (req, res) => {
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await getEntries({ tag, skip, limit });
   res.locals.adjacentEntries = null;
-  res.locals.isPublished = true;
+  res.locals.publish = true;
   res.locals.sidebarDates = await getSidebarDateHtml();
   res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
@@ -235,18 +242,6 @@ module.exports.getListByTag = async (req, res) => {
     res.locals.message = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;
     res.redirect('/');
   }
-}
-
-
-// * RETURN LIST OF PUBLISHED DATES AND TITLES
-module.exports.getArchive = async (req, res) => {
-  res.redirect('/');
-}
-
-
-// * RETURN LIST OF CATEGORIES; DEPRECATED?
-module.exports.getCategories = async (req, res) => {
-  res.redirect('/');
 }
 
 
@@ -299,7 +294,7 @@ module.exports.getEditor =  async (req, res) => {
       entry.dateDisplay = dates.dateDisplay;
       entry.dateString = dates.dateString;
       entry.timeString = dates.timeString;
-      entry.isPublishedChecked = entry.isPublished ? "checked" : "";
+      entry.isPublishedChecked = entry.publish ? "checked" : "";
       entry.content = converter.makeHtml(entry.markdown);
       entry.tagHTML = prepTags(entry.tags);
       entry.previewHTML = prepPreview(entry);
@@ -319,8 +314,8 @@ module.exports.postEntry = async (req, res) => {
   res.locals.message = null;
 
   // * GET DATA FROM REQ
-  const { title, subtitle, authorID, isPublished, datePicker, timePicker, entryID } = req.body;
-  let { content, markdown, tags } = req.body;
+  const { title, description, authorID, publish, datePicker, timePicker, entryID } = req.body;
+  let { markdown, tags } = req.body;
   
   // * PREP DATA
   const slug = slugify(title, { lower: true });
@@ -331,7 +326,7 @@ module.exports.postEntry = async (req, res) => {
     .filter(tag => tag.trim() !== '')
     .map(element => element.trim());
 
-  const attributes = { title, slug, subtitle, content, markdown, tags, isPublished, pubDate, authorID };
+  const attributes = { title, slug, description, markdown, tags, publish, pubDate, authorID };
   
   // * ATTEMPT TO UPDATE AN EXISTING ENTRY OR SAVE AS NEW ENTRY
   const entry = await Entry.findOneAndUpdate(
@@ -346,7 +341,7 @@ module.exports.postEntry = async (req, res) => {
     res.status(200).send(prepPreview(entry));
   } else {
     res.locals.message = "Something went wrong, but I can't tell you what.";
-    res.locals.entry = new Entry.updateOne({ _id: entryID }, { isPublished: false });
+    res.locals.entry = new Entry.updateOne({ _id: entryID }, { publish: false });
     res.render('editor');
   }
 }
