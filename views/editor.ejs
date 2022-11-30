@@ -7,10 +7,6 @@
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
 <% const tagHTML = tagArray.join(', '); %>
 
-<div id="container-gutter" class="medium">
-  <%- include('partials/gutter'); -%>
-</div> <!-- close #container-gutter -->
-
 <div id="container-content">
     <div class="headings">
       <h3 class="section-title">Editor</h3>

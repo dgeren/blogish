@@ -25,7 +25,8 @@ app.set('view engine', 'ejs');
 * MONGODB: blogishAdminCredentials 🔴
 * HTTPS SERVER
 */
-mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false })
+
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(result => https.createServer({
     key:  fs.readFileSync('blogish4key.pem'),
     cert: fs.readFileSync('blogish4.pem')
