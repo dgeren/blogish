@@ -8,28 +8,39 @@
 </head>
 
 <body>
-  <div id="container">
-    <div id="container-top">
-
-      <h1 id="blog_title"><span id="burger"><a href="">&#8803;</a> </span><a href="/">Blogish</a></h1>
-      <h2 id="blog_tagline">A Career-Change Misadventure</h2>
-
-      <% if(!user){ %>
-      <li class="medium"><a id="toggle-login-form" href="">&nbsp;&#8680;]&nbsp;</a></li>
-      <% } %>
+  <header>
+    <div id="blog-title" class="blog-title">
+      <label for="nav-toggle" class="nav-toggle-label"><span>≡</span></label>
+      <h1 id="blog_title"><a href="/">Blogish</a></h1>
+    </div>
+  </header>
+  <div id="login-state" class="login-state">
+    <h2 id="blog_tagline">A Career-Change Misadventure</h2>
+    <% if(!user){ %>
+    <a id="toggle-login-form" class="login-form-toggle" href="">&nbsp;&#8680;]&nbsp;</a>
+    <% } else { %>
+    <p id="logged-in-as" class="logged-in-as">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>
+    <% } %>
+  </div>
+  
+  <input type="checkbox" id="nav-toggle" class="nav-toggle">
+  <nav>
+    <ul class="nav">
 
       <% if(user){ %>
-      <li id="logged-in-as">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</li>
       <li><a href="/listUnpublished">Unpublished</a></li>
       <li><a href="/editor">Create Entry</a></li>
       <li><a href="/admin">Admin</a></li>
+      <br><br>
       <% } %>
       <%- sidebarDates -%>
+      <br><br>
       <%- sidebarCategories -%>
-    
-      <form id="signin-form" style="display: none;">
-        <input class="signin-el" type="text" name="email" placeholder="Email address" required>
-        <input class="signin-el" type="password" name="password" placeholder="Password" required>
-        <button class="signin-el">Log in</button>
-      </form>
-    </div> <!-- close #container-top -->
+    </ul>
+  </nav>
+
+  <form id="signin-form" class="signin-form" style="display: none;">
+    <input class="signin-el" type="text" name="email" placeholder="Email address" required>
+    <input class="signin-el" type="password" name="password" placeholder="Password" required>
+    <button class="signin-el">Log in</button>
+  </form>

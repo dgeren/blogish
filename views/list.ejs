@@ -1,0 +1,17 @@
+  <%- include('partials/header'); -%>
+
+  <main>
+    <% if (requestedTag) { %>
+      <h3 class="subtitle">Entries Tagged "<%- requestedTag -%>"</h3>
+    <% } %>
+    <% entries.forEach(entry => { %>
+      <%- include('partials/card', { entry }) -%>
+    <% }); %>
+    <%- include('partials/navigateEntries'); %>
+  </main>
+
+  <%- include('partials/footer') -%>
+      
+  <%- include('partials/scripts') %>
+</body>
+</html>

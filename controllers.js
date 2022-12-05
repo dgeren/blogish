@@ -26,14 +26,14 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 const getSidebarDateHtml = async () => {
 
   const _now = new Date();
-
+ 
   let results = await Entry.find(
       { publish: true, pubDate: { $lt: _now } },
       { title: 1, slug: 1, pubDate: 1, _id: 0 })
   .sort({ pubDate: -1 })
   .lean();
 
-  let output = `<div id="dates">\n<h3>Archive</h3>\n<ul>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
+  let output = `<div class="dates">\n<h3>Archive</h3>\n<ul>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let first = true;
 
@@ -91,7 +91,7 @@ const getSidebarCategoriesHtml = async () => {
     });
   });
 
-  let html = `<div id="categories">\n<h3>Categories</h3>\n\t<ul>\n`;
+  let html = `<div class="categories">\n<h3>Categories</h3>\n\t<ul>\n`;
   Object.keys(data).forEach(key => html += `\t\t<li><a href="/listByTags/${key}">${ key } (${ data[key] })</a></li>\n`);
   return html += `\t</ul>\n</section>\n</div>`;
 }
@@ -188,7 +188,7 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.sidebarDates = await getSidebarDateHtml();
   res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
-  res.render('home');
+  res.render('list');
 }
 
 
@@ -205,7 +205,7 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
   res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
-  res.render('home');
+  res.render('list');
 }
 
 
@@ -236,7 +236,7 @@ module.exports.getListByTag = async (req, res) => {
       entry.tagHTML = prepTags(entry.tags);
     });
     res.locals.requestedTag = tag;
-    res.render('tag');
+    res.render('list');
   } else {
     
     res.locals.message = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;

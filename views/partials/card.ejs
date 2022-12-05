@@ -1,0 +1,14 @@
+    <% const { title, description, slug, tagHTML = "", dateDisplay, author } = entry; %>
+    <div class="card">
+      <div class="card_date">
+        <%= publish ? dateDisplay : "Unpublished" %>
+      </div>
+      <h4 class="card_title">
+        <a href="/reader/slug/<%= slug %>"><%- title %></a>
+        <% if(user) { %>
+        <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ]</a>
+        <% } %> 
+      </h4>
+      <p class="card_description"><%- description %></p>
+      <p class="card_tags"><%- tagHTML %></p>
+    </div>
