@@ -11,7 +11,7 @@ const {
   fixHtmlTags,      formatDate,     handleErrors,
   prepPreview,      prepTags
 } = require('./util'); // 🟠 is formatDashedDate necessary?
-const maxAge = 3600 * 72, limit = 7; // 🟠 add both to dashboard for admin users but nothing lower
+const maxAge = 3600 * 72, limit = 5; // 🟠 add both to dashboard for admin users but nothing lower
 
 /*
 * LOCAL METHODS

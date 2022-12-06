@@ -9,38 +9,41 @@
 
 <body>
   <header>
-    <div id="blog-title" class="blog-title">
-      <label for="nav-toggle" class="nav-toggle-label"><span>≡</span></label>
-      <h1 id="blog_title"><a href="/">Blogish</a></h1>
+    <h1><a href="/">Blogish</a></h1>
+    <div id="tagline-box" class="tagline-box">
+      <label for="nav-toggle" class="nav-toggle-label">≡</label>
+      <h2 id="tagline" class="tagline">A Career-Change Misadventure</h2>
     </div>
+    
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" checked>
+
+    <nav>
+      <ul class="nav">
+        <% if(user){ %>
+        <ul>
+          <li><a href="/listUnpublished">Unpublished</a></li>
+          <li><a href="/editor">Create Entry</a></li>
+          <li><a href="/admin">Admin</a></li>
+        </ul>
+        <% } %>
+        <%- sidebarDates -%>
+        <%- sidebarCategories -%>
+        <div id="login-state" class="login-state">
+          <% if(!user){ %>
+          <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
+          <% } else { %>
+          <p id="logged-in-as" class="logged-in-as">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>
+          <% } %>
+        </div>
+    </nav>
+    <form id="signin-form" class="signin-form" style="display: none;">
+      <input class="signin-el" type="text" name="email" placeholder="Email address" required>
+      <br>
+      <input class="signin-el" type="password" name="password" placeholder="Password" required>
+      <br>
+      <div class="signin-buttons">
+        <button class="signin-el cancel">Cancel</button>
+        <button class="signin-el login">Log in</button>
+      </div>
+    </form>
   </header>
-  <div id="login-state" class="login-state">
-    <h2 id="blog_tagline">A Career-Change Misadventure</h2>
-    <% if(!user){ %>
-    <a id="toggle-login-form" class="login-form-toggle" href="">&nbsp;&#8680;]&nbsp;</a>
-    <% } else { %>
-    <p id="logged-in-as" class="logged-in-as">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>
-    <% } %>
-  </div>
-  
-  <input type="checkbox" id="nav-toggle" class="nav-toggle">
-  <nav>
-    <ul class="nav">
-
-      <% if(user){ %>
-      <li><a href="/listUnpublished">Unpublished</a></li>
-      <li><a href="/editor">Create Entry</a></li>
-      <li><a href="/admin">Admin</a></li>
-      <br><br>
-      <% } %>
-      <%- sidebarDates -%>
-      <br><br>
-      <%- sidebarCategories -%>
-    </ul>
-  </nav>
-
-  <form id="signin-form" class="signin-form" style="display: none;">
-    <input class="signin-el" type="text" name="email" placeholder="Email address" required>
-    <input class="signin-el" type="password" name="password" placeholder="Password" required>
-    <button class="signin-el">Log in</button>
-  </form>

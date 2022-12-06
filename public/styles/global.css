@@ -1,8 +1,9 @@
 :root {
-  --back: black;
-  --fore: white;
-  --accent: orange;
-  --small: .5em;
+  --back: #2e3440;
+  --fore: #eceff4;
+  --code: #88C0D0;
+  --accent: #B48EAD;
+  --small: .6em;
   --medium: .9em;
   --large: 1.5em;
 }
@@ -12,13 +13,14 @@ body {
   background-color: var(--back);
   color: var(--fore);
   font-family: sans-serif;
-  margin: 0 auto; padding: 0; border: 0;
-  max-width: 800px;
+  margin: 0 auto;
+  padding: 2em;
+  border: 0;
+  max-width: 900px;
   display: grid;
-  grid-template-columns: 1fr 4fr;
+  grid-template-columns: 1fr 3fr;
   grid-template-areas:
-    'header1 header2'
-    'nav main'
+    'header main'
     'footer footer';
   gap: 1em 3.5em;
 }
@@ -32,12 +34,23 @@ h1 {
   display: inline;
 }
 
-a {
-  text-decoration: none;
+code {
+  color: var(--code);
+  font-size: 1.1em;
+  padding-bottom: 1em;
 }
 
 a:hover, a:visited, a:link, a:focus {
   color: var(--accent);
+  text-decoration: none;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.nav-toggle {
+  display: none;
 }
 
 .nav {
@@ -56,17 +69,10 @@ a:hover, a:visited, a:link, a:focus {
   display: none;
 }
 
-.blog-title {
-  grid-area: header1;
-  align-self: center;
-  padding: 1em 0;
-}
-
 .login-state {
-  grid-area: header2;
   justify-self: end;
   align-self: center;
-  text-align: right;  
+  padding-bottom: 3em;
 }
 
 .pagination {
@@ -80,7 +86,7 @@ a:hover, a:visited, a:link, a:focus {
 }
 
 footer {
-  margin-top: 30px;
+  padding: 3em 0 4em 0;
   font-size: var(--small);
   grid-area: footer;
   text-align: center;
@@ -88,37 +94,55 @@ footer {
 
 /* -- HEADER -- */
 
-#signin-form {
-  background-color: var(--back);
-  padding: 15px;
-  position: absolute;
-  border: 1px solid var(--accent);
-  left: 5em;
-  top: 5em;
+header {
+  grid-area: header;
 }
 
-.login-state {
-  font-size: var(--small);
+header h2, header ul {
+  padding-bottom: 2em;
+}
+
+.signin-form-toggle {
+  font-size: var(--medium);
+}
+
+.signin-form {
+  background-color: var(--back);
+  position: fixed;
+  padding: 1em;
+  border: 1px solid var(--accent);
+  z-index: 20;
+  left: 50%;
+  top: 25%;
+  transform: translate(-50%, -75%);
+  display: flex;
+  flex-direction: column;
+}
+
+.signin-el {
+  font-size: var(--medium);
+  padding: 1em;
+  border: 1px solid var(--accent);
+  width: 15em;
+}
+
+.signin-buttons {
+  display: flex;
+}
+
+button.login, button.cancel {
+  width: 50%;
+  display: inline;
 }
 
 #logged-in-as {
-  line-height: 2em;
 }
 
-button.signin-el {
-  width: 65px;
-  text-align: center;
+.tagline {
+  font-size: var(--medium);
 }
 
-
-
-/* -- GUTTER -- */
-
-.titles {
-  list-style-type: none;
-}
-
-.year, .month, .day, .title {
+.year, .month, .day {
   margin-bottom: 7px;
 }
 
@@ -142,24 +166,28 @@ button.signin-el {
 }
 
 .card {
-  padding-bottom: 20px;
+  padding-bottom: 3em;
 }
 
 .card_date {
   font-size: var(--small);
-  padding-bottom: 5px;
+  padding-bottom: 1em;
 }
 
 .card_title {
   font-size: var(--large);
+  padding-bottom: .25em;
 }
 
-.card_title a.button {
+.edit-button {
   float: right;
+  font-size: var(--small);
+  vertical-align: middle;
 }
 
 .card_description {
   font-size: var(--medium);
+  padding-bottom:   .5em;
 }
 
 .card_tags {
@@ -174,18 +202,51 @@ button.signin-el {
 
 @media screen and (max-width: 600px) {
 
-  .nav-toggle {
-    display: none;
+  body {
+    grid-template-areas:
+      'header header'
+      'main main'
+      'footer footer';
+    gap: 1em;
+  }
+
+  header {
+    grid-area: header;
+  }
+
+  main {
+    grid-area: main;
+  }
+
+  nav {
+    position: absolute;
+    width: 70%;
+    z-index: 10;
+    background-color: var(--back);
+    padding: 1em;
+    border: var(--accent) 1px solid;
+  }
+
+  .tagline-box {
+    display: flex;
   }
   
   .nav-toggle-label {
     display: inline;
-    font-size: 3em;
+    line-height: .75em;
+    font-size: var(--large);
   }
   
   .nav-toggle:checked ~ nav {
     display: none;
   }
+
+  .signin-el {
+    width: 10em;
+    font-size: var(--small);
+  }
+
+
 
 } /* close @media screen up to 600
 
@@ -232,30 +293,16 @@ main section h4 {
 /* -- EDITOR -- */
 
 .toolbar {
-  width: 100%;
-  margin: 10px 0;
-  padding: 0;
-}
-
-#editor {
-  margin: 0;
-  padding: 0;
+  padding: 1em 0;
 }
 
 .editorSection {
-  margin: 0;
-  padding: 0;
   padding-bottom: 10px;
-}
-
-.elementContainer {
-  margin: 0;
-  padding: 0;
 }
 
 input, button, textarea {
   background-color: #222;
-  color: white;
+  color: var(--fore);
 }
 
 button {
@@ -308,7 +355,6 @@ textarea {
 
 #preview {
   border-top: 1px solid var(--accent);
-  margin: 0;
-  padding: 10px 0;
+  padding: 1em 0;
   width: 100%;
 }
