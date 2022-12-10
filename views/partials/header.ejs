@@ -9,10 +9,10 @@
 
 <body>
   <header>
-    <h1><a href="/">Blogish</a></h1>
-    <div id="tagline-box" class="tagline-box">
+    <h1 class="xlarge"><a href="/">Blogish</a></h1>
+    <div class="tagline-box">
       <label for="nav-toggle" class="nav-toggle-label">≡</label>
-      <h2 id="tagline" class="tagline">A Career-Change Misadventure</h2>
+      <h2 id="tagline" class="small">A Career-Change Misadventure</h2>
     </div>
     
     <input type="checkbox" id="nav-toggle" class="nav-toggle" checked>
@@ -32,18 +32,15 @@
           <% if(!user){ %>
           <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
           <% } else { %>
-          <p id="logged-in-as" class="logged-in-as">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>
+          <p id="logged-in-as" class="small">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>
           <% } %>
+          <form id="signin-form" class="signin-form" style="display: none;">
+            <input class="signin-el" type="text" name="email" placeholder="Email address" required>
+            <br>
+            <input class="signin-el" type="password" name="password" placeholder="Password" required>
+            <br>
+            <button class="signin-el login">Log in </button>
+          </form>
         </div>
     </nav>
-    <form id="signin-form" class="signin-form" style="display: none;">
-      <input class="signin-el" type="text" name="email" placeholder="Email address" required>
-      <br>
-      <input class="signin-el" type="password" name="password" placeholder="Password" required>
-      <br>
-      <div class="signin-buttons">
-        <button class="signin-el cancel">Cancel</button>
-        <button class="signin-el login">Log in</button>
-      </div>
-    </form>
   </header>

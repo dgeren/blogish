@@ -1,6 +1,6 @@
     <% const { title, description, slug, tagHTML = "", dateDisplay, author } = entry; %>
     <div class="card">
-      <div class="card_date">
+      <div class="card_date smaller">
         <%= publish ? dateDisplay : "Unpublished" %>
       </div>
       <h4 class="card_title">
@@ -10,5 +10,5 @@
         <% } %> 
       </h4>
       <p class="card_description"><%- description %></p>
-      <p class="card_tags"><%- tagHTML %></p>
+      <p class="smaller"><%- tagHTML %></p>
     </div>
