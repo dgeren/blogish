@@ -9,10 +9,12 @@
 <% } %>
     
 <% if (adjacentEntries) { %>
+  <div class="adjacents">
     <% if (adjacentEntries.prev) { %>
-      <a href="/reader/slug/<%= adjacentEntries.prev.slug %>" class="pagination">Previous: <%= adjacentEntries.prev.title %></a>
+      <div class="adjacents--previous"><a href="/reader/slug/<%= adjacentEntries.prev.slug %>" class="pagination">Previous: <%= adjacentEntries.prev.title %></a></div>
     <% } %>
     <% if (adjacentEntries.next) { %>
-      <a id="next" href="/reader/slug/<%= adjacentEntries.next.slug %>" class="pagination">Next: <%= adjacentEntries.next.title %></a>
+      <div class="adjacents--next"><a id="next" href="/reader/slug/<%= adjacentEntries.next.slug %>" class="pagination">Next: <%= adjacentEntries.next.title %></a></div>
     <% } %>
+  </div>
 <% } %>

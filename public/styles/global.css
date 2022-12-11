@@ -281,6 +281,19 @@ main section h4 {
   margin: 0 0 1em 0;
 }
 
+.adjacents {
+  display: flex;
+  gap: 2em;
+}
+
+.adjacents--next, .adjacents--previous {
+  flex-basis: 50%;
+}
+
+.adjacents--next {
+  text-align: right;
+}
+
 /* end prevew/reader */
 
 
