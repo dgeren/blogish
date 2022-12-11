@@ -11,6 +11,7 @@ const {
   fixHtmlTags,      formatDate,     handleErrors,
   prepPreview,      prepTags
 } = require('./util'); // 🟠 is formatDashedDate necessary?
+const { ppid } = require('process');
 const maxAge = 3600 * 72, limit = 5; // 🟠 add both to dashboard for admin users but nothing lower
 
 /*
@@ -33,46 +34,47 @@ const getSidebarDateHtml = async () => {
   .sort({ pubDate: -1 })
   .lean();
 
-  let output = `<div class="dates">\n<h3>Archive</h3>\n<ul>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
+  let output = `<div class="archive">\n<h3>Archive</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
+
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let first = true;
 
-    for(item of results){
-      
-      const d = item.pubDate;
-      const year = d.getUTCFullYear();
-      const month = d.getUTCMonth();
-      const day = d.getUTCDate() + 1;
-
-      if(!first){
-        if(currentYear !== year) {
-          output += `</ul>\n</details>\n</details>\n</details>\n`;
-        } else if(currentMonth !== month) {
-          output += `</ul>\n</details>\n</details>\n`;
-        } else if(currentDay !== day) {
-          output += `</ul>\n</details>\n`;
-        }
-      }
-
-      if(currentYear !== year) {
-        currentYear = year, currentMonth = month, currentDay = day;
-        output += `<details class="year">\n<summary>${year}</summary>\n`;
-        output += `<details class="month">\n<summary>${months[month]}</summary>\n`;
-        output += `<details class="day">\n<summary>${day}</summary>\n<ul class="titles">\n`;
-      } else if(currentMonth !== month){
-        currentMonth = month, currentDay = day;
-        output += `<details class="month">\n<summary>${months[month]}</summary>\n`;
-        output += `<details class="day">\n<summary>${day}</summary>\n<ul class="titles">\n`;
-      } else if(currentDay !== day){
-        currentDay = day;
-        output += `<details class="day">\n<summary>${day}</summary>\n<ul class="titles">\n`;
-      }
-
-      output += `<li class="title"><a href="/reader/slug/${item.slug}">${item.title}</a></li>\n`;
-      first = false;
-    }
+  for(item of results){
     
-  output += `</ul>\n</details>\n</details>\n</details>\n</div>\n`;
+    const d = item.pubDate;
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth();
+    const day = d.getUTCDate();
+
+    if(!first){
+      if(currentYear !== year) {
+        output += `</details>\n</details>\n`;
+      } else if(currentMonth !== month) {
+        output += `</details>\n`;
+      }
+    }
+
+    if(currentYear !== year) {
+      currentYear = year, currentMonth = month;
+      output += `<details class="archive--year">\n<summary>${year}</summary>\n`;
+      output += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
+    } else if(currentMonth !== month) {
+      currentMonth = month;
+      output += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
+    }
+    currentDay = day;
+    output += `
+      <div class="archive--entry">
+        <div class="archive--day">${day}</div>
+        <div>
+          <a class="archive--title" href="/reader/slug/${item.slug}">${item.title}</a>
+        </div>
+      </div>\n`;
+
+    first = false;
+  }
+
+  output += `</details>\n</details></div>\n`;
   return output.trim();
 }
 
