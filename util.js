@@ -69,8 +69,8 @@ module.exports.handleErrors = err => {
 
 
 module.exports.prepTags = tags => {
-  const tagArray = tags.map(tag => `<a href="/listByTags/${tag}">${tag}</a>`);
-  return tagArray.join(", ");
+  const tagArray = tags.map(tag => `<a class="label smaller" href="/listByTags/${tag}">${tag}</a>`);
+  return tagArray.join(" ");
 }
 
 
@@ -79,7 +79,7 @@ module.exports.prepPreview = entry => {
   const { title, description, markdown = "", tags = "", dateDisplay = "" } = entry;
   const tagArray = [];
   tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`));
-  const tagHTML = tagArray.join(', ');
+  const tagHTML = tagArray.join(" ");
   const content = converter.makeHtml(markdown);
   
   return `

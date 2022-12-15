@@ -3,9 +3,22 @@
   --fore: #eceff4;
   --code: #88C0D0;
   --accent: #B48EAD;
+  --value: #606088;
+  --label: #505067;
   --small: .6em;
   --medium: .9em;
   --large: 1.5em;
+}
+
+.label {
+  background-color: #505067;
+  font-weight: bold;
+  margin: 10px 0;
+  padding: .5em;
+}
+
+.value {
+  background-color: #606088;
 }
 
 
@@ -35,6 +48,12 @@ body * {
 .medium  { font-size: medium; }
 .large   { font-size: large; }
 .xlarge  { font-size: xxx-large; }
+
+.edit-button {
+  float: right;
+  font-size: var(--small);
+  vertical-align: middle;
+}
 
 
 h1 {
@@ -67,6 +86,7 @@ ul {
 
 .nav {
   list-style-type: none;
+  font-size: small;
 }
 
 .nav-toggle {
@@ -115,32 +135,25 @@ input.signin-el {
   margin-bottom: 2em;
 }
 
-.archive--year {
-  margin-bottom: .5em;
+.archive summary {
+  margin-bottom: .75em;
 }
 
 .archive--month {
   margin-left: 1em;
-}
-
-.archive--month > summary, .archive--entry {
-  margin-bottom: .25em;
+  margin-bottom: .75em;
 }
 
 .archive--entry {
-  margin-bottom: .25em;
+  display: flex;
+  margin-bottom: .75em;
+  margin-left: 1em;
+  font-size: var(--medium);
 }
 
 .archive--day {
-  padding-right: .5em;
   min-width: 1.5em;
-  text-align: right;
-}
-
-div.archive--entry {
-  display: flex;
-  margin-left: 1em;
-  font-size: var(--medium);
+  text-align: center;
 }
 
 .categories ul {
@@ -148,7 +161,28 @@ div.archive--entry {
 }
 
 .categories li {
-  margin-bottom: .25em;
+  background-color: var(--label);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  padding-left: 1em;
+  font-weight: bold;
+}
+
+.categories--key {
+  color:#2d30eb;
+  padding-left: 5px;
+}
+
+.categories--count {
+  background-color: var(--value);
+  width: 30px;
+  text-align: right;
+  vertical-align: text-top;
+  padding-right: 1em;
+  padding-top: .25em;
+  line-height: 1.75em;
 }
 
 /* end header */
@@ -164,24 +198,18 @@ div.archive--entry {
   padding-bottom: 3em;
 }
 
-.card_date {
-  padding-bottom: 1em;
+.card--date {
+  padding-bottom: .75em;
 }
 
-.card_title {
+.card--title {
   font-size: var(--large);
   padding-bottom: .25em;
 }
 
-.edit-button {
-  float: right;
-  font-size: var(--small);
-  vertical-align: middle;
-}
-
-.card_description {
+.card--description {
   font-size: var(--medium);
-  padding-bottom:   .5em;
+  padding-bottom:   1em;
 }
 
 #next {
@@ -261,28 +289,32 @@ main h3 {
 
 }
 
-main .date-display {
-  font-size: var(--small);
+.date-display {
   padding: .25em 0;
   float: right;
 }
 
-main section p {
+.reader--entry {
+  margin-bottom: 2em;
+}
+
+.reader--entry p {
   margin: 0 0 1em 0;  
 }
 
-main section ul {
+.reader--entry ul {
   list-style-type: '\2014\2003\2003';
   list-style-position: initial;
   margin: 0 0 1em 2em;
 }
 
-main section h4 {
+.reader--entry h4 {
   margin: 0 0 1em 0;
 }
 
 .adjacents {
   display: flex;
+
   gap: 2em;
 }
 
@@ -290,7 +322,7 @@ main section h4 {
   flex-basis: 50%;
 }
 
-.adjacents--next {
+.adjacents--previous {
   text-align: right;
 }
 

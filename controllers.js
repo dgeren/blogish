@@ -12,7 +12,7 @@ const {
   prepPreview,      prepTags
 } = require('./util'); // 🟠 is formatDashedDate necessary?
 const { ppid } = require('process');
-const maxAge = 3600 * 72, limit = 5; // 🟠 add both to dashboard for admin users but nothing lower
+const maxAge = 3600 * 72, limit = 7; // 🟠 add both to dashboard for admin users but nothing lower
 
 /*
 * LOCAL METHODS
@@ -34,7 +34,7 @@ const getSidebarDateHtml = async () => {
   .sort({ pubDate: -1 })
   .lean();
 
-  let output = `<div class="archive">\n<h3>Archive</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
+  let output = `<div class="archive">\n<h3>ARCHIVE</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let first = true;
@@ -93,9 +93,13 @@ const getSidebarCategoriesHtml = async () => {
     });
   });
 
-  let html = `<div class="categories">\n<h3>Categories</h3>\n\t<ul>\n`;
-  Object.keys(data).forEach(key => html += `\t\t<li><a href="/listByTags/${key}">${ key } (${ data[key] })</a></li>\n`);
-  return html += `\t</ul>\n</section>\n</div>`;
+  let html = `<div class="categories">\n<h3>CATEGORIES</h3>\n<ul>\n`;
+  Object.keys(data).forEach(key => html += `
+    <li>
+      <div class="categories--key"><a href="/listByTags/${key}">${ key }</a></div>
+      <div class="categories--count">${ data[key] }</div>
+    </li>\n`);
+  return html += `</ul>\n</div>`;
 }
 
 // * GET ENTRIES FROM DATABASE

@@ -3,7 +3,7 @@
   <%- include('partials/header'); -%>
 
   <main>
-    <div class="date-display">
+    <div class="date-display small">
     <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
     <% if(user) { %>
     <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
@@ -15,7 +15,7 @@
       <h3><%- description %></h3>
     </div>
 
-    <section>
+    <section class="reader--entry">
       <div><%- HTML %></div>
       <p><%- tagHTML %></p>
     </section>
