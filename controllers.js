@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const showdown = require('showdown');
 const converter = new showdown.Converter({ 'noHeaderId': true });
 
+const db = require('./db.js');
+
 
 const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
@@ -26,13 +28,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 // * GET ALL PUBLISHED DATES
 const getSidebarDateHtml = async () => {
 
-  const _now = new Date();
- 
-  let results = await Entry.find(
-      { publish: true, pubDate: { $lt: _now } },
-      { title: 1, slug: 1, pubDate: 1, _id: 0 })
-  .sort({ pubDate: -1 })
-  .lean();
+  let results = await db.getArchive();
 
   let output = `<div class="archive">\n<h3>ARCHIVE</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
 
@@ -80,12 +76,10 @@ const getSidebarDateHtml = async () => {
 
 // * GET CATEGORIES AND THE COUNT OF ENTRIES FOR EACH
 const getSidebarCategoriesHtml = async () => {
-  const _now = new Date();
-
   let data = {};
-  const results = await Entry.find(
-    { publish: true, pubDate: { $lt: _now } },
-    { _id: 1, tags: 1 }).lean();
+
+  const results = await db.getCategories();
+
   results.forEach(item => {
     item.tags.forEach(category => {
       if(category != '' && category in data) data[category] += 1;
@@ -181,7 +175,7 @@ module.exports.getListByPubDate = async (req, res) => {
   const skip = (res.locals.page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.entries = await getEntries({ skip, limit });
+  res.locals.entries = await db.getListOfEntriesByDate({ skip });
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
 
