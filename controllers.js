@@ -5,7 +5,6 @@ const converter = new showdown.Converter({ 'noHeaderId': true });
 
 const db = require('./db.js');
 
-
 const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 
@@ -27,7 +26,6 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 
 // * GET ALL PUBLISHED DATES
 const getSidebarDateHtml = async () => {
-
   let results = await db.getArchive();
 
   let output = `<div class="archive">\n<h3>ARCHIVE</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
@@ -96,72 +94,6 @@ const getSidebarCategoriesHtml = async () => {
   return html += `</ul>\n</div>`;
 }
 
-// * GET ENTRIES FROM DATABASE
-const getEntries = async parameters => {
-  const {
-    _id = null,  slug = null, tag = null, sortOrder = -1,
-    skip = null, unpub = false, limit = null, pubDate
-  } = parameters;
-
-  const _now = new Date();
-  
-  return _id ? await Entry
-    // if given an id, then the reader or editor was called
-          .findOne({ _id })
-          .lean() :
-    // if given a slug, then the reader or editor was called
-       slug ? await Entry
-          .findOne({ slug })
-          .lean() :
-    // if given a tag, then the tag list was called
-        tag ? await Entry
-          .find({ tags: tag, publish: true , pubDate: { $lt: _now } }) 
-          .lean()
-          .sort({ pubDate: sortOrder })
-          .skip(skip)
-          .limit(limit) :
-    // if unpublished is true
-      unpub ? await Entry
-          .find({ publish: false })
-          .lean()
-          .sort({ _id: sortOrder }) :
-    // otherwise a list by pubdate was called
-      await Entry
-          .find({ $and: [
-            { publish: true },
-            { pubDate: {$lt: _now }}
-          ] })
-          .lean()
-          .sort({ pubDate: sortOrder })
-          .skip(skip)
-          .limit(limit);
-}
-
-const getAdjacentEntries = async date => {
-  const next = await Entry
-                .find({ publish: true, pubDate: { $gt: date } })
-                .lean()
-                .sort({ pubDate:  1 })
-                .limit(1);
-  const prev = await Entry
-                .find({ publish: true, pubDate: { $lt: date } })
-                .lean()
-                .sort({ pubDate: -1 })
-                .limit(1);
-  return { next: next[0], prev: prev[0] }; 
-}
-
-const countDocs = async (tag) => {
-  const _now = new Date();
-  const filterByTag = tag ? { tags: tag } : {};
-
-  return await Entry.countDocuments({ $and: [
-    { publish: true },
-    { pubDate: { $lt: _now }},
-    filterByTag
-  ] });
-}
-
 
 /*
 * EXPORTED METHODS
@@ -171,7 +103,8 @@ module.exports.getListByPubDate = async (req, res) => {
 
   res.locals.message = null;
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await countDocs();
+  // const docs = await countDocs();
+  const docs = await db.getEntryCount();
   const skip = (res.locals.page * limit) - limit;
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
@@ -195,7 +128,7 @@ module.exports.getListByPubDate = async (req, res) => {
 // * GET LIST OF UNPUBLISHED ARTICLES 
 module.exports.getListUnpublished = async (req, res) => {
   res.locals.message = null;
-  res.locals.entries = await getEntries({ unpub: true });
+  res.locals.entries = await db.getListOfUnpublishedEntries();
   res.locals.pages = 0;
   res.locals.page = 0;
   res.locals.adjacentEntries = null;
@@ -218,12 +151,12 @@ module.exports.getListByTag = async (req, res) => {
 
   // * PAGINATION
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await countDocs(tag);
+  const docs = await db.getEntryCount(tag);
   const skip = (res.locals.page * limit) - limit;
 
   // * PREP ENTRY DATA FOR EJS
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.entries = await getEntries({ tag, skip, limit });
+  res.locals.entries = await db.getListOfEntriesByCategory(tag);
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
   res.locals.sidebarDates = await getSidebarDateHtml();
@@ -249,7 +182,7 @@ module.exports.getListByTag = async (req, res) => {
 module.exports.getEntry = async (req, res) => {
   res.locals.message = null;
   const { slug = null, _id } = req.params;
-  const entry = slug ? await getEntries({ slug }) : await getEntries({ _id });
+  const entry = await db.getOneEntry(slug, _id);
 
   // * PREP ENTRY DATA FOR EJS
   if(entry){
@@ -261,7 +194,7 @@ module.exports.getEntry = async (req, res) => {
     res.locals.page = null;
     res.locals.pages = null;
     res.locals.requestedTag = null
-    res.locals.adjacentEntries = await getAdjacentEntries(entry.pubDate);
+    res.locals.adjacentEntries = await db.getAdjacents(entry.pubDate);
     res.locals.sidebarDates = await getSidebarDateHtml();
     res.locals.sidebarCategories = await getSidebarCategoriesHtml();
     res.locals.message = "";
@@ -269,7 +202,7 @@ module.exports.getEntry = async (req, res) => {
   // * OR ALERT VISITOR
   } else {
     res.locals.message = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
-    res.locals.entries = await getEntries({ limit });
+    res.locals.entries = await db.getListOfEntriesByDate();
     res.redirect('/');
   }
 }
@@ -286,7 +219,7 @@ module.exports.getEditor =  async (req, res) => {
   const { slug } = req.params;
   let dates = {};
   if(slug){
-    const entry = await getEntries({ slug });
+    const entry = await db.getOneEntry({ slug });
     if(entry) {
       // * PREP FOR EJS
       if(entry.pubDate) dates = formatDate(entry.pubDate);
