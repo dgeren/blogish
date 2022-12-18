@@ -25,7 +25,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, "admin error message: user id required"]
   },
-  published: Boolean,
+  publish: Boolean,
   pubDate: Date
 });
 

@@ -110,7 +110,7 @@ const getEntries = async parameters => {
   } = parameters;
 
   const _now = new Date();
-  
+  console.log(unpub); // 🔴
   return _id ? await Entry
     // if given an id, then the reader or editor was called
           .findOne({ _id })
