@@ -100,26 +100,34 @@ const getSidebarCategoriesHtml = async () => {
 */
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
-
-  res.locals.message = null;
-  res.locals.page = parseInt(req.params.page) || 1;
-  // const docs = await countDocs();
   const docs = await db.getEntryCount();
   const skip = (res.locals.page * limit) - limit;
 
+  // establish field for error messages
+  res.locals.message = null;
+
+
+  // data for sidebar
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+
+  // data for list pagination
+  res.locals.page = parseInt(req.params.page) || 1;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await db.getListOfEntriesByDate({ skip });
+
+  // disable reader pagination and title
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
 
+  // prepping data for cards
   res.locals.entries.forEach(entry => {
     entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
   });
 
+  // disable topic title
   res.locals.requestedTag = null;
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
   res.render('list');
 }

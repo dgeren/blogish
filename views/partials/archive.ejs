@@ -1,0 +1,49 @@
+<%
+
+buildArchive = function(archive) {
+
+  let output = `<div class="archive">\n<h3>ARCHIVE</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
+  let first = true;
+  
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  for(item of archive){
+    
+    const d = item.pubDate;
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth();
+    const day = d.getUTCDate();
+
+    if(!first){
+      if(currentYear !== year) {
+        output += `</details>\n</details>\n`;
+      } else if(currentMonth !== month) {
+        output += `</details>\n`;
+      }
+    }
+
+    if(currentYear !== year) {
+      currentYear = year, currentMonth = month;
+      output += `<details class="archive--year">\n<summary>${year}</summary>\n`;
+      output += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
+    } else if(currentMonth !== month) {
+      currentMonth = month;
+      output += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
+    }
+    currentDay = day;
+    output += `
+      <div class="archive--entry">
+        <div class="archive--day">${day}</div>
+        <div>
+          <a class="archive--title" href="/reader/slug/${item.slug}">${item.title}</a>
+        </div>
+      </div>\n`;
+
+    first = false;
+  }
+  output += `</details>\n</details></div>\n`;
+  return output.trim();
+
+}
+
+%>

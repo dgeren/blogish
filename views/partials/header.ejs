@@ -1,3 +1,6 @@
+<% include('./topics') %>
+<% include('./archive') %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,8 +29,9 @@
           <li class="label"><a href="/admin">ADMIN</a></li>
         </ul>
         <% } %>
-        <%- sidebarDates -%>
-        <%- sidebarCategories -%>
+
+        <%- buildTopics(topics); %>
+        <%- buildArchive(archive); %>
         <div id="login-state" class="login-state">
           <% if(!user){ %>
           <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
