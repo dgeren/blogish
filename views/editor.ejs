@@ -1,11 +1,11 @@
 <%- include('partials/header'); -%>
-<% const { title, description, markdown = "", preview, tags = "",
+<% const { title, description, markdown = "", tags = "", tagHTML, 
            pubDate = "", dateDisplay = "", dateString = "", timeString = "",
-           isPublishedChecked, _id, authorID, previewHTML }
-           = entry; %>
+           isPublishedChecked, _id, authorID, }
+           = entry %>
+<% const preview = true; %>
 <% const tagString = tags.join(", "), tagArray = []; %>
 <% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
-<% const tagHTML = tagArray.join(', '); %>
 
 <main id="container-content">
   <div class="title-box">
@@ -62,14 +62,14 @@
           <p class="message" name="publishError" id="publishError">Please select a date or deselect "Publish?"</p>
         </div>
 
-        <div class="elementContainer">        
+        <div class="elementContainer">
           <input type="hidden" name="authorID" class="form-el editor" id="editor_authorID" value="<%= authorID %>">
           <input type="hidden" name="entryID" class="form-el editor" id="editor_entryID" value="<%- _id %>">
         </div>
       </section>
 
       <section id="preview">
-        <%- previewHTML %>
+        <%- include('partials/content', { entry, preview }); %>
       </section>
 
     </form>

@@ -8,10 +8,7 @@ const db = require('./db.js');
 const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 
-const {
-  fixHtmlTags,      formatDate,     handleErrors,
-  prepPreview,      prepTags
-} = require('./util'); // 🟠 is formatDashedDate necessary?
+const { fixHtmlTags, formatDate, prepTags } = require('./util');
 const { ppid } = require('process');
 const maxAge = 3600 * 72, limit = 7; // 🟠 add both to dashboard for admin users but nothing lower
 
@@ -24,99 +21,24 @@ const createToken = id => { // 🟠 why can't this work from util.js?
   });
 }
 
-// * GET ALL PUBLISHED DATES
-const getSidebarDateHtml = async () => {
-  let results = await db.getArchive();
-
-  let output = `<div class="archive">\n<h3>ARCHIVE</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
-
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  let first = true;
-
-  for(item of results){
-    
-    const d = item.pubDate;
-    const year = d.getUTCFullYear();
-    const month = d.getUTCMonth();
-    const day = d.getUTCDate();
-
-    if(!first){
-      if(currentYear !== year) {
-        output += `</details>\n</details>\n`;
-      } else if(currentMonth !== month) {
-        output += `</details>\n`;
-      }
-    }
-
-    if(currentYear !== year) {
-      currentYear = year, currentMonth = month;
-      output += `<details class="archive--year">\n<summary>${year}</summary>\n`;
-      output += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
-    } else if(currentMonth !== month) {
-      currentMonth = month;
-      output += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
-    }
-    currentDay = day;
-    output += `
-      <div class="archive--entry">
-        <div class="archive--day">${day}</div>
-        <div>
-          <a class="archive--title" href="/reader/slug/${item.slug}">${item.title}</a>
-        </div>
-      </div>\n`;
-
-    first = false;
-  }
-
-  output += `</details>\n</details></div>\n`;
-  return output.trim();
-}
-
-// * GET CATEGORIES AND THE COUNT OF ENTRIES FOR EACH
-const getSidebarCategoriesHtml = async () => {
-  let data = {};
-
-  const results = await db.getCategories();
-
-  results.forEach(item => {
-    item.tags.forEach(category => {
-      if(category != '' && category in data) data[category] += 1;
-      else data[category] = 1;
-    });
-  });
-
-  let html = `<div class="categories">\n<h3>CATEGORIES</h3>\n<ul>\n`;
-  Object.keys(data).forEach(key => html += `
-    <li>
-      <div class="categories--key"><a href="/listByTags/${key}">${ key }</a></div>
-      <div class="categories--count">${ data[key] }</div>
-    </li>\n`);
-  return html += `</ul>\n</div>`;
-}
-
-
 /*
 * EXPORTED METHODS
 */
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
-  const docs = await db.getEntryCount();
-  const skip = (res.locals.page * limit) - limit;
-
-  // establish field for error messages
-  res.locals.message = null;
-
-
+  
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
-
+  
   // data for list pagination
+  const docs = await db.getEntryCount();
+  const skip = (res.locals.page * limit) - limit;
   res.locals.page = parseInt(req.params.page) || 1;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await db.getListOfEntriesByDate({ skip });
 
-  // disable reader pagination and title
+  // disabled items
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
 
@@ -133,19 +55,27 @@ module.exports.getListByPubDate = async (req, res) => {
 }
 
 
-// * GET LIST OF UNPUBLISHED ARTICLES 
+// * GET LIST OF UNPUBLISHED ARTICLES
 module.exports.getListUnpublished = async (req, res) => {
-  res.locals.message = null;
+
+  // data for sidebar
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+
+  // entry data
   res.locals.entries = await db.getListOfUnpublishedEntries();
+  
+  // prep topics
+  res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
+
+  // disabled items
   res.locals.pages = 0;
   res.locals.page = 0;
   res.locals.adjacentEntries = null;
   res.locals.publish = false;
   res.locals.requestedTag = null;
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
-  res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
+  // render unpublished
   res.render('list');
 }
 
@@ -153,160 +83,174 @@ module.exports.getListUnpublished = async (req, res) => {
 // * GET ARTICLE LIST BASED ON A TAG
 module.exports.getListByTag = async (req, res) => {
 
-  // * INITIAL VALUES
-  res.locals.message = null;
+  // chosen topic to list
   const { tag } = req.params;
+  res.locals.requestedTag = tag;
 
-  // * PAGINATION
-  res.locals.page = parseInt(req.params.page) || 1;
+  // data for sidebar
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+
+  // pageination
   const docs = await db.getEntryCount(tag);
   const skip = (res.locals.page * limit) - limit;
-
-  // * PREP ENTRY DATA FOR EJS
+  res.locals.page = parseInt(req.params.page) || 1;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.entries = await db.getListOfEntriesByCategory(tag);
-  res.locals.adjacentEntries = null;
-  res.locals.publish = true;
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
-  // * SEND RESPONSE
-  if(res.locals.entries.length > 0) {
-    res.locals.entries.forEach(entry => {
-      entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-      entry.tagHTML = prepTags(entry.tags);
-    });
-    res.locals.requestedTag = tag;
-    res.render('list');
-  } else {
-    
-    res.locals.message = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;
-    res.redirect('/');
-  }
+  // entry data
+  res.locals.entries = await db.getListOfEntriesByCategory(tag);
+  res.locals.entries.forEach(entry => {
+    entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
+    entry.tagHTML = prepTags(entry.tags);
+  });
+
+  // enabled items
+  res.locals.publish = true;
+
+  // disabled items
+  res.locals.adjacentEntries = null;
+
+  // render list by topic
+  res.render('list');
 }
 
 
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
-  res.locals.message = null;
-  const { slug = null, _id } = req.params;
-  const entry = await db.getOneEntry(slug, _id);
 
-  // * PREP ENTRY DATA FOR EJS
-  if(entry){
-    if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-    entry.tagHTML = prepTags(entry.tags);
-    entry.HTML = converter.makeHtml(entry.markdown);
-    
-    res.locals.entry = entry;
-    res.locals.page = null;
-    res.locals.pages = null;
-    res.locals.requestedTag = null
-    res.locals.adjacentEntries = await db.getAdjacents(entry.pubDate);
-    res.locals.sidebarDates = await getSidebarDateHtml();
-    res.locals.sidebarCategories = await getSidebarCategoriesHtml();
-    res.locals.message = "";
-    res.render('reader');
-  // * OR ALERT VISITOR
-  } else {
-    res.locals.message = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
-    res.locals.entries = await db.getListOfEntriesByDate();
-    res.redirect('/');
-  }
+  // chosen entry to read
+  const { slug = null, _id } = req.params;
+
+
+  // entry data
+  const entry = await db.getOneEntry( slug, _id );
+
+
+  if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
+  entry.HTML = converter.makeHtml(entry.markdown);
+  res.locals.entry = entry;
+
+  // prep topics
+  entry.tagHTML = prepTags(entry.tags);
+
+  // data for sidebar
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+  
+  // pagination
+  res.locals.adjacentEntries = await db.getAdjacents(entry.pubDate);
+
+  // disabled items
+  res.locals.page = null;
+  res.locals.pages = null;
+  res.locals.requestedTag = null
+  res.locals.preview = false;
+
+  // render entry in reader
+  res.render('reader');
+  
 }
 
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
-  res.locals.message = null;
+
+  // chosen entry to edit or new entry
   res.locals.entry = new Entry();
-  res.locals.pagination = { next: null, previous: null };
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
-  
   const { slug } = req.params;
+  
+  // data for sidebar
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+  
   let dates = {};
   if(slug){
-    const entry = await db.getOneEntry({ slug });
-    if(entry) {
-      // * PREP FOR EJS
-      if(entry.pubDate) dates = formatDate(entry.pubDate);
+    const entry = await db.getOneEntry(slug);
+    
+    // prep dates
+    if(entry.pubDate) dates = formatDate(entry.pubDate);
 
-      entry.dateDisplay = dates.dateDisplay;
-      entry.dateString = dates.dateString;
-      entry.timeString = dates.timeString;
-      entry.isPublishedChecked = entry.publish ? "checked" : "";
-      entry.content = converter.makeHtml(entry.markdown);
-      entry.tagHTML = prepTags(entry.tags);
-      entry.previewHTML = prepPreview(entry);
+    // PREP DATA FOR FORM AND PREVIEW
+    // publication state
+    entry.dateDisplay = dates.dateDisplay;
+    entry.dateString = dates.dateString;
+    entry.timeString = dates.timeString;
+    entry.isPublishedChecked = entry.publish ? "checked" : "";
 
-      // * EJS
-      res.locals.entry = entry;
-    } else {
-      res.locals.message = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
-    }
+    // body
+    entry.HTML = converter.makeHtml(entry.markdown);
+
+    // prep topics
+    entry.tagHTML = prepTags(entry.tags);
+
+    // entry reader to render
+    res.locals.entry = entry;
+
+    // prep previewjs
+    entry.previewHTML = prepPreview(entry);
+
+    // disabled items
+    res.locals.pagination = { next: null, previous: null };
+
   }
   res.render('editor');
 }
 
 
 // * SAVE NEW OR EXISTING ENTRIES
-module.exports.postEntry = async (req, res) => { 
-  res.locals.message = null;
+module.exports.postEntry = async (req, res) => {
 
-  // * GET DATA FROM REQ
-  const { title, description, authorID, publish, datePicker, timePicker, entryID } = req.body;
-  let { markdown, tags } = req.body;
+  const entry = req.body;
+  const { tags } = req.body;
   
-  // * PREP DATA
-  const slug = slugify(title, { lower: true });
-  const pubDate = datePicker === "" || timePicker === "" ? "" :
-    new Date(`${datePicker}T${timePicker}`);
-  tags = tags
-    .split(",")
-    .filter(tag => tag.trim() !== '')
-    .map(element => element.trim());
+  // convert checkboa
+  entry.publish = entry.isPublished === "on" ? true : false;
 
-  const attributes = { title, slug, description, markdown, tags, publish, pubDate, authorID };
-  
-  // * ATTEMPT TO UPDATE AN EXISTING ENTRY OR SAVE AS NEW ENTRY
-  const entry = await Entry.findOneAndUpdate(
-    entryID ? { _id: entryID } : {},
-    attributes,
-    { new: true, upsert: true }
-  );
-
-  entry.content = converter.makeHtml(entry.markdown);
-  if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-  if(entry){
-    res.status(200).send(prepPreview(entry));
-  } else {
-    res.locals.message = "Something went wrong, but I can't tell you what.";
-    res.locals.entry = new Entry.updateOne({ _id: entryID }, { publish: false });
-    res.render('editor');
+  entry.slug = slugify(entry.title, { lower: true });
+  if(entry.entryID) {
+    entry.id = entry.entryID;
+    delete entry.entryID;
   }
-}
 
+  entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
+    new Date(`${entry.datePicker}T${entry.timePicker}`);
+
+  entry.tags = tags
+    .split(",")
+    .filter(tags => tags.trim() !== "")
+    .map(tags => tags.trim());
+  
+  res.locals.entry = await db.addOrUpdateEntry(entry);
+  res.locals.entry.pubDate = entry.pubDate || false;
+
+
+  res.locals.entry.content = converter.makeHtml(res.locals.entry.markdown);
+  if(res.locals.entry.pubDate) res.locals.entry.dateDisplay = formatDate(res.locals.entry.pubDate).dateDisplay;
+  res.locals.preview = true;
+  console.log("🔸 controllers", res.locals.entry); // 🔴
+
+  
+  res.render('partials/content');
+}
 
 // * GET HTML FOR EDITOR PREVIEW
 module.exports.getEditorPreview = async (req, res) => {
-  res.locals.message = null;
-  const dates = {};
 
-  // * GET DATA FROM REQ
-  const { tags } = req.body;
-
-  const entry = req.body;
+  // data from request
+  const { tags, datePicker = "", timePicker = "" } = req.body;
+  res.locals.entry = req.body;
+  res.locals.preview = true;
   
   // * PREP DATA
-  entry.slug = slugify(entry.title, { lower: true });
-  const dateUTC = entry.datePicker === "" || entry.timePicker === "" ? "" :
-    new Date(`${entry.datePicker}T${entry.timePicker}`);
-  entry.dateDisplay = formatDate(dateUTC).dateDisplay;
-  entry.tags = tags.split(",").map(element => element.trim());
+  res.locals.entry.slug = slugify(res.locals.entry.title, { lower: true });
 
-  entry.content = converter.makeHtml(entry.markdown);
-  res.status(200).send(prepPreview(entry));
+  res.locals.entry.dateDisplay = datePicker === "" || timePicker === "" ? "" :
+    formatDate(new Date(`${res.locals.entry.datePicker}T${res.locals.entry.timePicker}`)).dateDisplay;
+
+  res.locals.entry.tags = Array.isArray(tags) ? tags : tags.split(",").map(element => element.trim());
+  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+
+  res.render('partials/content');
 }
 
 

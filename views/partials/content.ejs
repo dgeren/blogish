@@ -1,0 +1,20 @@
+<% const { title, slug, description, HTML, tagHTML = "", dateDisplay = "" } = entry; %>
+<% console.log("🔸 content.ejs", slug, HTML, tagHTML, dateDisplay); %>
+
+
+    <div class="date-display small">
+    <%= dateDisplay === "undefined NaN, NaN" || dateDisplay === "" ? "Unpublished" : dateDisplay %>
+    <% if(user && !preview) { %>
+    <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
+    <% } %>
+    </div>
+    <div class="title-box">
+      <h2><%= title %>
+      </h2>
+      <h3><%- description %></h3>
+    </div>
+
+    <section class="reader--entry">
+      <div><%- HTML %></div>
+      <p><%- tagHTML %></p>
+    </section>

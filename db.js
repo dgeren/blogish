@@ -92,9 +92,18 @@ const getListOfUnpublishedEntries = async () => {
 }
 
 // * === returns one entry for reader or editor
-const getOneEntry = async ({ slug = null, _id = null }) => {
-  const filter = slug ? { slug } : ( _id );
+const getOneEntry = async (slug, _id ) => {
+  const filter = slug ? { slug } : { _id };
   return await Entry.findOne( filter ).lean();
+}
+
+// * === adds new entries or saves changes to exising
+const addOrUpdateEntry = async (entry) => {
+  return await Entry.findOneAndUpdate(
+    entry.id ? { _id: entry.id } : {},
+    entry,
+    { new: true, upsert: true }
+  );
 }
 
 
@@ -108,5 +117,5 @@ module.exports = {
   getListOfEntriesByCategory,
   getListOfUnpublishedEntries,
   getOneEntry,
-
+  addOrUpdateEntry,
  };
