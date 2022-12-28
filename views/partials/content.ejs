@@ -1,6 +1,4 @@
 <% const { title, slug, description, HTML, tagHTML = "", dateDisplay = "" } = entry; %>
-<% console.log("🔸 content.ejs", slug, HTML, tagHTML, dateDisplay); %>
-
 
     <div class="date-display small">
     <%= dateDisplay === "undefined NaN, NaN" || dateDisplay === "" ? "Unpublished" : dateDisplay %>

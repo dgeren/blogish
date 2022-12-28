@@ -32,24 +32,23 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.archive = await db.getArchive();
   
   // data for list pagination
+  res.locals.page = parseInt(req.params.page) || 1;
   const docs = await db.getEntryCount();
   const skip = (res.locals.page * limit) - limit;
-  res.locals.page = parseInt(req.params.page) || 1;
-  res.locals.pages = parseInt(Math.ceil(docs / limit));
   res.locals.entries = await db.getListOfEntriesByDate({ skip });
+
+  res.locals.pages = parseInt(Math.ceil(docs / limit));
 
   // disabled items
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
+  res.locals.requestedTag = null;
 
   // prepping data for cards
   res.locals.entries.forEach(entry => {
     entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
   });
-
-  // disable topic title
-  res.locals.requestedTag = null;
 
   res.render('list');
 }
@@ -118,14 +117,16 @@ module.exports.getListByTag = async (req, res) => {
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
 
-  // chosen entry to read
+  // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
-
-
-  // entry data
   const entry = await db.getOneEntry( slug, _id );
+/*
+entry = {
+  id, authorid, pubDate, slug, tags, title, markøwn, publish, description
+}
 
 
+*/
   if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
   entry.HTML = converter.makeHtml(entry.markdown);
   res.locals.entry = entry;
@@ -186,25 +187,19 @@ module.exports.getEditor =  async (req, res) => {
     // entry reader to render
     res.locals.entry = entry;
 
-    // prep previewjs
-    entry.previewHTML = prepPreview(entry);
-
     // disabled items
     res.locals.pagination = { next: null, previous: null };
 
   }
-  res.render('editor');
-}
+  res.render('editor'); 
 
 
-// * SAVE NEW OR EXISTING ENTRIES
+}// * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
 
   const entry = req.body;
   const { tags } = req.body;
-  
-  // convert checkboa
-  entry.publish = entry.isPublished === "on" ? true : false;
+
 
   entry.slug = slugify(entry.title, { lower: true });
   if(entry.entryID) {
@@ -223,11 +218,9 @@ module.exports.postEntry = async (req, res) => {
   res.locals.entry = await db.addOrUpdateEntry(entry);
   res.locals.entry.pubDate = entry.pubDate || false;
 
-
   res.locals.entry.content = converter.makeHtml(res.locals.entry.markdown);
   if(res.locals.entry.pubDate) res.locals.entry.dateDisplay = formatDate(res.locals.entry.pubDate).dateDisplay;
   res.locals.preview = true;
-  console.log("🔸 controllers", res.locals.entry); // 🔴
 
   
   res.render('partials/content');

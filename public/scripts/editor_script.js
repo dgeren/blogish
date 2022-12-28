@@ -40,7 +40,7 @@ const useFetch = async fetchReq => {
 const buildEntryObj = () => {
   const entryData = {};
   formElements.forEach(el => entryData[el.attributes.getNamedItem('name').value] = el.value);
-  entryData.isPublished = formElements[4].checked;
+  entryData.publish = formElements[4].checked;
   return entryData;
 }
 
@@ -48,12 +48,12 @@ const buildEntryObj = () => {
 // * NEW VERSION OF UPLOAD
 const upload = async () => {
   // get entry object from page containing data from the fields
-  const entryData = buildEntryObj();
+  const entryData = buildEntryObj();  
 
   // prep fetch object anm 
   const entryHtml = await useFetch({
     method: 'POST',
-    url: '/editor',
+    url: `/editor/`,
     entryData
   });
   // update preview

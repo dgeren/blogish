@@ -1,7 +1,7 @@
 
 <%
 
-buildTopics = function(topics) {
+buildTopics = topics => { // expects array of objects: {id, array of topics}
 
   const data = {};
 
@@ -12,14 +12,14 @@ buildTopics = function(topics) {
     });
   });
 
-  let html = `<div class="categories">\n<h3>CATEGORIES</h3>\n<ul>\n`;
+  let html = `<div class="categories">\n<h3>TOPICS</h3>\n<ul>\n`;
   Object.keys(data).forEach(key => html += `
     <li>
       <div class="categories--key"><a href="/listByTags/${key}">${ key }</a></div>
       <div class="categories--count">${ data[key] }</div>
     </li>\n`);
+
   return html += `</ul>\n</div>`;
-  
 }
 
 %>
