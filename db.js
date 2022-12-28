@@ -59,17 +59,17 @@ const getAdjacents = async (date) => {
 // * === returns limited number of entries to populate list cards
 const getListOfEntriesByDate = async skip => {
   const _now = new Date();
-  console.log("🔸 getLstOfEntriesByDate", skip); // 🔴
+
   
   return await Entry
     .find({ $and: [
       { publish: true },
       { pubDate: {$lt: _now }}
     ]})
+    .sort({ pubDate: -1 })
     .skip(skip)
     .limit(limit)
-    .lean()
-    .sort({ pubDate: -1 });
+    .lean();
 }
 
 // * === returns unlimited entries by topic to populate list cards
@@ -77,10 +77,11 @@ const getListOfEntriesByCategory = async (tag, skip) => {
   const _now = new Date();
 
   return await Entry
-    .find({ tags: tag, publish: true , pubDate: { $lt: _now }, skip: skip })
-    .lean()
+    .find({ tags: tag, publish: true , pubDate: { $lt: _now } })
     .sort({ pubDate: -1 })
-    .limit(limit);
+    .skip(skip)
+    .limit(limit)
+    .lean();
 }
 
 // * === returns unlimited entries where publish is false to populate list cards

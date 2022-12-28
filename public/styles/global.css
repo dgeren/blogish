@@ -326,6 +326,11 @@ main h3 {
   text-align: right;
 }
 
+p img {
+  border: 1px dashed red;
+  max-width: 100%;
+}
+
 /* end prevew/reader */
 
 

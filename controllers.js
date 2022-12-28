@@ -35,7 +35,7 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.page = parseInt(req.params.page) || 1;
   const docs = await db.getEntryCount();
   const skip = (res.locals.page * limit) - limit;
-  res.locals.entries = await db.getListOfEntriesByDate({ skip });
+  res.locals.entries = await db.getListOfEntriesByDate( skip );
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
 
@@ -82,22 +82,21 @@ module.exports.getListUnpublished = async (req, res) => {
 // * GET ARTICLE LIST BASED ON A TAG
 module.exports.getListByTag = async (req, res) => {
 
-  // chosen topic to list
-  const { tag } = req.params;
-  res.locals.requestedTag = tag;
-
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
+  
+  // chosen topic to list
+  const { tag } = req.params;
 
   // pageination
+  res.locals.page = parseInt(req.params.page) || 1;
   const docs = await db.getEntryCount(tag);
   const skip = (res.locals.page * limit) - limit;
-  res.locals.page = parseInt(req.params.page) || 1;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
 
   // entry data
-  res.locals.entries = await db.getListOfEntriesByCategory(tag);
+  res.locals.entries = await db.getListOfEntriesByCategory(tag, skip);
   res.locals.entries.forEach(entry => {
     entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
     entry.tagHTML = prepTags(entry.tags);
@@ -105,6 +104,7 @@ module.exports.getListByTag = async (req, res) => {
 
   // enabled items
   res.locals.publish = true;
+  res.locals.requestedTag = tag;
 
   // disabled items
   res.locals.adjacentEntries = null;
