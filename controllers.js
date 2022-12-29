@@ -85,7 +85,7 @@ module.exports.getListByTag = async (req, res) => {
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
-  
+
   // chosen topic to list
   const { tag } = req.params;
 
@@ -117,26 +117,20 @@ module.exports.getListByTag = async (req, res) => {
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
 
-  // retrieve chosen entry to read
-  const { slug = null, _id } = req.params;
-  const entry = await db.getOneEntry( slug, _id );
-/*
-entry = {
-  id, authorid, pubDate, slug, tags, title, markøwn, publish, description
-}
-
-
-*/
-  if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-  entry.HTML = converter.makeHtml(entry.markdown);
-  res.locals.entry = entry;
-
-  // prep topics
-  entry.tagHTML = prepTags(entry.tags);
-
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
+
+  // retrieve chosen entry to read
+  const { slug = null, _id } = req.params;
+  const entry = await db.getOneEntry( slug, _id );
+  
+  // prep date format
+  if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
+  entry.HTML = converter.makeHtml(entry.markdown);
+
+  // prep topics
+  entry.tagHTML = prepTags(entry.tags);
   
   // pagination
   res.locals.adjacentEntries = await db.getAdjacents(entry.pubDate);
@@ -148,6 +142,7 @@ entry = {
   res.locals.preview = false;
 
   // render entry in reader
+  res.locals.entry = entry;
   res.render('reader');
   
 }
@@ -155,14 +150,14 @@ entry = {
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
-
-  // chosen entry to edit or new entry
-  res.locals.entry = new Entry();
-  const { slug } = req.params;
   
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
+
+  // chosen entry to edit or new entry
+  res.locals.entry = new Entry();
+  const { slug } = req.params;
   
   let dates = {};
   if(slug){
@@ -191,15 +186,21 @@ module.exports.getEditor =  async (req, res) => {
     res.locals.pagination = { next: null, previous: null };
 
   }
+
+  // ! needs alternative if ID is provided instead of slug and
+  // ! error catch if neither
+
   res.render('editor'); 
 
 
 }// * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
 
+
+  // HANDLE ENTRY AND DB 
+
   const entry = req.body;
   const { tags } = req.body;
-
 
   entry.slug = slugify(entry.title, { lower: true });
   if(entry.entryID) {
@@ -207,22 +208,28 @@ module.exports.postEntry = async (req, res) => {
     delete entry.entryID;
   }
 
+  // prep date format
   entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
     new Date(`${entry.datePicker}T${entry.timePicker}`);
 
+  // prep 
   entry.tags = tags
     .split(",")
     .filter(tags => tags.trim() !== "")
     .map(tags => tags.trim());
   
   res.locals.entry = await db.addOrUpdateEntry(entry);
-  res.locals.entry.pubDate = entry.pubDate || false;
+  res.locals.upload = true;
 
-  res.locals.entry.content = converter.makeHtml(res.locals.entry.markdown);
-  if(res.locals.entry.pubDate) res.locals.entry.dateDisplay = formatDate(res.locals.entry.pubDate).dateDisplay;
+  // HANDLE PREVIEW AJAX
+
+  res.locals.entry.pubDate = entry.pubDate || false;
   res.locals.preview = true;
 
-  
+  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+  if(res.locals.entry.pubDate) res.locals.entry.dateDisplay = formatDate(res.locals.entry.pubDate).dateDisplay;
+
+
   res.render('partials/content');
 }
 
