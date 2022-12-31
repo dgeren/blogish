@@ -30,6 +30,9 @@ module.exports.getListByPubDate = async (req, res) => {
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
+
+  // css
+  res.locals.css = "list";
   
   // data for list pagination
   res.locals.page = parseInt(req.params.page) || 1;
@@ -61,6 +64,9 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
 
+  // css
+  res.locals.css = "list";
+
   // entry data
   res.locals.entries = await db.getListOfUnpublishedEntries();
   
@@ -74,7 +80,6 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.publish = false;
   res.locals.requestedTag = null;
 
-  // render unpublished
   res.render('list');
 }
 
@@ -85,6 +90,9 @@ module.exports.getListByTag = async (req, res) => {
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
+
+  // css
+  res.locals.css = "list";
 
   // chosen topic to list
   const { tag } = req.params;
@@ -109,7 +117,6 @@ module.exports.getListByTag = async (req, res) => {
   // disabled items
   res.locals.adjacentEntries = null;
 
-  // render list by topic
   res.render('list');
 }
 
@@ -120,6 +127,9 @@ module.exports.getEntry = async (req, res) => {
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
+
+  // css
+  res.locals.css = "reader";
 
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
@@ -154,6 +164,9 @@ module.exports.getEditor =  async (req, res) => {
   // data for sidebar
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
+
+  // css
+  res.locals.css = "editor";
 
   // chosen entry to edit or new entry
   res.locals.entry = new Entry();

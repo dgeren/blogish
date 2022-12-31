@@ -1,0 +1,74 @@
+@import "reader.css";
+
+.toolbar {
+  background-color: var(--label);
+  margin-bottom: 1em;
+  padding-left: 1em;
+}
+
+.tools {
+  background-color: var(--label);
+}
+
+.editorSection {
+  padding-bottom: 10px;
+}
+
+input, button, textarea {
+  background-color: #111;
+  color: var(--fore);
+}
+
+button {
+  background-color: var(--back);
+  color: var(--accent);
+}
+
+input {
+  border: 1px solid var(--accent);
+}
+
+textarea {
+  outline: 1px solid var(accent);
+  scrollbar-color: var(--back) var(--fore);
+  color: var(--fore);
+}
+
+.listSection {
+  border-bottom: 1px var(--back) solid;
+}
+
+.form-el {
+  width: 96%;
+  padding: 10px 2%;
+  margin: 10px 0 20px 0;
+}
+
+#editor_content, #editor_markdown {
+  border: 1px solid var(--accent);
+  min-height: 20em;
+  font-family: monospace;
+}
+
+#editor_checkbox {
+  width: 20px;
+  accent-color: var(--accent);
+}
+
+#datepicker, #timepicker {
+  width: 100px;
+}
+
+.publish {
+  display: inline-block;
+}
+
+#publishError {
+  display: none;
+}
+
+#preview {
+  border-top: 1px solid var(--accent);
+  padding: 1em 0;
+  width: 100%;
+}
