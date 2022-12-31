@@ -1,4 +1,13 @@
-<% const { title, slug, description, HTML, tagHTML = "", dateDisplay = "", preview } = entry; %>
+<%- include('./buildPubDate'); %>
+<%- include('./buildTopics') %>
+
+<%
+const convert = require('showdown');
+const { title, slug, description, preview } = entry;
+const HTML = convert.makeHtml(entry.markdown);
+const dateDisplay = prepDates(entry.pubDate).dateDisplay;
+const topicsDisplay = prepTopics(entry.tags);
+%>
 
     <div class="date-display small">
     <%= dateDisplay === "undefined NaN, NaN" || dateDisplay === "" ? "Unpublished" : dateDisplay %>
@@ -14,5 +23,5 @@
 
     <section class="reader--entry">
       <div><%- HTML %></div>
-      <p><%- tagHTML %></p>
+      <p><%- topicsDisplay %></p>
     </section>

@@ -1,4 +1,13 @@
-    <% const { title, description, slug, tagHTML = "", dateDisplay, author } = entry; %>
+    <%- include ('buildPubDate'); %>
+    <%- include ('buildTopics'); %>
+
+    <%
+    const { title, description, slug, tagHTML = "", author } = entry;
+    const dateDisplay = prepDates(entry.pubDate).dateDisplay;
+    const topicsDisplay = prepTopics(entry.tags);
+    %>
+
+
     <div class="card">
       <div class="card--date smaller">
         <%- publish ? `${dateDisplay}` : "Unpublished" %>
@@ -10,5 +19,5 @@
         <% } %> 
       </h4>
       <p class="card--description"><%- description %></p>
-      <p class="smaller"><%- tagHTML %></p>
+      <p class="smaller"><%- topicsDisplay %></p>
     </div>

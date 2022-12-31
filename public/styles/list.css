@@ -11,12 +11,12 @@
 }
 
 .card--title {
-  font-size: var(--large);
+  font-size: x-large;
   padding-bottom: .25em;
 }
 
 .card--description {
-  font-size: var(--medium);
+  font-size: medium;
   padding-bottom:   1em;
 }
 

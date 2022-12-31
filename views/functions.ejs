@@ -1,11 +1,9 @@
-<%
-
-convert = require('showdown');
+<%-
 
 entryTopics = topics => {
 
   // expects an array of strings
-  return topics.map(topic => `<a class="label smaller" href="/listByTags/${tag}">${topic}</a>`).join(" ");
+  return topics.map(topic => `<a class="label smaller" href="/listByTags/${topic}">${topic}</a>`).join(" ");
 
 }
 
@@ -56,14 +54,14 @@ paginateEntry = adjacentEntries => {
 
 prepDates = pubDate => {
 
-  // expects date BSON from entry
+  // expects date BSON from entry.pubDate
 
-  const dateObj = new Date(pubDate);
-  const fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  dateObj = new Date(pubDate);
+  fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-  const dateString = dateObj.toISOString().substring(0, 10); //  -> "yyyy-mm-dd"
-  const timeString = dateObj.toISOString().substring(11, 16); // -> "hh:mm"
-  const dateDisplay = `${fullMonth[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+  dateString = dateObj.toISOString().substring(0, 10); //  -> "yyyy-mm-dd"
+  timeString = dateObj.toISOString().substring(11, 16); // -> "hh:mm"
+  dateDisplay = `${fullMonth[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
   
   // dateString & timeString used in editor.ejs to fill publish date and time fields
   return { dateDisplay, dateString, timeString };
@@ -145,19 +143,6 @@ prepSidebar-Archive = archive => {
 
   return html.trim();
 
-}
-
-
-prepContent = markdown => {
-
-  // expects a string
-
-  let html = "";
-
-  // when the tagFixer is ready, it goes here
-
-  html += converter.makeHtml(markdown);
-  return html.trim();
 }
 
 %>

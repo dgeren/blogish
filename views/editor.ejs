@@ -1,11 +1,17 @@
-<%- include('partials/header'); -%>
-<% const { title, description, markdown = "", tags = "", tagHTML, 
-           pubDate = "", dateDisplay = "", dateString = "", timeString = "",
-           isPublishedChecked, _id, authorID, }
-           = entry %>
-<% const preview = true; %>
-<% const tagString = tags.join(", "), tagArray = []; %>
-<% entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`)); %>
+<%- include('partials/header'); %>
+<%- include('partials/buildPubDate') %>
+<%- include('partials/buildTopics') %>
+
+<%
+const { title, description, markdown = "", tags = "", pubDate = "", publish, _id, authorID, } = entry
+const preview = true;
+const tagString = tags.join(", "), tagArray = [];
+entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`));
+
+const { dateDisplay, dateString, timeString } = prepDates(pubDate);
+const topicsDisplay = prepTopics(tags);
+const isPublished = publish ? " checked" : "";
+%>
 
 <main id="container-content">
   <div class="title-box">
@@ -45,14 +51,14 @@
         </div>
 
         <div class="elementContainer">
-          <label for="tags">Tags</label><br>
+          <label for="tags">Topics</label><br>
           <input type="text" name="tags" class="form-el editor" id="editor_tags"
           <% if(tags) { %>value="<%= tagString %>" <% } %>>
         </div>
 
         <div class="elementContainer">
           <label for="publish" class="publish">Publish?</label>
-          <input type="checkbox" name="publish" class="form-el editor publish" id="editor_checkbox" <%= isPublishedChecked %>>
+          <input type="checkbox" name="publish" class="form-el editor publish" id="editor_checkbox"<%= isPublished %>>
           <br>
           <label for="datePicker" class="publish">Date</label><br>
           <input type="date" name="datePicker" class="form-el editor publish" id="datePicker" value="<%- dateString %>">

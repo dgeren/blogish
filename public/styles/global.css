@@ -5,6 +5,7 @@
   --accent: #B48EAD;
   --value: #606088;
   --label: #505067;
+
   --small: .6em;
   --medium: .9em;
   --large: 1.5em;
@@ -245,7 +246,7 @@ input.signin-el {
 
   .signin-el {
     width: 10em;
-    font-size: var(--medium);
+    font-size: medium;
   }
 
 } /* close @media screen up to 600
