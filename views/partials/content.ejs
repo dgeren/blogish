@@ -2,9 +2,7 @@
 <%- include('./buildTopics') %>
 
 <%
-const convert = require('showdown');
-const { title, slug, description, preview } = entry;
-const HTML = convert.makeHtml(entry.markdown);
+const { title, slug, description, HTML, preview } = entry;
 const dateDisplay = prepDates(entry.pubDate).dateDisplay;
 const topicsDisplay = prepTopics(entry.tags);
 %>

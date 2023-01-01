@@ -8,9 +8,8 @@ const db = require('./db.js');
 const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 
-const { fixHtmlTags, formatDate, prepTags } = require('./util');
-const { ppid } = require('process');
-const maxAge = 3600 * 72, limit = 7; // 🟠 add both to dashboard for admin users but nothing lower
+const { fixHtmlTags, limit, maxAge } = require('./util');
+const { ppid } = require('process'); // can't remove even though it appears to not be in
 
 /*
 * LOCAL METHODS
@@ -64,7 +63,6 @@ module.exports.getListUnpublished = async (req, res) => {
   // entry data
   res.locals.entries = await db.getListOfUnpublishedEntries();
   
-
   // disabled items
   res.locals.pages = 0;
   res.locals.page = 0;
@@ -200,6 +198,7 @@ module.exports.postEntry = async (req, res) => {
   res.render('partials/content');
 }
 
+
 // * GET HTML FOR EDITOR PREVIEW
 module.exports.getEditorPreview = async (req, res) => {
 
@@ -272,7 +271,7 @@ module.exports.login = async (req, res) => {
     res.status(200).json({ user: user._id });
   }
   catch (err) {
-    const errors = handleErrors(err);
+    const errors = console.log(err);
     res.status(400).json({ errors });
   }
 }

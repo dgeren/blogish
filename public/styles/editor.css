@@ -1,5 +1,9 @@
 @import "reader.css";
 
+.pageTitle {
+  font-size: 2em;
+}
+
 .toolbar {
   background-color: var(--label);
   margin-bottom: 1em;
@@ -11,7 +15,7 @@
 }
 
 .editorSection {
-  padding-bottom: 10px;
+  padding-bottom: 3em;
 }
 
 input, button, textarea {
@@ -69,6 +73,6 @@ textarea {
 
 #preview {
   border-top: 1px solid var(--accent);
-  padding: 1em 0;
+  padding: 3em 0 1em 0;
   width: 100%;
 }

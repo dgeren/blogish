@@ -2,7 +2,7 @@
 
   <main>
     <% if (requestedTag) { %>
-      <h3 class="subtitle">Entries Tagged "<%- requestedTag -%>"</h3>
+      <h2 class="pageTitle">Entries by Topic: "<%- requestedTag -%>"</h2>
     <% } %>
     <% entries.forEach(entry => { %>
       <%- include('partials/card', { entry }) -%>

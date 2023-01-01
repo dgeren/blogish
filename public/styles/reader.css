@@ -1,9 +1,9 @@
 main h2 {
-  font-size: var(--large);
+  font-size: xx-large;
 }
 
 main h3 {
-  font-size: var(--medium);
+  font-size: small;
   font-style: italic;
   margin-bottom: 1em;
   padding: 1em;
@@ -47,6 +47,5 @@ main h3 {
 }
 
 p img {
-  border: 1px dashed red;
   max-width: 100%;
 }
