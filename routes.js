@@ -6,16 +6,18 @@ const { requireAuth } = require('./middleware');
 const router = Router();
 
 
-// NEW ROUTES
+// ROUTES
 router.get('/', controllers.getListByPubDate);
 router.get('/listByDate/:page', controllers.getListByPubDate);
 router.get('/listByTags/:tag', controllers.getListByTag);
 router.get('/listByTags/:tag/:page', controllers.getListByTag);
 router.get('/reader/slug/:slug', controllers.getEntry);
 router.get('/reader/id/:_id', controllers.getEntry);
+router.get('/reader/slug/:slug/id/:id', controllers.getEntry);
 router.get('/editor/slug/:slug', requireAuth, controllers.getEditor);
 router.get('/editor/preview', requireAuth, controllers.getEditorPreview);
 router.get('/editor/:_id', requireAuth, controllers.getEditor);
+router.get('/editor/slug/:slug/id/:id', controllers.getEditor);
 router.get('/editor', requireAuth, controllers.getEditor);
 router.post('/editor_preview', requireAuth, controllers.getEditorPreview)
 router.post('/editor', requireAuth, controllers.postEntry);
