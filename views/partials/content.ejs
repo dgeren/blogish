@@ -1,0 +1,25 @@
+<%- include('./buildPubDate'); %>
+<%- include('./buildTopics') %>
+
+<%
+const { title, slug, description, HTML, preview } = entry;
+const dateDisplay = prepDates(entry.pubDate).dateDisplay;
+const topicsDisplay = prepTopics(entry.tags);
+%>
+
+    <div class="date-display small">
+    <%= dateDisplay === "undefined NaN, NaN" || dateDisplay === "" ? "Unpublished" : dateDisplay %>
+    <% if(user && !preview) { %>
+    <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
+    <% } %>
+    </div>
+    <div class="title-box">
+      <h2><%= title %>
+      </h2>
+      <h3><%- description %></h3>
+    </div>
+
+    <section class="reader--entry">
+      <div><%- HTML %></div>
+      <p><%- topicsDisplay %></p>
+    </section>

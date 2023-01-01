@@ -1,0 +1,26 @@
+.pageTitle {
+  font-size: 2em;
+}
+
+.card {
+  padding-bottom: 3em;
+}
+
+.card--date {
+  padding-bottom: .75em;
+}
+
+.card--title {
+  font-size: x-large;
+  padding-bottom: .25em;
+}
+
+.card--description {
+  font-size: medium;
+  padding-bottom:   1em;
+}
+
+#next {
+  float: right;
+  padding-right: 5px;
+}

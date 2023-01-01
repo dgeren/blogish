@@ -1,0 +1,51 @@
+main h2 {
+  font-size: xx-large;
+}
+
+main h3 {
+  font-size: small;
+  font-style: italic;
+  margin-bottom: 1em;
+  padding: 1em;
+  background-color: var(--value);
+}
+
+.date-display {
+  padding: .25em 0;
+  float: right;
+}
+
+.reader--entry {
+  margin-bottom: 2em;
+}
+
+.reader--entry p {
+  margin-bottom: 1em;  
+}
+
+.reader--entry ul {
+  list-style-type: '\2014\2003\2003';
+  list-style-position: initial;
+  margin: 0 0 1em 2em;
+}
+
+.reader--entry h4 {
+     margin: 2em 0 1em 0;
+}
+
+.adjacents {
+  display: flex;
+  gap: 2em;
+}
+
+.adjacents--next, .adjacents--previous {
+  flex-basis: 50%;
+}
+
+.adjacents--previous {
+  text-align: right;
+}
+
+p img {
+  max-width: 100%;
+}

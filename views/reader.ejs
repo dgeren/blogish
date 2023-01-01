@@ -1,24 +1,7 @@
-<% const { title, slug, description, HTML, tagHTML = "", dateDisplay = "" } = entry; %>
-
-  <%- include('partials/header'); -%>
+  <%- include('partials/header') %>
 
   <main>
-    <div class="date-display small">
-    <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
-    <% if(user) { %>
-    <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
-    <% } %>
-    </div>
-    <div class="title-box">
-      <h2><%= title %>
-      </h2>
-      <h3><%- description %></h3>
-    </div>
-
-    <section class="reader--entry">
-      <div><%- HTML %></div>
-      <p><%- tagHTML %></p>
-    </section>
+    <%- include('partials/content.ejs', { entry }); -%>
     <%- include('partials/navigateEntries'); -%>
   </main>
 
@@ -26,4 +9,3 @@
       
   <%- include('partials/scripts') %>
 </body>
-</html>

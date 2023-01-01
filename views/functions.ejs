@@ -1,0 +1,148 @@
+<%-
+
+entryTopics = topics => {
+
+  // expects an array of strings
+  return topics.map(topic => `<a class="label smaller" href="/listByTags/${topic}">${topic}</a>`).join(" ");
+
+}
+
+
+paginateList = page => {
+
+  // expects an integer representing current page number
+
+  let html = "";
+
+  if (page > 1) html += `<a href="/${pageType}/${ page - 1 }" class="pagination">&lt; Previous </a>`;
+  if (page < pages) html += `<a id="next" href="/${pageType}/${ page + 1 }" class="pagination">Next &gt;</a><br>
+
+  return html;
+
+}
+
+
+paginateEntry = adjacentEntries => {
+
+  // expects an object of one to two keys, next &| previous, with slugs
+
+  let html = ""
+
+  if(adjacentEntries) {
+    html += `<div class="adjacents">`;
+    if (adjacentEntries.next) {
+      html += `
+        <div class="adjacents--next">
+          <a href="/reader/slug/${adjacentEntries.next.slug}" class="pagination">
+            Next: ${adjacentEntries.next.title}
+          </a>
+        </div>`;
+    if (adjacentEntries.prev) {
+      html += `
+        <div class="adjacents--previous">
+          <a href="/reader/slug/${adjacentEntries.prev.slug}" class="pagination">
+            Previous: ${adjacentEntries.prev.title}
+          </a>
+        </div>`;
+    html += `</div>`;
+  }
+
+  return html;
+
+}
+
+
+prepDates = pubDate => {
+
+  // expects date BSON from entry.pubDate
+
+  dateObj = new Date(pubDate);
+  fullMonth = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  dateString = dateObj.toISOString().substring(0, 10); //  -> "yyyy-mm-dd"
+  timeString = dateObj.toISOString().substring(11, 16); // -> "hh:mm"
+  dateDisplay = `${fullMonth[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
+  
+  // dateString & timeString used in editor.ejs to fill publish date and time fields
+  return { dateDisplay, dateString, timeString };
+
+}
+
+
+prepSidebar-Topics = topics => {
+
+  // expects an array of objects
+  // [ { id, tags: topics-array } ]
+
+  const data = {};
+
+  topics.forEach(item => {
+    item.tags.forEach(category => {
+      if(category != '' && category in data) data[category] += 1;
+      else data[category] = 1;
+    });
+  });
+
+  let html = `<div class="categories">\n<h3>TOPICS</h3>\n<ul>\n`;
+  Object.keys(data).forEach(key => html += `
+    <li>
+      <div class="categories--key"><a href="/listByTags/${key}">${ key }</a></div>
+      <div class="categories--count">${ data[key] }</div>
+    </li>\n`);
+
+  return html += `</ul>\n</div>`;
+  
+}
+
+
+prepSidebar-Archive = archive => {
+
+  // expects an array of objects
+  // { pubDate, slug, title }
+
+  let html = `<div class="archive">\n<h3>ARCHIVE</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
+  let first = true;
+  
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  for(item of archive){
+    
+    const d = item.pubDate;
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth();
+    const day = d.getUTCDate();
+
+    if(!first){
+      if(currentYear !== year) {
+        html += `</details>\n</details>\n`;
+      } else if(currentMonth !== month) {
+        html += `</details>\n`;
+      }
+    }
+
+    if(currentYear !== year) {
+      currentYear = year, currentMonth = month;
+      html += `<details class="archive--year">\n<summary>${year}</summary>\n`;
+      html += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
+    } else if(currentMonth !== month) {
+      currentMonth = month;
+      html += `<details class="archive--month">\n<summary>${months[month]}</summary>\n`;
+    }
+    currentDay = day;
+    html += `
+      <div class="archive--entry">
+        <div class="archive--day">${day}</div>
+        <div>
+          <a class="archive--title" href="/reader/slug/${item.slug}">${item.title}</a>
+        </div>
+      </div>\n`;
+
+    first = false;
+  }
+  html += `</details>\n</details></div>\n`;
+
+  return html.trim();
+
+}
+
+%>

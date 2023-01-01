@@ -11,7 +11,6 @@ allElements.forEach(el => {
     Object.defineProperty(els, el.getAttribute('id'), { value: el });
 });
 
-
 const getDateString = date => {
   const fullMonth = [
     "January", "February", "March", "April", "May", "June", "July",
@@ -23,6 +22,7 @@ const getDateString = date => {
 
 // * NEW FUNCTION: USE-FETCH FUNCTION FOR DRY
 const useFetch = async fetchReq => {
+  if(!fetchReq) return "";
   const { entryData, method, url } = fetchReq;
   const body = JSON.stringify(entryData);
 
@@ -36,11 +36,11 @@ const useFetch = async fetchReq => {
 }
 
 
-// * NEW FUNCTION: CREATES ENTRY BJECT TO UPLOAD AND/OR GET HTML VERSION FOR PREVIEW
+// * NEW FUNCTION: CREATES ENTRY OBJECT TO UPLOAD AND/OR GET HTML VERSION FOR PREVIEW
 const buildEntryObj = () => {
   const entryData = {};
   formElements.forEach(el => entryData[el.attributes.getNamedItem('name').value] = el.value);
-  entryData.isPublished = formElements[4].checked;
+  entryData.publish = formElements[4].checked;
   return entryData;
 }
 
@@ -48,12 +48,12 @@ const buildEntryObj = () => {
 // * NEW VERSION OF UPLOAD
 const upload = async () => {
   // get entry object from page containing data from the fields
-  const entryData = buildEntryObj();
+  const entryData = buildEntryObj();  
 
   // prep fetch object anm 
   const entryHtml = await useFetch({
     method: 'POST',
-    url: '/editor',
+    url: `/editor/`,
     entryData
   });
   // update preview

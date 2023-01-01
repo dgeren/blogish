@@ -3,16 +3,13 @@ const jwt = require('jsonwebtoken');
 const showdown = require('showdown');
 const converter = new showdown.Converter({ 'noHeaderId': true });
 
+const db = require('./db.js');
 
 const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 
-const {
-  fixHtmlTags,      formatDate,     handleErrors,
-  prepPreview,      prepTags
-} = require('./util'); // 🟠 is formatDashedDate necessary?
-const { ppid } = require('process');
-const maxAge = 3600 * 72, limit = 7; // 🟠 add both to dashboard for admin users but nothing lower
+const { fixHtmlTags, limit, maxAge } = require('./util');
+const { ppid } = require('process'); // can't remove even though it appears to not be in
 
 /*
 * LOCAL METHODS
@@ -23,6 +20,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
   });
 }
 
+<<<<<<< HEAD
 // * GET ALL PUBLISHED DATES
 const getSidebarDateHtml = async () => {
 
@@ -169,48 +167,58 @@ const countDocs = async (tag) => {
 }
 
 
+=======
+>>>>>>> refactoring-20221215
 /*
 * EXPORTED METHODS
 */
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
+  
+  // data for sidebar
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
 
-  res.locals.message = null;
+  // css
+  res.locals.css = "list";
+  
+  // data for list pagination
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await countDocs();
+  const docs = await db.getEntryCount();
   const skip = (res.locals.page * limit) - limit;
+  res.locals.entries = await db.getListOfEntriesByDate( skip );
 
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.entries = await getEntries({ skip, limit });
+
+  // disabled items
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
-
-  res.locals.entries.forEach(entry => {
-    entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-    entry.tagHTML = prepTags(entry.tags);
-  });
-
   res.locals.requestedTag = null;
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
   res.render('list');
 }
 
 
-// * GET LIST OF UNPUBLISHED ARTICLES 
+// * GET LIST OF UNPUBLISHED ARTICLES
 module.exports.getListUnpublished = async (req, res) => {
-  res.locals.message = null;
-  res.locals.entries = await getEntries({ unpub: true });
+
+  // data for sidebar
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+
+  // css
+  res.locals.css = "list";
+
+  // entry data
+  res.locals.entries = await db.getListOfUnpublishedEntries();
+  
+  // disabled items
   res.locals.pages = 0;
   res.locals.page = 0;
   res.locals.adjacentEntries = null;
   res.locals.publish = false;
   res.locals.requestedTag = null;
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
-  res.locals.entries.forEach(entry => entry.tagHTML = prepTags(entry.tags));
   res.render('list');
 }
 
@@ -218,160 +226,146 @@ module.exports.getListUnpublished = async (req, res) => {
 // * GET ARTICLE LIST BASED ON A TAG
 module.exports.getListByTag = async (req, res) => {
 
-  // * INITIAL VALUES
-  res.locals.message = null;
-  const { tag } = req.params;
+  // page elements
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+  res.locals.css = "list";
+  res.locals.requestedTag = req.params.tag;
 
-  // * PAGINATION
+  // pageination
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await countDocs(tag);
+  const docs = await db.getEntryCount(req.params.tag);
   const skip = (res.locals.page * limit) - limit;
-
-  // * PREP ENTRY DATA FOR EJS
   res.locals.pages = parseInt(Math.ceil(docs / limit));
-  res.locals.entries = await getEntries({ tag, skip, limit });
-  res.locals.adjacentEntries = null;
-  res.locals.publish = true;
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
 
-  // * SEND RESPONSE
-  if(res.locals.entries.length > 0) {
-    res.locals.entries.forEach(entry => {
-      entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-      entry.tagHTML = prepTags(entry.tags);
-    });
-    res.locals.requestedTag = tag;
-    res.render('list');
-  } else {
-    
-    res.locals.message = `Sorry, but I did not find posts tagged &#34;${ tag }.&#34;`;
-    res.redirect('/');
-  }
+  // entry data
+  res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, skip);
+
+  // enabled items
+  res.locals.publish = true;
+
+  // disabled items
+  res.locals.adjacentEntries = null;
+
+  res.render('list');
 }
 
 
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
-  res.locals.message = null;
-  const { slug = null, _id } = req.params;
-  const entry = slug ? await getEntries({ slug }) : await getEntries({ _id });
 
-  // * PREP ENTRY DATA FOR EJS
-  if(entry){
-    if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-    entry.tagHTML = prepTags(entry.tags);
-    entry.HTML = converter.makeHtml(entry.markdown);
-    
-    res.locals.entry = entry;
-    res.locals.page = null;
-    res.locals.pages = null;
-    res.locals.requestedTag = null
-    res.locals.adjacentEntries = await getAdjacentEntries(entry.pubDate);
-    res.locals.sidebarDates = await getSidebarDateHtml();
-    res.locals.sidebarCategories = await getSidebarCategoriesHtml();
-    res.locals.message = "";
-    res.render('reader');
-  // * OR ALERT VISITOR
-  } else {
-    res.locals.message = `Sorry, but I did not find a post at &#34;/${slug}&#34;`;
-    res.locals.entries = await getEntries({ limit });
-    res.redirect('/');
-  }
+  // page elements
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+  res.locals.css = "reader";
+
+  // retrieve chosen entry to read
+  const { slug = null, _id } = req.params;
+  res.locals.entry = await db.getOneEntry( slug, _id );
+  
+  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+  
+  // pagination
+  res.locals.adjacentEntries = await db.getAdjacents(res.locals.entry.pubDate);
+
+  // disabled items
+  res.locals.page = null;
+  res.locals.pages = null;
+  res.locals.requestedTag = null
+  res.locals.preview = false;
+
+  res.render('reader');  
 }
 
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
-  res.locals.message = null;
-  res.locals.entry = new Entry();
-  res.locals.pagination = { next: null, previous: null };
-  res.locals.sidebarDates = await getSidebarDateHtml();
-  res.locals.sidebarCategories = await getSidebarCategoriesHtml();
   
+  // page elements
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+  res.locals.css = "editor";
+
+  // chosen entry to edit or new entry
+  res.locals.entry = new Entry();
   const { slug } = req.params;
+  
   let dates = {};
   if(slug){
-    const entry = await getEntries({ slug });
-    if(entry) {
-      // * PREP FOR EJS
-      if(entry.pubDate) dates = formatDate(entry.pubDate);
+    const entry = await db.getOneEntry(slug);
 
-      entry.dateDisplay = dates.dateDisplay;
-      entry.dateString = dates.dateString;
-      entry.timeString = dates.timeString;
-      entry.isPublishedChecked = entry.publish ? "checked" : "";
-      entry.content = converter.makeHtml(entry.markdown);
-      entry.tagHTML = prepTags(entry.tags);
-      entry.previewHTML = prepPreview(entry);
+    // body
+    entry.HTML = converter.makeHtml(entry.markdown);
 
-      // * EJS
-      res.locals.entry = entry;
-    } else {
-      res.locals.message = `I did not find anything at &#34;/${slug}&#34;. Would you like to write it now?`;
-    }
+    // entry reader to render
+    res.locals.entry = entry;
+
+    // disabled items
+    res.locals.pagination = { next: null, previous: null };
+
   }
+
   res.render('editor');
 }
 
 
 // * SAVE NEW OR EXISTING ENTRIES
-module.exports.postEntry = async (req, res) => { 
-  res.locals.message = null;
+module.exports.postEntry = async (req, res) => {
 
-  // * GET DATA FROM REQ
-  const { title, description, authorID, publish, datePicker, timePicker, entryID } = req.body;
-  let { markdown, tags } = req.body;
-  
-  // * PREP DATA
-  const slug = slugify(title, { lower: true });
-  const pubDate = datePicker === "" || timePicker === "" ? "" :
-    new Date(`${datePicker}T${timePicker}`);
-  tags = tags
-    .split(",")
-    .filter(tag => tag.trim() !== '')
-    .map(element => element.trim());
 
-  const attributes = { title, slug, description, markdown, tags, publish, pubDate, authorID };
-  
-  // * ATTEMPT TO UPDATE AN EXISTING ENTRY OR SAVE AS NEW ENTRY
-  const entry = await Entry.findOneAndUpdate(
-    entryID ? { _id: entryID } : {},
-    attributes,
-    { new: true, upsert: true }
-  );
+  // HANDLE ENTRY AND DB 
 
-  entry.content = converter.makeHtml(entry.markdown);
-  if(entry.pubDate) entry.dateDisplay = formatDate(entry.pubDate).dateDisplay;
-  if(entry){
-    res.status(200).send(prepPreview(entry));
-  } else {
-    res.locals.message = "Something went wrong, but I can't tell you what.";
-    res.locals.entry = new Entry.updateOne({ _id: entryID }, { publish: false });
-    res.render('editor');
+  const entry = req.body;
+  const { tags } = req.body;
+
+  entry.slug = slugify(entry.title, { lower: true });
+  if(entry.entryID) {
+    entry.id = entry.entryID;
+    delete entry.entryID;
   }
+
+  // prep date format
+  entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
+    new Date(`${entry.datePicker}T${entry.timePicker}`);
+
+  // prep 
+  entry.tags = tags
+    .split(",")
+    .filter(tags => tags.trim() !== "")
+    .map(tags => tags.trim());
+  
+  res.locals.entry = await db.addOrUpdateEntry(entry);
+  res.locals.upload = true;
+
+  // HANDLE PREVIEW AJAX
+
+  res.locals.entry.pubDate = entry.pubDate || false;
+  res.locals.preview = true;
+
+  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+
+  res.render('partials/content');
 }
 
 
 // * GET HTML FOR EDITOR PREVIEW
 module.exports.getEditorPreview = async (req, res) => {
-  res.locals.message = null;
-  const dates = {};
 
-  // * GET DATA FROM REQ
-  const { tags } = req.body;
-
-  const entry = req.body;
+  // data from request
+  const { tags, datePicker = "", timePicker = "" } = req.body;
+  res.locals.entry = req.body;
+  res.locals.preview = true;
   
   // * PREP DATA
-  entry.slug = slugify(entry.title, { lower: true });
-  const dateUTC = entry.datePicker === "" || entry.timePicker === "" ? "" :
-    new Date(`${entry.datePicker}T${entry.timePicker}`);
-  entry.dateDisplay = formatDate(dateUTC).dateDisplay;
-  entry.tags = tags.split(",").map(element => element.trim());
+  res.locals.entry.slug = slugify(res.locals.entry.title, { lower: true });
 
-  entry.content = converter.makeHtml(entry.markdown);
-  res.status(200).send(prepPreview(entry));
+  res.locals.entry.dateDisplay = datePicker === "" || timePicker === "" ? "" :
+    formatDate(new Date(`${res.locals.entry.datePicker}T${res.locals.entry.timePicker}`)).dateDisplay;
+
+  res.locals.entry.tags = Array.isArray(tags) ? tags : tags.split(",").map(element => element.trim());
+  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+
+  res.render('partials/content');
 }
 
 
@@ -382,7 +376,6 @@ module.exports.deleteEntry = async (req, res) => {
   const entry = await Entry.deleteOne({ _id }, err => {
     res.locals.message = "I failed to delete an entry. Are you sure this entry still exists?";
   });
-  // 🟠 DRY: this is repeated in home_get; make into a support function
   res.redirect('/');
 }
 
@@ -427,7 +420,7 @@ module.exports.login = async (req, res) => {
     res.status(200).json({ user: user._id });
   }
   catch (err) {
-    const errors = handleErrors(err);
+    const errors = console.log(err);
     res.status(400).json({ errors });
   }
 }

@@ -1,0 +1,10 @@
+<%
+
+prepTopics = topics => {
+
+  // expects an array of strings
+  return topics.map(topic => `<a class="label smaller" href="/listByTags/${topic}">${topic}</a>`).join(" ");
+
+}
+
+%>
