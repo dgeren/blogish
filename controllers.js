@@ -113,8 +113,7 @@ module.exports.getEntry = async (req, res) => {
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
   res.locals.entry = await db.getOneEntry( slug, _id );
-  
-  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown); // 🔸 move to add to scrubbing HTML in one function
   
   // pagination
   res.locals.adjacentEntries = await db.getAdjacents(res.locals.entry.pubDate);
@@ -146,7 +145,7 @@ module.exports.getEditor =  async (req, res) => {
     const entry = await db.getOneEntry(slug);
 
     // body
-    entry.HTML = converter.makeHtml(entry.markdown);
+    entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to add to scrubbing HTML
 
     // entry reader to render
     res.locals.entry = entry;

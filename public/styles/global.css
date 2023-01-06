@@ -47,24 +47,32 @@ body * {
   margin: 0; padding: 0; border: 0;
 }
 
-.edit-button {
-  float: right;
-  font-size: small;
-  vertical-align: middle;
-}
-
-
 h1 {
-  font-size: 3em;
-  display: inline;
-}
-
-h2 {
-  padding: .25em 0 1em 0;
+  font-size: 7em;
+  padding-bottom: .15em;
 }
 
 h3 {
   padding-bottom: .75em;
+}
+
+.sijil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2em;
+  padding: 2em 0;
+  background-color: var(--label);
+}
+
+.tagline1 {
+  font-size: 1.75em;
+  margin: 0;
+  padding: 0;
+}
+
+.tagline2 {
+  font-size: .80em;
 }
 
 code {
@@ -80,11 +88,6 @@ a:hover, a:visited, a:link, a:focus {
 
 ul {
   list-style-type: none;
-}
-
-#tagline {
-  font-size: small;
-  margin-bottom: 1em;
 }
 
 .nav-toggle {
@@ -232,7 +235,11 @@ input.signin-el {
     border: var(--accent) 1px solid;
   }
 
-  .tagline-box {
+  .tagline2 {
+    font-size: .68em;
+  }
+
+  #tagline-box {
     display: flex;
     gap: .5em;
   }

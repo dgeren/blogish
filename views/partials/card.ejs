@@ -2,7 +2,7 @@
     <%- include ('buildTopics'); %>
 
     <%
-    const { title, description, slug, tagHTML = "", author } = entry;
+    const { title, description, slug, _id, tagHTML = "", author } = entry;
     const dateDisplay = prepDates(entry.pubDate).dateDisplay;
     const topicsDisplay = prepTopics(entry.tags);
     %>
@@ -13,9 +13,9 @@
         <%- publish ? `${dateDisplay}` : "Unpublished" %>
       </div>
       <h4 class="card--title">
-        <a href="/reader/slug/<%= slug %>"><%- title %></a>
+        <a href="/reader/slug/<%= slug %>/id/<%= _id %>"><%- title %></a>
         <% if(user) { %>
-        <a href="/editor/slug/<%= slug %>" class="edit-button">[ &#9998; ]</a>
+        <a href="/editor/slug/<%= slug %>/id/<%= _id %>" class="edit-button">[ &#9998; ]</a>
         <% } %> 
       </h4>
       <p class="card--description"><%- description %></p>

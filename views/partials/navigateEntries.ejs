@@ -1,4 +1,7 @@
-<% const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`; %>
+<%
+const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`;
+const { next, prev } = adjacentEntries;
+%>
 
 <% if (page > 1) { %>
   <a href="<%= `/${pageType}/${ page - 1 }` %>" class="pagination">&lt; Previous </a>
@@ -11,10 +14,10 @@
 <% if (adjacentEntries) { %>
   <div class="adjacents">
     <% if (adjacentEntries.next) { %>
-      <div class="adjacents--next"><a href="/reader/slug/<%= adjacentEntries.next.slug %>" class="pagination">Next: <%= adjacentEntries.next.title %></a></div>
+      <div class="adjacents--next"><a href="<%= `/reader/slug/${next.slug}/id/${next._id}` %>" class="pagination">Next: <%= next.title %></a></div>
     <% } %>
     <% if (adjacentEntries.prev) { %>
-      <div class="adjacents--previous"><a href="/reader/slug/<%= adjacentEntries.prev.slug %>" class="pagination">Previous: <%= adjacentEntries.prev.title %></a></div>
+      <div class="adjacents--previous"><a href="<%= `/reader/slug/${prev.slug}/id/${prev._id}` %>" class="pagination">Previous: <%= prev.title %></a></div>
     <% } %>
   </div>
 <% } %>

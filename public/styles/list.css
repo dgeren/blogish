@@ -1,3 +1,9 @@
+.edit-button {
+  float: right;
+  font-size: small;
+  vertical-align: middle;
+}
+
 .pageTitle {
   font-size: 2em;
 }

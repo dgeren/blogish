@@ -1,3 +1,4 @@
+const mongo = require("mongodb");
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 const User = require('./models/User');
 
@@ -11,7 +12,7 @@ const getArchive = async () => {
   return await Entry
     .find(
       { publish: true, pubDate: { $lt: _now } },
-      { title: 1, slug: 1, pubDate: 1, _id: 0 })
+      { title: 1, slug: 1, pubDate: 1 })
     .sort({ pubDate: -1 })
     .lean();
 }
@@ -42,13 +43,16 @@ const getEntryCount = async (topic) => {  const _now = new Date();
 const getAdjacents = async (date) => {
 
   const next = await Entry
-    .find({ publish: true, pubDate: { $gt: date } })
+    .find(
+      { publish: true, pubDate: { $gt: date } },
+      { slug: 1, title: 1 })
     .lean()
     .sort({ pubDate:  1 })
     .limit(1);
 
   const prev = await Entry
-    .find({ publish: true, pubDate: { $lt: date } })
+    .find({ publish: true, pubDate: { $lt: date } },
+      { slug: 1, title: 1 })
     .lean()
     .sort({ pubDate: -1 })
     .limit(1);
@@ -93,9 +97,13 @@ const getListOfUnpublishedEntries = async () => {
 }
 
 // * === returns one entry for reader or editor
-const getOneEntry = async (slug, _id ) => {
+const getOneEntry = async (slug, _id) => {
+  
+  // original
   const filter = slug ? { slug } : { _id };
   return await Entry.findOne( filter ).lean();
+
+  // return await Entry.findOne({ slug }).lean() || await Entry.findOne({ _id: id }).lean();
 }
 
 // * === adds new entries or saves changes to exising
@@ -106,7 +114,6 @@ const addOrUpdateEntry = async (entry) => {
     { new: true, upsert: true }
   );
 }
-
 
 
 module.exports = {
