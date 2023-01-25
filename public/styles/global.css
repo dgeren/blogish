@@ -109,6 +109,12 @@ footer {
   text-align: center;
 }
 
+.warning {
+  color: orange;
+}
+
+
+
 /* -- HEADER -- */
 
 header {

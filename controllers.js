@@ -10,6 +10,7 @@ const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, ch
 
 const { fixHtmlTags, limit, maxAge } = require('./util');
 const { ppid } = require('process'); // can't remove even though it appears to not be in
+const e = require('express');
 
 /*
 * LOCAL METHODS
@@ -19,16 +20,13 @@ const createToken = id => { // 🟠 why can't this work from util.js?
     expiresIn: maxAge
   });
 }
+  
 
 /*
 * EXPORTED METHODS
 */
-// * GET LIST OF RECENT ARTICLES
+// * GET LIST OF RECENT ARTICLES 🔹
 module.exports.getListByPubDate = async (req, res) => {
-  
-  // data for sidebar
-  res.locals.topics = await db.getCategories();
-  res.locals.archive = await db.getArchive();
 
   // css
   res.locals.css = "list";
@@ -37,14 +35,18 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.page = parseInt(req.params.page) || 1;
   const docs = await db.getEntryCount();
   const skip = (res.locals.page * limit) - limit;
-  res.locals.entries = await db.getListOfEntriesByDate( skip );
-
   res.locals.pages = parseInt(Math.ceil(docs / limit));
+
+  // queries
+  res.locals.entries = await db.getListOfEntriesByDate( skip );
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
 
   // disabled items
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
   res.locals.requestedTag = null;
+  res.locals.errMessage = null;
 
   res.render('list');
 }
@@ -62,6 +64,7 @@ module.exports.getListUnpublished = async (req, res) => {
 
   // entry data
   res.locals.entries = await db.getListOfUnpublishedEntries();
+  console.log("🔸 ")
   
   // disabled items
   res.locals.pages = 0;
@@ -74,13 +77,15 @@ module.exports.getListUnpublished = async (req, res) => {
 }
 
 
-// * GET ARTICLE LIST BASED ON A TAG
+// * GET ARTICLE LIST BASED ON A TOPIC
 module.exports.getListByTag = async (req, res) => {
+
+  // css
+  res.locals.css = "list";
 
   // page elements
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
-  res.locals.css = "list";
   res.locals.requestedTag = req.params.tag;
 
   // pageination
@@ -91,6 +96,9 @@ module.exports.getListByTag = async (req, res) => {
 
   // entry data
   res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, skip);
+  res.locals.errMessage = res.locals.entries.length === 0 ?
+    "The requested topic is invalid. Check the list of topics." :
+    null;
 
   // enabled items
   res.locals.publish = true;
@@ -109,14 +117,15 @@ module.exports.getEntry = async (req, res) => {
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
   res.locals.css = "reader";
+  res.locals.errMessage = null;
 
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
   res.locals.entry = await db.getOneEntry( slug, _id );
-  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown); // 🔸 move to add to scrubbing HTML in one function
+  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
   
   // pagination
-  res.locals.adjacentEntries = await db.getAdjacents(res.locals.entry.pubDate);
+  res.locals.pagination = await db.getAdjacents(res.locals.entry.pubDate);
 
   // disabled items
   res.locals.page = null;
@@ -124,7 +133,7 @@ module.exports.getEntry = async (req, res) => {
   res.locals.requestedTag = null
   res.locals.preview = false;
 
-  res.render('reader');  
+  res.render('reader');
 }
 
 
@@ -135,6 +144,7 @@ module.exports.getEditor =  async (req, res) => {
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
   res.locals.css = "editor";
+  res.locals.errMessage = null;
 
   // chosen entry to edit or new entry
   res.locals.entry = new Entry();
@@ -199,16 +209,16 @@ module.exports.postEntry = async (req, res) => {
 // * GET HTML FOR EDITOR PREVIEW
 module.exports.getEditorPreview = async (req, res) => {
 
-  // data from request
-  const { tags, datePicker = "", timePicker = "" } = req.body;
   res.locals.entry = req.body;
   res.locals.preview = true;
   
   // * PREP DATA
   res.locals.entry.slug = slugify(res.locals.entry.title, { lower: true });
+  const tags = res.locals.entry.tags;
 
-  res.locals.entry.dateDisplay = datePicker === "" || timePicker === "" ? "" :
-    formatDate(new Date(`${res.locals.entry.datePicker}T${res.locals.entry.timePicker}`)).dateDisplay;
+  // prep date format
+  res.locals.entry.pubDate = !res.locals.entry.datePicker || !res.locals.entry.timePicker ? "" :
+    new Date(`${res.locals.entry.datePicker}T${res.locals.entry.timePicker}`);
 
   res.locals.entry.tags = Array.isArray(tags) ? tags : tags.split(",").map(element => element.trim());
   res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
@@ -217,15 +227,44 @@ module.exports.getEditorPreview = async (req, res) => {
 }
 
 
-// * DELETE EXISTING ENTRIES
+// * DELETE EXISTING ENTRIES 🔹
 module.exports.deleteEntry = async (req, res) => {
-  res.locals.message = "Entry deleted. Here are some recents entries.";
   const { _id } = req.params;
-  const entry = await Entry.deleteOne({ _id }, err => {
-    res.locals.message = "I failed to delete an entry. Are you sure this entry still exists?";
-  });
-  res.redirect('/');
+  const result = await db.deleteOneEntry({_id});
+  // todo: change to return a message using AJAX instead of going to the home page;
+  // this would leave the content of the entry in the editor so the user could save the entry again, if needed
+  // warn the user that this might break SEO for an entry since it now relies on ID instead of just the slug
+  res.redirect('editor');
 }
+
+
+// * RENDER LIST BY DATE WITH ERROR MESSAGE
+module.exports.getError = async (req, res) => {
+
+  // css
+  res.locals.css = "list";
+  res.locals.errMessage = `The requested URL is invalid.`;
+
+  // data for list pagination
+  res.locals.page = parseInt(req.params.page) || 1;
+  const docs = await db.getEntryCount();
+  const skip = (res.locals.page * limit) - limit;
+  res.locals.pages = parseInt(Math.ceil(docs / limit));
+
+  // queries
+  res.locals.entries = await db.getListOfEntriesByDate( skip );
+  res.locals.topics = await db.getCategories();
+  res.locals.archive = await db.getArchive();
+
+  // disabled items
+  res.locals.adjacentEntries = null;
+  res.locals.publish = true;
+  res.locals.requestedTag = null;
+
+  res.render('list');
+
+}
+
 
 
 // * RENDER ADMIN PAGE

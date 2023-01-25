@@ -1,10 +1,9 @@
     <%- include ('buildPubDate'); %>
     <%- include ('buildTopics'); %>
 
-    <%
-    const { title, description, slug, _id, tagHTML = "", author } = entry;
-    const dateDisplay = prepDates(entry.pubDate).dateDisplay;
-    const topicsDisplay = prepTopics(entry.tags);
+    <% // can ai remove tagHTML from the destructuring
+    const { title, description, slug, _id, tagHTML = "", tags = null, pubDate = null, author } = entry;
+    const dateDisplay = pubDate ? prepDates(pubDate).dateDisplay : null;
     %>
 
 
@@ -19,5 +18,8 @@
         <% } %> 
       </h4>
       <p class="card--description"><%- description %></p>
+      <% if(tags){
+        topicsDisplay = prepTopics(tags); %>
       <p class="smaller"><%- topicsDisplay %></p>
+      <% } %>
     </div>

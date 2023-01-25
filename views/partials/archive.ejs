@@ -2,9 +2,17 @@
 
 buildArchive = archive => {
 
+  if(archive.error) {
+    return `
+    <div class="archive">\n
+      <h3>ARCHIVE</h3>\n
+      <div>${archive.title}</div>\n
+      <div>${archive.message}</div>\n
+    </div>\n`;
+  }
+  
   let output = `<div class="archive">\n<h3>ARCHIVE</h3>\n`, currentYear = 0, currentMonth = 0, currentDay = 0;
   let first = true;
-  
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   for(item of archive){
@@ -41,9 +49,8 @@ buildArchive = archive => {
 
     first = false;
   }
-  output += `</details>\n</details></div>\n`;
+  output += `</details>\n</details>`;
+
+  output += `</div>\n`;
   return output.trim();
-
-}
-
-%>
+} %>

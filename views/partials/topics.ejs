@@ -2,12 +2,24 @@
 
 buildTopics = topics => { // expects array of objects: {id, array of topics}
 
+  if(topics.error){
+    return `
+      <div class="categories">\n
+        <h3>TOPICS</h3>\n
+        <ul>\n
+          <div>${topics.title}</div>\n
+          <div>${topics.message}</div>\n
+        </ul>\n
+      </div>\n
+    `;
+  }
+
   const data = {};
 
   topics.forEach(item => {
-    item.tags.forEach(category => {
-      if(category != '' && category in data) data[category] += 1;
-      else data[category] = 1;
+    item.tags.forEach(topic => {
+      if(topic != '' && topic in data) data[topic] += 1;
+      else data[topic] = 1;
     });
   });
 

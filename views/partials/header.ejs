@@ -37,7 +37,7 @@
         <%- buildTopics(topics); %>
         <%- buildArchive(archive); %>
         <div id="login-state" class="login-state">
-          <% if(!user){ %>
+          <% if(!user) { %>
           <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
           <% } else { %>
           <p id="logged-in-as" class="small">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>

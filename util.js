@@ -27,3 +27,7 @@ module.exports.fixHtmlTags = (content, task) => {
   });
   return content;
 }
+
+module.exports.logError = (err) => {
+  // todo: moved to its own item, will be implemented after research
+}

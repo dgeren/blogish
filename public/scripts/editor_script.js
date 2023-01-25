@@ -48,7 +48,7 @@ const buildEntryObj = () => {
 // * NEW VERSION OF UPLOAD
 const upload = async () => {
   // get entry object from page containing data from the fields
-  const entryData = buildEntryObj();  
+  const entryData = buildEntryObj();
 
   // prep fetch object anm 
   const entryHtml = await useFetch({
@@ -90,11 +90,9 @@ const revert = () => location.reload(true);
 
 // * DELETE ENTRY: WARNNING PERMANENT
 const del = () => {
-  const _id = els.editor_entryID.value;
   const httpRequest = new XMLHttpRequest();
-  httpRequest.open('DELETE', `/${_id}`, true);
-  httpRequest.send();
-  revert();
+  httpRequest.open('DELETE', `/${els.editor_entryID.value}`, true);
+  const result = httpRequest.send();
 }
 
 
