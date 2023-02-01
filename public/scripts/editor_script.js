@@ -87,12 +87,22 @@ const openReader = () => {
 // * REVERTS CURRREMT ENTRY TO THE DATABASE VERSION: WARNING DOES NOT SAVE
 const revert = () => location.reload(true);
 
-
 // * DELETE ENTRY: WARNNING PERMANENT
 const del = () => {
-  const httpRequest = new XMLHttpRequest();
-  httpRequest.open('DELETE', `/${els.editor_entryID.value}`, true);
-  const result = httpRequest.send();
+  const xhttp = new XMLHttpRequest();
+  xhttp.open('DELETE', `/${els.editor_entryID.value}`, true);
+  xhttp.onreadystatechange = function () {
+    if(xhttp.readyState === XMLHttpRequest.DONE ) {
+      const status = xhttp.status;
+      if(status === 0 || (status >= 200 && status < 400)) {
+        const messageHTML = document.getElementById('message');
+        const result = JSON.parse(xhttp.responseText);
+        console.log("🔸 del result:\n", result); // 🔴
+        messageHTML.innerHTML += `<h4>${result.title}</h4><p>${result.description}</p>`;
+      }
+    }
+  }
+  const result = xhttp.send();
 }
 
 

@@ -25,7 +25,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 /*
 * EXPORTED METHODS
 */
-// * GET LIST OF RECENT ARTICLES 🔹
+// * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
 
   // css
@@ -64,7 +64,6 @@ module.exports.getListUnpublished = async (req, res) => {
 
   // entry data
   res.locals.entries = await db.getListOfUnpublishedEntries();
-  console.log("🔸 ")
   
   // disabled items
   res.locals.pages = 0;
@@ -196,7 +195,6 @@ module.exports.postEntry = async (req, res) => {
   res.locals.upload = true;
 
   // HANDLE PREVIEW AJAX
-
   res.locals.entry.pubDate = entry.pubDate || false;
   res.locals.preview = true;
 
@@ -234,7 +232,8 @@ module.exports.deleteEntry = async (req, res) => {
   // todo: change to return a message using AJAX instead of going to the home page;
   // this would leave the content of the entry in the editor so the user could save the entry again, if needed
   // warn the user that this might break SEO for an entry since it now relies on ID instead of just the slug
-  res.redirect('editor');
+  console.log("🔸 controllers deleteEntry", result) // 🔴
+  res.send(result);
 }
 
 

@@ -198,13 +198,13 @@ const getListOfUnpublishedEntries = async () => {
 
   try {
     result = await Entry
-      .find({ title: "" })
+      .find({ publish: false })
       .lean()
       .sort({ _id: -1 });
-    if(result === 0) throw { results: 0 };
+    if(result.length === 0) throw { results: 0 };
   } catch(err) {
     // todo: add logging
-    if(results === 0){
+    if(err.results === 0){
       result = [{
         error: true,
         title: "There appear to be no unplubished entries. Cool!",
@@ -241,14 +241,12 @@ const getOneEntry = async (slug, _id) => {
 // * === adds new entries or saves changes to exising
 const addOrUpdateEntry = async (entry) => {
   try {
-    const result = await Entry.findOneAndUpdate(
+    return await Entry.findOneAndUpdate(
       entry.id ? { _id: entry.id } : {},
       entry,
       { new: true, upsert: true }
     );
-    if(!result) throw { results: false };
   } catch(err){
-    // todo: add logging
     return {
       error: true,
       title: errMsg.title,
@@ -258,9 +256,22 @@ const addOrUpdateEntry = async (entry) => {
 }
 
 const deleteOneEntry = async _id => {
-  const result = true;
-  await Entry.findByIdAndDelete( _id );
-  return result;
+  try {
+    await Entry.findByIdAndDelete( _id );
+    return {
+      error: false,
+      title: "Deletion Successful",
+      description: `The action logged for review.`
+    };
+  } catch (err) {
+    console.log("🔹 db deleteOneEntry error"); // 🔴
+    return {
+      error: true,
+      title: errMsg.title,
+      description: `${errMsg.begin} with deleting this entry. ${errMsg.contact} ${errMsg.end}`
+    };
+
+  }
 }
 
 
