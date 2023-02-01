@@ -97,7 +97,6 @@ const del = () => {
       if(status === 0 || (status >= 200 && status < 400)) {
         const messageHTML = document.getElementById('message');
         const result = JSON.parse(xhttp.responseText);
-        console.log("🔸 del result:\n", result); // 🔴
         messageHTML.innerHTML += `<h4>${result.title}</h4><p>${result.description}</p>`;
       }
     }

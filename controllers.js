@@ -229,10 +229,6 @@ module.exports.getEditorPreview = async (req, res) => {
 module.exports.deleteEntry = async (req, res) => {
   const { _id } = req.params;
   const result = await db.deleteOneEntry({_id});
-  // todo: change to return a message using AJAX instead of going to the home page;
-  // this would leave the content of the entry in the editor so the user could save the entry again, if needed
-  // warn the user that this might break SEO for an entry since it now relies on ID instead of just the slug
-  console.log("🔸 controllers deleteEntry", result) // 🔴
   res.send(result);
 }
 
