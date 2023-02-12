@@ -1,15 +1,14 @@
+<%- include('./functions'); %>
 <%- include('partials/header'); %>
-<%- include('partials/buildPubDate') %>
-<%- include('partials/buildTopics') %>
 
 <%
-const { title, description, markdown = "", tags = "", pubDate = "", publish, _id, authorID, } = entry
+// SET UP 
+const { title, description, markdown = "", tags = null, pubDate = null, publish, _id, authorID, } = entry;
 const preview = true;
-const tagString = tags.join(", "), tagArray = [];
-entry.tags.forEach(tag => tagArray.push(`<a href="/listByTags/tag/${tag}">${tag}</a>`));
+
+const tagString = tags !== null ? tags.join(", ") : ""; // used for the tags field in the editor form
 
 const { dateDisplay, dateString, timeString } = prepDates(pubDate);
-const topicsDisplay = prepTopics(tags);
 const isPublished = publish ? " checked" : "";
 %>
 
@@ -17,7 +16,6 @@ const isPublished = publish ? " checked" : "";
   <div class="title-box">
     <h2 class="pageTitle">Editor</h2>
   </div>
-  <div class="message" name="message" id="message"></div>
   <form id="toolbar" class="toolbar">
     <button id="tools_update" class="tools label" name="updatePreview" alt="Update Preview section.">PREVIEW</button>
     &nbsp; | &nbsp;
@@ -30,6 +28,7 @@ const isPublished = publish ? " checked" : "";
     <button id="tools_del" class="tools label" name="del" alt="Permanently delete the post.">DELETE</button>
   </form>
   <section>
+  <p id="message"> </p>
     <form id="editor">
       <section class="editorSection">
         <div class="elementContainer">

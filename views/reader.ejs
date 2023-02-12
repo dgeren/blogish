@@ -1,34 +1,28 @@
-  <%-
-  include('partials/header');
-  %>
-
-
+  <%- include('partials/header'); %>
+  
   <main>
     <%- include('partials/content.ejs', { entry }); -%>
     <%
     let html = "";
+
     if(pagination.error) {
         html += `<div class="adjacents--previous">${pagination.message}</div>`;
     } 
     
     if (pagination.next || pagination.previous) {
-
         const { next, prev } = pagination;
         html += `<div class="adjacents">`;
         html += next ? 
           `<div class="adjacents--next"><a href="/reader/slug/${next.slug}/id/${next._id}" class="pagination">Next: ${next.title}</a></div>` :
           "";
-
         html += prev ?
           `<div class="adjacents--previous"><a href="/reader/slug/${prev.slug}/id/${prev._id}" class="pagination">Previous: ${prev.title}</a></div>` :
           "";
-        
         html += `</div>`;
     } %>
     <%- html %>
   </main>
 
-  <%- include('partials/footer') -%>
-      
+  <%- include('partials/footer') -%>    
   <%- include('partials/scripts') %>
 </body> 

@@ -1,6 +1,5 @@
   <%- include('partials/header', { topics, archive }) %>
-  
-  <% const error = entries[0].error || null; %>
+
   <main>
     <% if (requestedTag) { %>
       <h2 class="pageTitle">Entries by Topic: "<%= requestedTag %>"</h2>
@@ -13,11 +12,11 @@
     const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`;
     const previous = page > 1 ? `<a href="/${pageType}/${ page - 1 }" class="pagination">&lt; Previous </a>` : '';
     const next = page < pages ? `<a id="next" href="/${pageType}/${ page + 1 }" class="pagination">Next &gt;</a><br>` : '';
-  
-    if(!error) { %>
+    %>
+
     <%- previous %>
     <%- next %>
-    <% } %>
+    
   </main>
 
   <%- include('partials/footer') %>

@@ -1,28 +1,21 @@
-<%- include('./buildPubDate'); %>
-<%- include('./buildTopics') %>
-
+<%- include('../functions'); %>
 <%
-const { title, slug, description, HTML, preview, error = null } = entry;
-const dateDisplay = error ? "" : prepDates(entry.pubDate).dateDisplay;
-const topicsDisplay = error ? "" : prepTopics(entry.tags);
-
+const { title, slug, description, HTML, preview, _id, pubDate = null, tags = null } = entry;
+const dateDisplay = pubDate === null ? "" : prepDates(entry.pubDate).dateDisplay;
+const topicsDisplay = tags ? "" : prepTopics(entry.tags);
 %>
+  <div class="date-display small">
+  <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
+  <% if(user && !preview) { %>
+  <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
+  <% } %>
+  </div>
+  <div class="title-box">
+    <h2><%- title %></h2>
+    <h3><%- description %></h3>
+  </div>
 
-    <div class="date-display small">
-    <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
-    <% if(user && !preview) { %>
-    <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
-    <% } %>
-    </div>
-    <div class="title-box">
-      <h2><%- title %>
-      </h2>
-      <% if(!error) { %>
-      <h3><%- description %></h3>
-      <% } %>
-    </div>
-
-    <section class="reader--entry">
-      <div><%- HTML %></div>
-      <p><%- topicsDisplay %></p>
-    </section>
+  <section class="reader--entry">
+    <div><%- HTML %></div>
+    <p><%- topicsDisplay %></p>
+  </section>

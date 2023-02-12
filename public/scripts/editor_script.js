@@ -1,9 +1,13 @@
 const allElements = document.querySelectorAll('*');
 const toolbar = document.getElementById('toolbar');
 const formElements = document.querySelectorAll('.form-el'); // * used to upload changes
-const message = document.querySelector('#message'); // used to populate any incoming messages
 
-const els = { preview: document.getElementById('preview' )};
+const els = {
+  preview: document.getElementById('preview'),
+  message: document.getElementById('message'),
+};
+els.message.innerHTML = "";
+
 allElements.forEach(el => {
   const _class = el.getAttribute('class');
   
@@ -11,6 +15,8 @@ allElements.forEach(el => {
     Object.defineProperty(els, el.getAttribute('id'), { value: el });
 });
 
+// ! is this still needed?
+// * prepare date string for display
 const getDateString = date => {
   const fullMonth = [
     "January", "February", "March", "April", "May", "June", "July",
@@ -20,9 +26,10 @@ const getDateString = date => {
 }
 
 
-// * NEW FUNCTION: USE-FETCH FUNCTION FOR DRY
+// * AJAX FETCH
 const useFetch = async fetchReq => {
   if(!fetchReq) return "";
+  message.innerHTML = "";
   const { entryData, method, url } = fetchReq;
   const body = JSON.stringify(entryData);
 
@@ -45,36 +52,41 @@ const buildEntryObj = () => {
 }
 
 
+// * UPDATE PREVIEW W/O SAVING TO THE DATABASE
+const updatePreview = async (isPreviewOnly) => {
+  // get entry object from page containing data from the fields
+  const entryData = buildEntryObj();
+
+  // update preview
+  els.preview.innerHTML = await useFetch({
+    method: 'POST',
+    url: '/editor_preview',
+    entryData
+  });
+  if(isPreviewOnly) updateMessage("Preview updated, but not saved to the database.");
+}
+
+
+// * UPDATE MESSAGE WITH CONTENT SENT FROM DATABASE
+const updateMessage = (result) => {
+  els.message.innerHTML = result;
+}
+
+
 // * NEW VERSION OF UPLOAD
 const upload = async () => {
   // get entry object from page containing data from the fields
   const entryData = buildEntryObj();
 
-  // prep fetch object anm 
-  const entryHtml = await useFetch({
+  // upload changes to db
+  const result = await useFetch({
     method: 'POST',
     url: `/editor/`,
     entryData
   });
-  // update preview
-  els.preview.innerHTML = entryHtml;
-}
-
-
-// * NEW VERSION: OF UPDATE PREVIEWS FUNCTION
-const updatePreview = async () => {
-  // get entry object from page containing data from the fields
-  const entryData = buildEntryObj();
-
-  // prep fetch object anm 
-  const entryHtml = await useFetch({
-    method: 'POST',
-    url: '/editor_preview',
-    entryData
-  });
-  // update preview
-  els.preview.innerHTML = entryHtml;
-
+  // render content and message from server
+  updatePreview();
+  updateMessage(result);
 }
 
 
@@ -87,21 +99,21 @@ const openReader = () => {
 // * REVERTS CURRREMT ENTRY TO THE DATABASE VERSION: WARNING DOES NOT SAVE
 const revert = () => location.reload(true);
 
-// * DELETE ENTRY: WARNNING PERMANENT
-const del = () => {
-  const xhttp = new XMLHttpRequest();
-  xhttp.open('DELETE', `/${els.editor_entryID.value}`, true);
-  xhttp.onreadystatechange = function () {
-    if(xhttp.readyState === XMLHttpRequest.DONE ) {
-      const status = xhttp.status;
-      if(status === 0 || (status >= 200 && status < 400)) {
-        const messageHTML = document.getElementById('message');
-        const result = JSON.parse(xhttp.responseText);
-        messageHTML.innerHTML += `<h4>${result.title}</h4><p>${result.description}</p>`;
-      }
-    }
-  }
-  const result = xhttp.send();
+
+// * DELETES CURRENT ENTRY FROM DATABASE
+const del = async () => {
+  // get entry object from page containing data from the fields
+  const entryData = buildEntryObj();
+
+  // prep fetch object anm 
+  const result = await useFetch({
+    method: 'DELETE',
+    url: '/' + els.editor_entryID.value,
+    header: { 'Content-Type': 'text/html'},
+    entryData
+  });
+  updateMessage(result);
+  
 }
 
 
@@ -111,7 +123,7 @@ toolbar.addEventListener('click', async e => {
   const target = e.target.name;
 
   if(target === "upload")          upload();
-  if(target === "updatePreview")   updatePreview();
+  if(target === "updatePreview")   updatePreview(true);
   if(target === "openReader")      openReader();
   if(target === "revert")          revert();
   if(target === "del")             del();

@@ -1,7 +1,8 @@
 <%
+// ✅ ADDED TO FUNCTIONS
 
 prepDates = pubDate => {
-  if(pubDate === null) return { dateDisplay: "Unpublished", dateString: "", timeString: ""};
+  if(pubDate === null || pubDate === "" ) return { dateDisplay: "Unpublished", dateString: "", timeString: ""};
 
   // expects date BSON from entry.pubDate
 

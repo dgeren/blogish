@@ -2,6 +2,8 @@ const slugify = require('slugify');
 const jwt = require('jsonwebtoken');
 const showdown = require('showdown');
 const converter = new showdown.Converter({ 'noHeaderId': true });
+const ejs = require('ejs')
+// const functions = require('./views/functions.js');
 
 const db = require('./db.js');
 
@@ -11,6 +13,7 @@ const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, ch
 const { fixHtmlTags, limit, maxAge } = require('./util');
 const { ppid } = require('process'); // can't remove even though it appears to not be in
 const e = require('express');
+
 
 /*
 * LOCAL METHODS
@@ -49,7 +52,7 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.errMessage = null;
 
   res.render('list');
-}
+} 
 
 
 // * GET LIST OF UNPUBLISHED ARTICLES
@@ -143,26 +146,23 @@ module.exports.getEditor =  async (req, res) => {
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
   res.locals.css = "editor";
-  res.locals.errMessage = null;
 
   // chosen entry to edit or new entry
-  res.locals.entry = new Entry();
+  res.locals.entry = {};
   const { slug } = req.params;
   
-  let dates = {};
   if(slug){
     const entry = await db.getOneEntry(slug);
 
     // body
-    entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to add to scrubbing HTML
+    entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
 
     // entry reader to render
     res.locals.entry = entry;
 
     // disabled items
     res.locals.pagination = { next: null, previous: null };
-
-  }
+    }
 
   res.render('editor');
 }
@@ -191,20 +191,12 @@ module.exports.postEntry = async (req, res) => {
     .filter(tags => tags.trim() !== "")
     .map(tags => tags.trim());
   
-  res.locals.entry = await db.addOrUpdateEntry(entry);
-  res.locals.upload = true;
-
-  // HANDLE PREVIEW AJAX
-  res.locals.entry.pubDate = entry.pubDate || false;
-  res.locals.preview = true;
-
-  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
-
-  res.render('partials/content');
+  const result = await db.addOrUpdateEntry(entry);
+  res.send((result.message));
 }
 
 
-// * GET HTML FOR EDITOR PREVIEW
+// * GET HTML FOR EDITOR PREVIEW 🟠
 module.exports.getEditorPreview = async (req, res) => {
 
   res.locals.entry = req.body;
@@ -225,11 +217,12 @@ module.exports.getEditorPreview = async (req, res) => {
 }
 
 
-// * DELETE EXISTING ENTRIES 🔹
+// * DELETE EXISTING ENTRIES
 module.exports.deleteEntry = async (req, res) => {
   const { _id } = req.params;
   const result = await db.deleteOneEntry({_id});
-  res.send(result);
+  
+  res.send(result.message);
 }
 
 

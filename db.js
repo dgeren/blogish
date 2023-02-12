@@ -233,7 +233,7 @@ const getOneEntry = async (slug, _id) => {
     return {
       error: true,
       title: errMsg.title,
-      markdown: errMsg.noResults
+      description: errMsg.noResults
     }
   }
 }
@@ -241,16 +241,20 @@ const getOneEntry = async (slug, _id) => {
 // * === adds new entries or saves changes to exising
 const addOrUpdateEntry = async (entry) => {
   try {
-    return await Entry.findOneAndUpdate(
+    await Entry.findOneAndUpdate(
       entry.id ? { _id: entry.id } : {},
       entry,
       { new: true, upsert: true }
     );
+    return {
+      error: false,
+      message: "Entry data successfully saved to the database."
+    };
   } catch(err){
+    // todo: add logging
     return {
       error: true,
-      title: errMsg.title,
-      description: `${errMsg.begin} the editor's entry saving process. ${errMsg.contact} ${errMsg.end}`
+      message: `${errMsg.begin} the editor's entry saving process. ${errMsg.contact} ${errMsg.end}`
     }
   }
 }
@@ -260,15 +264,13 @@ const deleteOneEntry = async _id => {
     await Entry.findByIdAndDelete( _id );
     return {
       error: false,
-      title: "Deletion Successful",
-      description: `The action logged for review.`
+      message: `Entry deleted. The action logged for review. Use [Upload] to create a new entry with a new ID.`
     };
   } catch (err) {
-    console.log("🔹 db deleteOneEntry error"); // 🔴
+    // todo: add logging
     return {
       error: true,
-      title: errMsg.title,
-      description: `${errMsg.begin} with deleting this entry. ${errMsg.contact} ${errMsg.end}`
+      message: `${errMsg.begin} with deleting this entry. ${errMsg.contact} ${errMsg.end}`
     };
 
   }

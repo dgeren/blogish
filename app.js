@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 
 const routes = require('./routes');
-const { requireAuth, checkUser } = require('./middleware');
+const { requireAuth, checkUser } = require('./middleware'); // ! requireAuth needed here?
 
 const app = express();
 
