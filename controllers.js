@@ -2,7 +2,6 @@ const slugify = require('slugify');
 const jwt = require('jsonwebtoken');
 const showdown = require('showdown');
 const converter = new showdown.Converter({ 'noHeaderId': true });
-const ejs = require('ejs')
 // const functions = require('./views/functions.js');
 
 const db = require('./db.js');
@@ -11,8 +10,8 @@ const User = require('./models/User');
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 
 const { fixHtmlTags, limit, maxAge } = require('./util');
-const { ppid } = require('process'); // can't remove even though it appears to not be in
-const e = require('express');
+const { ppid } = require('process'); // can't remove even though it appears to not be in use
+const e = require('express'); // is this still needed?
 
 
 /*
@@ -153,7 +152,6 @@ module.exports.getEditor =  async (req, res) => {
   
   if(slug){
     const entry = await db.getOneEntry(slug);
-    console.log("🔸 getEditor entry:\n", entry); // 🔴
 
     // body
     entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
@@ -166,7 +164,7 @@ module.exports.getEditor =  async (req, res) => {
   }
 
 
-  res.render('editor');
+  res.render('editor', );
 }
 
 
