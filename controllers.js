@@ -153,16 +153,18 @@ module.exports.getEditor =  async (req, res) => {
   
   if(slug){
     const entry = await db.getOneEntry(slug);
+    console.log("🔸 getEditor entry:\n", entry); // 🔴
 
     // body
     entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
 
-    // entry reader to render
+    // entry reader to render 🔸 is the seaparate entry variable still needed?
     res.locals.entry = entry;
 
     // disabled items
     res.locals.pagination = { next: null, previous: null };
-    }
+  }
+
 
   res.render('editor');
 }

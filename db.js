@@ -6,7 +6,6 @@ const { limit, logError } = require("./util");
 
 // * === error content
 const errMsg = {
-  title: `<strong class="warning">&#9888; Error!</strong>`,
   begin: "An error occurred when accessing ",
   end: "It is logged for review. Apologies for any inconvenience.",
   noResults: "There were no entries found using your request.",
@@ -31,7 +30,6 @@ const getArchive = async () => {
     // todo: add logging
     result = {
       error: true,
-      title: errMsg.title,
       message: `${errMsg.begin} the archive data. ${errMsg.end}`
     };
   } finally {
@@ -55,7 +53,6 @@ const getCategories = async () => {
     // todo: add logging
     result = {
       error: true,
-      title: errMsg.title,
       message: `${errMsg.begin} the topics data. ${errMsg.end}`
     }
   } finally {
@@ -145,15 +142,13 @@ const getListOfEntriesByDate = async skip => {
     if(results = 0) {
       result = [{
         error: true,
-        title: errMsg.title,
-        descrption: errMsg.noResults
+        message: errMsg.noResults
       }];
       return result;
     }
     result = [{
       error: true,
-      title: errMsg.title,
-      description: `${errMsg.begin} the list of entries. ${errMsg.end}`
+      message: `${errMsg.begin} the list of entries. ${errMsg.end}`,
     }];
   }
   return result;
@@ -178,15 +173,13 @@ const getListOfEntriesByCategory = async (tag, skip) => {
     if(err.results === 0) {
       result = [{
         error: true,
-        title: errMsg.title,
-        description: `${errMsg.begin} the topic requested. ${errMsg.end}`,
+        message: `${errMsg.begin} the topic requested. ${errMsg.end}`,
       }];
       return result;
     }
     result = [{
       error: true,
-      title: errMsg.title,
-      description: `${errMsg.begin} the list of entries by topic. ${errMsg.end}`,
+      message: `${errMsg.begin} the list of entries by topic. ${errMsg.end}`,
     }];
   }
   return result;
@@ -207,13 +200,11 @@ const getListOfUnpublishedEntries = async () => {
     if(err.results === 0){
       result = [{
         error: true,
-        title: "There appear to be no unplubished entries. Cool!",
-        description: `Or, ${errMsg.title} the list of unpublished entries. ${errMsg.contact} ${errMsg.end}`,
+        description: `There appear to be no unplubished entries. Cool! Or, ${errMsg.title} the list of unpublished entries. ${errMsg.contact} ${errMsg.end}`,
       }];
     }
     result = [{
       error: true,
-      title: errMsg.title,
       description: `${errMsg.begin} the entry you requested or the database. ${errMsg.contact} ${errMsg.end}`
     }];
   }
@@ -232,8 +223,7 @@ const getOneEntry = async (slug, _id) => {
     // todo: add logging
     return {
       error: true,
-      title: errMsg.title,
-      description: errMsg.noResults
+      message: errMsg.noResults
     }
   }
 }
