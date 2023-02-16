@@ -6,8 +6,7 @@ buildArchive = archive => {
     return `
     <div class="archive">\n
       <h3>ARCHIVE</h3>\n
-      <div>${archive.title}</div>\n
-      <div>${archive.message}</div>\n
+      <p>${archive.message}</p>\n
     </div>\n`;
   }
   
@@ -55,17 +54,15 @@ buildArchive = archive => {
   return output.trim();
 }
 
-// * CONVERT TOPICS ARRAY INTO A LIST OF LINKS
+// * CONVERT TOPICS ARRAY INTO A LIST OF LINKS FOR CARDS AND READERS
 buildTopics = topics => { // expects array of objects: {id, array of topics}
+
 
   if(topics.error){
     return `
       <div class="categories">\n
         <h3>TOPICS</h3>\n
-        <ul>\n
-          <div>${topics.title}</div>\n
-          <div>${topics.message}</div>\n
-        </ul>\n
+          <p>${topics.message}</p>\n
       </div>\n
     `;
   }

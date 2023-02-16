@@ -41,14 +41,13 @@ module.exports.getListByPubDate = async (req, res) => {
 
   // queries
   res.locals.entries = await db.getListOfEntriesByDate( skip );
-  res.locals.topics = await db.getCategories();
+  res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive();
 
   // disabled items
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
   res.locals.requestedTag = null;
-  res.locals.errMessage = null;
 
   res.render('list');
 } 
@@ -97,9 +96,6 @@ module.exports.getListByTag = async (req, res) => {
 
   // entry data
   res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, skip);
-  res.locals.errMessage = res.locals.entries.length === 0 ?
-    "The requested topic is invalid. Check the list of topics." :
-    null;
 
   // enabled items
   res.locals.publish = true;
@@ -118,7 +114,6 @@ module.exports.getEntry = async (req, res) => {
   res.locals.topics = await db.getCategories();
   res.locals.archive = await db.getArchive();
   res.locals.css = "reader";
-  res.locals.errMessage = null;
 
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
@@ -196,7 +191,7 @@ module.exports.postEntry = async (req, res) => {
 }
 
 
-// * GET HTML FOR EDITOR PREVIEW 🟠
+// * GET HTML FOR EDITOR PREVIEW
 module.exports.getEditorPreview = async (req, res) => {
 
   res.locals.entry = req.body;

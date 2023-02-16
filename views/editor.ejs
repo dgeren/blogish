@@ -67,7 +67,7 @@ const isPublished = publish ? " checked" : "";
         </div>
 
         <div class="elementContainer">
-          <input type="hidden" name="authorID" class="form-el editor" id="editor_authorID" value="<%= authorID %>">
+          <input type="hidden" name="authorID" class="form-el editor" id="editor_authorID" value="<%= user._id %>">
           <input type="hidden" name="entryID" class="form-el editor" id="editor_entryID" value="<%- _id %>">
         </div>
       </section>

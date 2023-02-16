@@ -38,15 +38,16 @@ const getArchive = async () => {
 }
 
 // * === returns Topics section in the sidebar
-const getCategories = async () => {
+const getCategories = async (user) => {
   const _now = new Date();
+  const filter = user ? {} : { publish: true, pubDate: { $lt: _now } };
   let result;
 
   try {
     result = await Entry
       .find(
-        { publish: true, pubDate: { $lt: _now } },
-        { _id: 1, tags: 1 })
+        filter,
+        { _id: 0, tags: 1 })
       .lean();
     if(result.length === 0) throw { results: false };
   } catch (err) {
