@@ -6,7 +6,6 @@ const { limit, logError } = require("./util");
 
 // * === error content
 const errMsg = {
-  title: `<strong class="warning">&#9888; Error!</strong>`,
   begin: "An error occurred when accessing ",
   end: "It is logged for review. Apologies for any inconvenience.",
   noResults: "There were no entries found using your request.",
@@ -15,14 +14,15 @@ const errMsg = {
 }
 
 // * === returns archive date hierarchy in the sidebar
-const getArchive = async () => {
+const getArchive = async (user) => {
   const _now = new Date();
+  const filter = user ? { pubDate: {$ne: null } } : { publish: true, pubDate: { $lt: _now } };
   let result;
   
   try {
     result = await Entry
       .find(
-        { publish: true, pubDate: { $lt: _now } },
+        filter,
         { title: 1, slug: 1, pubDate: 1 })
       .sort({ pubDate: -1 })
       .lean();
@@ -31,31 +31,31 @@ const getArchive = async () => {
     // todo: add logging
     result = {
       error: true,
-      title: errMsg.title,
       message: `${errMsg.begin} the archive data. ${errMsg.end}`
     };
+    console.log(err); // 🟠
   } finally {
     return result;
   }
 }
 
 // * === returns Topics section in the sidebar
-const getCategories = async () => {
+const getCategories = async (user) => {
   const _now = new Date();
+  const filter = user ? {} : { publish: true, pubDate: { $lt: _now } };
   let result;
 
   try {
     result = await Entry
       .find(
-        { publish: true, pubDate: { $lt: _now } },
-        { _id: 1, tags: 1 })
+        filter,
+        { _id: 0, tags: 1 })
       .lean();
     if(result.length === 0) throw { results: false };
   } catch (err) {
     // todo: add logging
     result = {
       error: true,
-      title: errMsg.title,
       message: `${errMsg.begin} the topics data. ${errMsg.end}`
     }
   } finally {
@@ -66,17 +66,14 @@ const getCategories = async () => {
 }
 
 // * === returns ˙number of entries by topic or without topic
-const getEntryCount = async (topic) => {
+const getEntryCount = async (topic, user) => {
   const _now = new Date();
   const filterByTag = topic ? { tags: topic } : {};
+  const filterByUser = user ? {} : { publish: true, pubDate: { $lt: _now } };
   let result;
   
   try {
-    result = await Entry.countDocuments({ $and: [
-      { publish: true },
-      { pubDate: { $lt: _now }},
-      filterByTag
-    ] });
+    result = await Entry.countDocuments({ $and: [ filterByUser, filterByTag ] });
     if(result === 0) throw { results: false };
   } catch (err) {
     // todo: add logging
@@ -89,20 +86,27 @@ const getEntryCount = async (topic) => {
 }
 
 // * === returns Next/previoius navigation in the reader
-const getAdjacents = async (date) => {
+const getAdjacents = async (date, user) => { // ! May be origin of unpub pagination error
   let next, prev;
+  let filterNext = { publish: true };
+  let filterPrev = { publish: true };
+  if(!user) {
+    filterNext.pubDate = { $gt: date };
+    filterPrev.pubDate = { $lt: date };
+  }
   
   try{
     next = await Entry
       .find(
-        { publish: true, pubDate: { $gt: date } },
+        filterNext,
         { slug: 1, title: 1 })
       .lean()
       .sort({ pubDate:  1 })
       .limit(1);
 
     prev = await Entry
-    .find({ publish: true, pubDate: { $lt: date } },
+    .find(
+      filterPrev,
       { slug: 1, title: 1 })
     .lean()
     .sort({ pubDate: -1 })
@@ -122,16 +126,15 @@ const getAdjacents = async (date) => {
 }
 
 // * === returns limited number of entries to populate list cards
-const getListOfEntriesByDate = async skip => {
+const getListOfEntriesByDate = async (skip, user) => {
   const _now = new Date();
+  const filter = user ? {} : { publish: true, pubDate: { $lt: _now } };
+  
   let result;
   
   try {
     result = await Entry
-      .find({ $and: [
-        { publish: true },
-        { pubDate: {$lt: _now }}
-      ]})
+      .find(filter)
       .sort({ pubDate: -1 })
       .skip(skip)
       .limit(limit)
@@ -145,48 +148,44 @@ const getListOfEntriesByDate = async skip => {
     if(results = 0) {
       result = [{
         error: true,
-        title: errMsg.title,
-        descrption: errMsg.noResults
+        message: errMsg.noResults
       }];
       return result;
     }
     result = [{
       error: true,
-      title: errMsg.title,
-      description: `${errMsg.begin} the list of entries. ${errMsg.end}`
+      message: `${errMsg.begin} the list of entries. ${errMsg.end}`,
     }];
   }
   return result;
 }
 
 // * === returns unlimited entries by topic to populate list cards
-const getListOfEntriesByCategory = async (tag, skip) => {
+const getListOfEntriesByCategory = async (topic, user) => {
   const _now = new Date();
+  const filter = user ? { tags: topic } : { tags: topic, publish: true , pubDate: { $lt: _now } };
   let result;
 
   try {
     result = await Entry
-      .find({ tags: tag, publish: true , pubDate: { $lt: _now } })
+      .find(filter)
       .sort({ pubDate: -1 })
-      .skip(skip)
-      .limit(limit)
       .lean();
-    if(result.length === 0) throw { results: 0 }; 
+    if(result.length === 0 || result === null) throw { results: 0 }; 
+
     return result;
   } catch (err) {
     // todo: add logging
-    if(err.results === 0) {
+    if(err === 0) {
       result = [{
         error: true,
-        title: errMsg.title,
-        description: `${errMsg.begin} the topic requested. ${errMsg.end}`,
+        message: `${errMsg.begin} the topic requested. ${errMsg.end}`,
       }];
       return result;
     }
     result = [{
       error: true,
-      title: errMsg.title,
-      description: `${errMsg.begin} the list of entries by topic. ${errMsg.end}`,
+      message: `${errMsg.begin} the list of entries by topic. ${errMsg.end}`,
     }];
   }
   return result;
@@ -198,7 +197,7 @@ const getListOfUnpublishedEntries = async () => {
 
   try {
     result = await Entry
-      .find({ publish: false })
+      .find({ $or: [ {publish: false }, { pubDate: null } ] })
       .lean()
       .sort({ _id: -1 });
     if(result.length === 0) throw { results: 0 };
@@ -207,13 +206,11 @@ const getListOfUnpublishedEntries = async () => {
     if(err.results === 0){
       result = [{
         error: true,
-        title: "There appear to be no unplubished entries. Cool!",
-        description: `Or, ${errMsg.title} the list of unpublished entries. ${errMsg.contact} ${errMsg.end}`,
+        description: `There appear to be no unplubished entries. Cool! Or, ${errMsg.title} the list of unpublished entries. ${errMsg.contact} ${errMsg.end}`,
       }];
     }
     result = [{
       error: true,
-      title: errMsg.title,
       description: `${errMsg.begin} the entry you requested or the database. ${errMsg.contact} ${errMsg.end}`
     }];
   }
@@ -232,8 +229,7 @@ const getOneEntry = async (slug, _id) => {
     // todo: add logging
     return {
       error: true,
-      title: errMsg.title,
-      description: errMsg.noResults
+      message: errMsg.noResults
     }
   }
 }

@@ -35,14 +35,14 @@ module.exports.getListByPubDate = async (req, res) => {
   
   // data for list pagination
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await db.getEntryCount();
+  const docs = await db.getEntryCount(null, res.locals.user);
   const skip = (res.locals.page * limit) - limit;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
 
   // queries
   res.locals.entries = await db.getListOfEntriesByDate( skip );
   res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive();
+  res.locals.archive = await db.getArchive(res.locals.user);
 
   // disabled items
   res.locals.adjacentEntries = null;
@@ -57,8 +57,8 @@ module.exports.getListByPubDate = async (req, res) => {
 module.exports.getListUnpublished = async (req, res) => {
 
   // data for sidebar
-  res.locals.topics = await db.getCategories();
-  res.locals.archive = await db.getArchive();
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
 
   // css
   res.locals.css = "list";
@@ -84,18 +84,18 @@ module.exports.getListByTag = async (req, res) => {
   res.locals.css = "list";
 
   // page elements
-  res.locals.topics = await db.getCategories();
-  res.locals.archive = await db.getArchive();
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.requestedTag = req.params.tag;
 
   // pageination
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await db.getEntryCount(req.params.tag);
+  const docs = await db.getEntryCount(req.params.tag, res.locals.user);
   const skip = (res.locals.page * limit) - limit;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
 
   // entry data
-  res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, skip);
+  res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, res.locals.user);
 
   // enabled items
   res.locals.publish = true;
@@ -111,8 +111,8 @@ module.exports.getListByTag = async (req, res) => {
 module.exports.getEntry = async (req, res) => {
 
   // page elements
-  res.locals.topics = await db.getCategories();
-  res.locals.archive = await db.getArchive();
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.css = "reader";
 
   // retrieve chosen entry to read
@@ -137,8 +137,8 @@ module.exports.getEntry = async (req, res) => {
 module.exports.getEditor =  async (req, res) => {
   
   // page elements
-  res.locals.topics = await db.getCategories();
-  res.locals.archive = await db.getArchive();
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.css = "editor";
 
   // chosen entry to edit or new entry
@@ -230,14 +230,14 @@ module.exports.getError = async (req, res) => {
 
   // data for list pagination
   res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await db.getEntryCount();
+  const docs = await db.getEntryCount(null, res.locals.user);
   const skip = (res.locals.page * limit) - limit;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
 
   // queries
   res.locals.entries = await db.getListOfEntriesByDate( skip );
-  res.locals.topics = await db.getCategories();
-  res.locals.archive = await db.getArchive();
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
 
   // disabled items
   res.locals.adjacentEntries = null;

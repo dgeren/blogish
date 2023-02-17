@@ -8,10 +8,13 @@
     <% entries.forEach(entry => { %>
       <%- include('partials/card', { entry }) -%>
     <% });
+    let previous = null, next = null;
     
     const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`;
-    const previous = page > 1 ? `<a href="/${pageType}/${ page - 1 }" class="pagination">&lt; Previous </a>` : '';
-    const next = page < pages ? `<a id="next" href="/${pageType}/${ page + 1 }" class="pagination">Next &gt;</a><br>` : '';
+      if(!requestedTag) {
+        previous = page > 1 ? `<a href="/${pageType}/${ page - 1 }" class="pagination">&lt; Previous </a>` : '';
+        next = page < pages ? `<a id="next" href="/${pageType}/${ page + 1 }" class="pagination">Next &gt;</a><br>` : '';
+      }
     %>
 
     <%- previous %>
