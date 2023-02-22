@@ -1,12 +1,16 @@
 const allElements = document.querySelectorAll('*');
 const toolbar = document.getElementById('toolbar');
 const formElements = document.querySelectorAll('.form-el'); // * used to upload changes
-let isUnsaved = false;
+const editorBtn = document.getElementById('editorBtn');
+let isSaved = true;
+let loadEditor = false;
 
 const els = {
   preview: document.getElementById('preview'),
 };
 
+
+// * ASSEMBLE ELS OBJECT
 allElements.forEach(el => {
   const _class = el.getAttribute('class');
   
@@ -14,15 +18,29 @@ allElements.forEach(el => {
     Object.defineProperty(els, el.getAttribute('id'), { value: el });
 });
 
+
 // * UPDATE MESSAGE WITH CONTENT SENT FROM DATABASE
 const updateMessage = (msg) => document.getElementById('message').innerHTML = msg;
 
+
+// * WARN USER WHEN RELOADING EDITOR MIGHT LEAD TO DATA LOSS
+editorBtn.addEventListener('click', e => {
+  if(!loadEditor) {
+    e.preventDefault();
+    updateMessage("Changes remain unsaved. If you click [EDITOR] again, a blank editor will render, but all current changes will be lost. If this is acceptable, click [EDITOR].");
+    loadEditor = true;
+  }
+});
+
+
+// * LISTEN FOR CHANGES TO FORM
 formElements.forEach(item => item.addEventListener('input',
   (ev) => {
    updateMessage("Changes not saved.");
-   isUnsaved = true;
+   isSaved = false;
   }
 ));
+
 
 // ! is this still needed?
 // * prepare date string for display
@@ -80,9 +98,6 @@ const upload = async () => {
   // get entry object from page containing data from the fields
 
   const entryData = buildEntryObj();
-  if(isUnsaved) {
-
-  }
 
   // upload changes to db
   const result = await useFetch({
@@ -90,6 +105,12 @@ const upload = async () => {
     url: `/editor/`,
     entryData
   });
+
+  // if no error, then reset save and loading flags 
+  if(!result.error) {
+    isSaved = true;
+    loadEditor = false;
+  }
   // render content and message from server
   updatePreview();
   updateMessage(result);
