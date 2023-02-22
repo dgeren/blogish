@@ -128,6 +128,8 @@ module.exports.getEntry = async (req, res) => {
   res.locals.pages = null;
   res.locals.requestedTag = null
   res.locals.preview = false;
+  
+  console.log("🔸 res.locals.pagination:\n", res.locals.pagination); //🔴
 
   res.render('reader');
 }
@@ -157,7 +159,6 @@ module.exports.getEditor =  async (req, res) => {
     // disabled items
     res.locals.pagination = { next: null, previous: null };
   }
-
 
   res.render('editor', );
 }

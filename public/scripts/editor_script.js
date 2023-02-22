@@ -15,6 +15,11 @@ allElements.forEach(el => {
     Object.defineProperty(els, el.getAttribute('id'), { value: el });
 });
 
+formElements.forEach(item => item.addEventListener('input',
+  (e) => {
+   document.getElementById('message').innerHTML = "Changes not saved.";
+  }));
+
 // ! is this still needed?
 // * prepare date string for display
 const getDateString = date => {

@@ -3,23 +3,13 @@
   <main>
     <%- include('partials/content.ejs', { entry }); -%>
     <%
-    let html = "";
+    let html = `<div class="adjacents">`;
+    if(pagination.error) html += `<div class="adjacents--previous">${pagination.message}</div>`;
+    if(pagination.next) html += `<div class="adjacents--next"><a href="/reader/slug/${pagination.next.slug}/id/${pagination.next._id}" class="pagination">Next: ${pagination.next.title}</a></div>`;
+    if(pagination.prev) html += `<div class="adjacents--previous"><a href="/reader/slug/${pagination.prev.slug}/id/${pagination.prev._id}" class="pagination">Previous: ${pagination.prev.title}</a></div>`;
+    html += `</div>`;
 
-    if(pagination.error) {
-        html += `<div class="adjacents--previous">${pagination.message}</div>`;
-    } 
-    
-    if (pagination.next || pagination.previous) {
-        const { next, prev } = pagination;
-        html += `<div class="adjacents">`;
-        html += next ? 
-          `<div class="adjacents--next"><a href="/reader/slug/${next.slug}/id/${next._id}" class="pagination">Next: ${next.title}</a></div>` :
-          "";
-        html += prev ?
-          `<div class="adjacents--previous"><a href="/reader/slug/${prev.slug}/id/${prev._id}" class="pagination">Previous: ${prev.title}</a></div>` :
-          "";
-        html += `</div>`;
-    } %>
+    %>
     <%- html %>
   </main>
 
