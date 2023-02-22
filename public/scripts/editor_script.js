@@ -1,12 +1,11 @@
 const allElements = document.querySelectorAll('*');
 const toolbar = document.getElementById('toolbar');
 const formElements = document.querySelectorAll('.form-el'); // * used to upload changes
+let isUnsaved = false;
 
 const els = {
   preview: document.getElementById('preview'),
-  message: document.getElementById('message'),
 };
-els.message.innerHTML = "";
 
 allElements.forEach(el => {
   const _class = el.getAttribute('class');
@@ -15,10 +14,15 @@ allElements.forEach(el => {
     Object.defineProperty(els, el.getAttribute('id'), { value: el });
 });
 
+// * UPDATE MESSAGE WITH CONTENT SENT FROM DATABASE
+const updateMessage = (msg) => document.getElementById('message').innerHTML = msg;
+
 formElements.forEach(item => item.addEventListener('input',
-  (e) => {
-   document.getElementById('message').innerHTML = "Changes not saved.";
-  }));
+  (ev) => {
+   updateMessage("Changes not saved.");
+   isUnsaved = true;
+  }
+));
 
 // ! is this still needed?
 // * prepare date string for display
@@ -34,7 +38,6 @@ const getDateString = date => {
 // * AJAX FETCH
 const useFetch = async fetchReq => {
   if(!fetchReq) return "";
-  message.innerHTML = "";
   const { entryData, method, url } = fetchReq;
   const body = JSON.stringify(entryData);
 
@@ -72,16 +75,14 @@ const updatePreview = async (isPreviewOnly) => {
 }
 
 
-// * UPDATE MESSAGE WITH CONTENT SENT FROM DATABASE
-const updateMessage = (result) => {
-  els.message.innerHTML = result;
-}
-
-
 // * NEW VERSION OF UPLOAD
 const upload = async () => {
   // get entry object from page containing data from the fields
+
   const entryData = buildEntryObj();
+  if(isUnsaved) {
+
+  }
 
   // upload changes to db
   const result = await useFetch({
