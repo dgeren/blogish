@@ -2,7 +2,9 @@
   
   <main>
     <%- include('partials/content.ejs', { entry }); -%>
+    
     <%
+
     let html = `<div class="adjacents">`;
     if(pagination.error) html += `<div class="adjacents--previous">${pagination.message}</div>`;
     if(pagination.next) html += `<div class="adjacents--next"><a href="/reader/slug/${pagination.next.slug}/id/${pagination.next._id}" class="pagination">Next: ${pagination.next.title}</a></div>`;

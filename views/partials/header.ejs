@@ -24,7 +24,8 @@
 
     <nav>
       <ul class="nav">
-        <% if(user){ %>
+        <% if(user){ 
+          console.log("🔸 header.ejs user:\n", user); // 🔴 %>
         <ul>
           <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
           <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>

@@ -252,14 +252,19 @@ module.exports.getError = async (req, res) => {
 
 
 // * RENDER ADMIN PAGE
-module.exports.getAdmin = (req, res) => {
-  res.locals.message= null;
+module.exports.getAdmin = async (req, res) => {
+  res.locals.css = "editor";
+
+  // queries
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
+  
   res.render('admin');
 }
 
 
 // * CREATER NEW USERS
-module.exports.signup = async (req, res) => {
+module.exports.createAccount = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.create({ email, password });
