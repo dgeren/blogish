@@ -1,12 +1,9 @@
-  <%- include('partials/header') %>
-
-  <main>
     <% if (requestedTag) { %>
       <h2 class="pageTitle">Entries by Topic: "<%= requestedTag %>"</h2>
     <% } %>
 
     <% entries.forEach(entry => { %>
-      <%- include('partials/card', { entry }) -%>
+      <%- include('card', { entry }) -%>
     <% });
     let previous = null, next = null;
     
@@ -19,11 +16,3 @@
 
     <%- previous %>
     <%- next %>
-    
-  </main>
-
-  <%- include('partials/footer') %>
-      
-  <%- include('partials/scripts') %>
-</body>
-</html>

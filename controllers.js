@@ -31,7 +31,8 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 module.exports.getListByPubDate = async (req, res) => {
 
   // css
-  res.locals.css = "list";
+  res.locals.css = 'list';
+  res.locals.type = 'list';
   
   // data for list pagination
   res.locals.page = parseInt(req.params.page) || 1;
@@ -49,7 +50,7 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.publish = true;
   res.locals.requestedTag = null;
 
-  res.render('list');
+  res.render('page');
 } 
 
 
@@ -61,7 +62,8 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.archive = await db.getArchive(res.locals.user);
 
   // css
-  res.locals.css = "list";
+  res.locals.css = 'list';
+  res.locals.type = 'list';
 
   // entry data
   res.locals.entries = await db.getListOfUnpublishedEntries();
@@ -73,15 +75,16 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.publish = false;
   res.locals.requestedTag = null;
 
-  res.render('list');
+  res.render('page');
 }
 
 
 // * GET ARTICLE LIST BASED ON A TOPIC
 module.exports.getListByTag = async (req, res) => {
 
-  // css
-  res.locals.css = "list";
+  // 
+  res.locals.css = 'list';
+  res.locals.type = 'list';
 
   // page elements
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -103,7 +106,7 @@ module.exports.getListByTag = async (req, res) => {
   // disabled items
   res.locals.adjacentEntries = null;
 
-  res.render('list');
+  res.render('page');
 }
 
 
@@ -113,7 +116,10 @@ module.exports.getEntry = async (req, res) => {
   // page elements
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
-  res.locals.css = "reader";
+
+  // rendering variables
+  res.locals.css = 'reader';
+  res.locals.type = 'reader';
 
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
@@ -131,7 +137,7 @@ module.exports.getEntry = async (req, res) => {
   
   console.log("🔸 res.locals.pagination:\n", res.locals.pagination); //🔴
 
-  res.render('reader');
+  res.render('page');
 }
 
 
@@ -141,7 +147,10 @@ module.exports.getEditor =  async (req, res) => {
   // page elements
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
-  res.locals.css = "editor";
+
+  // rendering variavles
+  res.locals.css = 'editor';
+  res.locals.type = 'editor';
 
   // chosen entry to edit or new entry
   res.locals.entry = {};
@@ -160,7 +169,7 @@ module.exports.getEditor =  async (req, res) => {
     res.locals.pagination = { next: null, previous: null };
   }
 
-  res.render('editor', );
+  res.render('page');
 }
 
 
@@ -223,6 +232,7 @@ module.exports.deleteEntry = async (req, res) => {
 
 
 // * RENDER LIST BY DATE WITH ERROR MESSAGE
+// ! IS THIS STILL NEEDED?
 module.exports.getError = async (req, res) => {
 
   // css
@@ -253,13 +263,15 @@ module.exports.getError = async (req, res) => {
 
 // * RENDER ADMIN PAGE
 module.exports.getAdmin = async (req, res) => {
+  // rendering variables
   res.locals.css = "editor";
+  res.locals.type = 'admin';
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
   
-  res.render('admin');
+  res.render('page');
 }
 
 

@@ -1,0 +1,71 @@
+<%- include('functions'); %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blogish</title>
+  <link rel="stylesheet" href="/styles/global.css">
+  <link rel="stylesheet" href="/styles/<%- css %>.css">
+</head>
+
+<body>
+  <header>
+    <div class="sijil">
+      <h2 class="tagline1">The Making of</h2>
+      <h1 class="xlarge"><a href="/">Sijil</a></h1>
+      <div id="tagline-box">
+        <label for="nav-toggle" class="nav-toggle-label">≡</label>
+        <h2 class="tagline2">A Career-Change Misadventure</h2>
+      </div>
+    </div>
+    
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" checked>
+
+    <nav>
+      <ul class="nav">
+        <% if(user){ 
+          console.log("🔸 header.ejs user:\n", user); // 🔴 %>
+        <ul>
+          <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
+          <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
+          <li class="label"><a href="/admin">ADMIN</a></li>
+        </ul>
+        <% } %>
+
+        <%- buildTopics(topics); %>
+        <%- buildArchive(archive); %>
+        <div id="login-state" class="login-state">
+          <% if(!user) { %>
+          <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
+          <% } else { %>
+          <p id="logged-in-as" class="small">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>
+          <% } %>
+          <form id="signin-form" class="signin-form" style="display: none;">
+            <input class="signin-el" type="text" name="email" placeholder="Email address" required>
+            <br>
+            <input class="signin-el" type="password" name="password" placeholder="Password" required>
+            <br>
+            <button class="signin-el login">Log in </button>
+          </form>
+        </div>
+    </nav>
+  </header>
+  <main>
+    <%- include('partials/' + type); %> 
+    
+  </main>
+
+  <footer class="footer">
+    <p class="small">Copyright &copy; 2021-2023 David Geren</p>
+  </footer>
+
+  <% if(!user){ %>
+  <script src="/scripts/login.js"></script>
+  <script src="/scripts/interface.js"></script>
+  <% 
+    // if type is:
+    // editor then editor script
+    // admin page then settings script
+    // admin page then createAccount script
+} %>
