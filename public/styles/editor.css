@@ -18,6 +18,11 @@
   padding-bottom: 3em;
 }
 
+.fields {
+  margin-bottom: 1em;
+  padding-bottom: 1em;
+}
+
 input, button, textarea {
   background-color: #111;
   color: var(--fore);

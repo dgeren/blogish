@@ -1,8 +1,3 @@
-<% 
-// test data to prevent errors
-const role = "test"
-%>
-  
   <h2>Create Acccount</h2>
 
   <form id="toolbar" class="toolbar" name="toolbar">
@@ -14,18 +9,16 @@ const role = "test"
   </form>
 
   <section class="editorSection">
-    <form id="editor" name="userEditor">
+    <form id="editor" name="userEditor" action="/createAccount">
       <p class="hint">All fields required.</p>
-      
-      <p>Role: <%- role %></p>
 
       <fieldset id="select-role-group" class="form-el editor">
         <legend>Select a Role:</legend>
-        <input type="radio" class="" name="select-contributor">
+        <input type="radio" id="select-contributor" name="select-role">
         <label for="select-contributor">Contributor</label><br>
-        <input type="radio" name="select-editor">
+        <input type="radio" id="select-editor" name="select-role">
         <label for="select-editor">Editor</label><br>
-        <input type="radio" name="select-admin">
+        <input type="radio" id="select-admin" name="select-role">
         <label for="select-admin">Administrator</label>
         <p class="message" id="error-select-role"></p>
       </fieldset>
@@ -36,24 +29,25 @@ const role = "test"
         <p class="message" id="error-email"></p>
       </div>
 
-      
       <div class="fields">
-        <label for="confirm-email"></label>
+        <label for="confirm-email">Confirm Email</label>
         <input type="checkbox" class="form-el editor" name="confirm-email" required>
+        <p>If you recieved the email, please check this box. Otherwise, confirm your email address and try again.</p><s></s>
         <p class="message" id="error-confirm-email"></p>
       </div>
 
       <div class="fields">
         <label for="password">Password</label>
         <input type="password1" class="form-el editor" name="password1" placeholder="Password" required>
-        <imput type="password2" class="form-el editor" name="password2" aria-placeholder="Confirm" required>
+        <imput type="password2" class="form-el editor" name="password2" placeholder="Confirm" required>
+          <p class="hint"> - 64 characters</p>
         <p class="message" id="error-password"></p>
       </div>
 
       <div class="fields">
         <label for="pseudonym">Pseudonym</label>
         <input type="text" class="form-el editor" name="pseudonym" placeholder="Public-facing name" required>
-        <p class="hint">12 - 64 characters</p>
+        <p class="hint"> - 64 characters</p>
         <p class="message" id="error-Psuedonym"></p>
       </div>  
 
@@ -70,14 +64,23 @@ const role = "test"
         <p class="hint">12 - 256 characters.</p>
         <p class="message" id="error-short-description"></p>
       </div>
-  <!--
+      
       <div class="fields">
         <label for="long-description">Long Description</label>
         <input type="textarea" class="form-el editor" name="long-description" placeholder="Tell our readers more detail about yourself." required>
         <p class="message" id="error-long-description"></p>
       </div>
+
+  <!-- template in case a new field is needed in the future
+
+      <div class="fields">
+        <label for=""></label>
+        <input type="textarea" class="form-el editor" name="" placeholder="" required>
+        <p class="hint">x - y characters</p>
+        <p class="message" id="error-long-"></p>
+      </div>
   -->
 
-      <button type="submit">Create Account</button>
+      <input type="submit" id="submit" name="submit">Create Account</input>
     </section>
   </form>

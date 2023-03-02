@@ -24,7 +24,7 @@
 
     <nav>
       <ul class="nav">
-        <% if(user){ %>
+        <% if(user) { %>
         <ul>
           <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
           <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
@@ -52,7 +52,7 @@
     </nav>
   </header>
   <main>
-    <%- include('partials/' + type); %> 
+    <%- include('partials/' + type); %>
     
   </main>
 
@@ -62,10 +62,7 @@
 
   <% if(!user){ %>
   <script src="/scripts/login.js"></script>
+  <% } else { %>
   <script src="/scripts/interface.js"></script>
-  <% 
-    // if type is:
-    // editor then editor script
-    // admin page then settings script
-    // admin page then createAccount script
-} %>
+  <script src="/scripts/<%- type %>"></script>
+  <% } %>

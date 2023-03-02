@@ -22,15 +22,13 @@ const createToken = id => { // 🟠 why can't this work from util.js?
     expiresIn: maxAge
   });
 }
-  
+
 
 /*
 * EXPORTED METHODS
 */
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
-
-  console.log('🔸 getListByPubDate user', res.locals.user); // 🔴 
 
   // css
   res.locals.css = 'list';
@@ -277,15 +275,18 @@ module.exports.getAdmin = async (req, res) => {
 
 // * CREATER NEW USERS
 module.exports.createAccount = async (req, res) => {
-  const { email, password } = req.body;
+  console.log('🔸 made it to createAccount'); // 🔴
+  const { isEditor, isAdmin, email, password, pseudonym, byline, shortText, longText } = req.body;
+  console.log('🔸 isEditor', isEditor); // 🔴
   try {
-    const user = await User.create({ email, password });
+    res.locals.user = await User.create({ isEditor, isAdmin, email, password, pseudonym, byline, shortText, longText });
     const token = createToken(user._id);
     res.cookie('jwt', token, {
       httpOnly: true,
       maxAge: maxAge * 1000
     });
-    res.status(200).json({ user: user._id });
+    res.status(200);
+    res.render('page');
   }
   catch(err) {
     const errors = handleErrors(err);

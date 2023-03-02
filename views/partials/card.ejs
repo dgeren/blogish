@@ -1,7 +1,7 @@
 <%- include('../functions'); %>
 
     <% // can ai remove tagHTML from the destructuring
-    const { title, description, slug, _id, tagHTML = "", tags = null, pubDate = null, author } = entry;
+    const { title, description, slug, _id, tagHTML = "", tags = null, pubDate = null } = entry;
     const dateDisplay = pubDate ? prepDates(pubDate).dateDisplay : null;
     %>
 
