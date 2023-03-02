@@ -1,32 +1,18 @@
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 
-const requireAuth = (req, res, next) => {
-  const token = req.cookies.jwt;
-  if(token){
-    jwt.verify(token, 'net ninja secret', (err, decodedToken) => {
-      if(err) {
-        console.log('🟧 authMiddleware > requireAuth() > login error:', err);
-        res.redirect('/login');
-      } else {
-        next();
-      }
-    });
-  } else {
-    res.redirect('/');
-  }
-}
-
 const checkUser = (req, res, next) => {
   const token = req.cookies.jwt;
   if(token){
     jwt.verify(token, 'net ninja secret', async (err, decodedToken) => {
-      if(err) {
+      if(err) { // ! change to match other error handling
         console.log('🟧 authMiddleware > checkUser() > login error:', err);
         res.locals.user = null;
         next();
       } else {
-        let user = await User.findById(decodedToken.id);
+        let user = await User
+          .findById(decodedToken.id)
+          .select( '-password -creator' );
         res.locals.user = user;
         next();
       }
@@ -37,4 +23,4 @@ const checkUser = (req, res, next) => {
   }
 }
 
-module.exports =  { requireAuth, checkUser };
+module.exports =  { checkUser };

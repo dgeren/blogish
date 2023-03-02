@@ -30,6 +30,8 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
 
+  console.log('🔸 getListByPubDate user', res.locals.user); // 🔴 
+
   // css
   res.locals.css = 'list';
   res.locals.type = 'list';
@@ -134,8 +136,6 @@ module.exports.getEntry = async (req, res) => {
   res.locals.pages = null;
   res.locals.requestedTag = null
   res.locals.preview = false;
-  
-  console.log("🔸 res.locals.pagination:\n", res.locals.pagination); //🔴
 
   res.render('page');
 }

@@ -7,25 +7,12 @@
   --label: #505067;
 }
 
-/* .smaller { font-size: smaller; }
-.small   { font-size: small; }
-.medium  { font-size: medium; }
-.large   { font-size: large; }
-.xlarge  { font-size: xxx-large; } */
-
-
 .label {
   background-color: var(--label);
   font-weight: bold;
   margin: 10px 0;
   padding: .5em;
 }
-
-/* 
-.value {
-  background-color: var(--value);
-} */
-
 
 body {
   background-color: var(--back);

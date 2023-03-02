@@ -10,7 +10,7 @@ const isPublished = publish ? " checked" : "";
   <div class="title-box">
     <h2 class="pageTitle">Editor</h2>
   </div>
-  <form id="toolbar" class="toolbar">
+  <form id="toolbar" class="toolbar" name="toolbar">
     <button id="tools_update" class="tools label" name="updatePreview" alt="Update Preview section.">PREVIEW</button>
     &nbsp; | &nbsp;
     <button id="tools_upload" class="tools label" name="upload" alt="Update the server.">UPLOAD</button>
@@ -22,33 +22,33 @@ const isPublished = publish ? " checked" : "";
     <button id="tools_del" class="tools label" name="del" alt="Permanently delete the post.">DELETE</button>
   </form>
   <section>
-  <p id="message"> </p>
-    <form id="editor">
+    <p id="message"> </p>
+    <form id="editor" name="entryEditor">
       <section class="editorSection">
-        <div class="elementContainer">
+        <div class="">
           <label for="title">Title</label><br>
           <input type="text" name="title" class="form-el editor" id="editor_title"
           <% if(title) { %>value="<%= title %>" <% } %> autofocus required>
         </div>
 
-        <div class="elementContainer">
+        <div>
           <label for="subtitle">Description</label><br>
           <input type="text" name="description" class="form-el editor" id="editor_subtitle"
           <% if(description) { %>value="<%= description %>" <% } %>>
         </div>
 
-        <div class="elementContainer">
+        <div>
           <label for="markdown">Markdown Content</label><br>
           <textarea id="editor_markdown" name="markdown" class="form-el editor"><%= markdown %></textarea>
         </div>
 
-        <div class="elementContainer">
+        <div>
           <label for="tags">Topics</label><br>
           <input type="text" name="tags" class="form-el editor" id="editor_tags"
           <% if(tags) { %>value="<%= tagString %>" <% } %>>
         </div>
 
-        <div class="elementContainer">
+        <div>
           <label for="publish" class="publish">Publish?</label>
           <input type="checkbox" name="publish" class="form-el editor publish" id="editor_checkbox"<%= isPublished %>>
           <br>
@@ -60,11 +60,11 @@ const isPublished = publish ? " checked" : "";
           <p class="message" name="publishError" id="publishError">Please select a date or deselect "Publish?"</p>
         </div>
 
-        <div class="elementContainer">
+        <div>
           <input type="hidden" name="authorID" class="form-el editor" id="editor_authorID" value="<%= user._id %>">
           <input type="hidden" name="entryID" class="form-el editor" id="editor_entryID" value="<%- _id %>">
         </div>
-      </section>js
+      </section>
 
       <section id="preview">
         <%- include('content', { entry, preview }); %>
