@@ -15,7 +15,7 @@ const e = require('express'); // is this still needed?
 
 
 /*
-* LOCAL METHODS
+* INTERNAL METHODS
 */
 const createToken = id => { // 🟠 why can't this work from util.js?
   return jwt.sign({ id }, 'net ninja secret', { // 🟠 fix secret & make more secure
@@ -33,12 +33,14 @@ module.exports.getListByPubDate = async (req, res) => {
   // css
   res.locals.css = 'list';
   res.locals.type = 'list';
+  res.locals.script = null;
   
   // data for list pagination
   res.locals.page = parseInt(req.params.page) || 1;
   const docs = await db.getEntryCount(null, res.locals.user);
   const skip = (res.locals.page * limit) - limit;
   res.locals.pages = parseInt(Math.ceil(docs / limit));
+  if(!res.locals.user) res.locals.user = null;
 
   // queries
   res.locals.entries = await db.getListOfEntriesByDate( skip );
@@ -64,6 +66,7 @@ module.exports.getListUnpublished = async (req, res) => {
   // css
   res.locals.css = 'list';
   res.locals.type = 'list';
+  res.locals.script = null;
 
   // entry data
   res.locals.entries = await db.getListOfUnpublishedEntries();
@@ -85,6 +88,7 @@ module.exports.getListByTag = async (req, res) => {
   // 
   res.locals.css = 'list';
   res.locals.type = 'list';
+  res.locals.script = null;
 
   // page elements
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -120,6 +124,7 @@ module.exports.getEntry = async (req, res) => {
   // rendering variables
   res.locals.css = 'reader';
   res.locals.type = 'reader';
+  res.locals.script = null;
 
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
@@ -149,6 +154,7 @@ module.exports.getEditor =  async (req, res) => {
   // rendering variavles
   res.locals.css = 'editor';
   res.locals.type = 'editor';
+  res.locals.script = 'editor';
 
   // chosen entry to edit or new entry
   res.locals.entry = {};
@@ -264,6 +270,7 @@ module.exports.getAdmin = async (req, res) => {
   // rendering variables
   res.locals.css = "editor";
   res.locals.type = 'admin';
+  res.locals.script = 'admin';
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);

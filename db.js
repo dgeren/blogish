@@ -268,9 +268,23 @@ const deleteOneEntry = async _id => {
       error: true,
       message: `${errMsg.begin} with deleting this entry. ${errMsg.contact} ${errMsg.end}`
     };
-
   }
 }
+
+const getUser = async _id => {
+  try {
+    await User
+      .findById(_id)
+      .select( '-password -creator' )
+      .lean();
+  } catch (err) {
+    return {
+      error: true,
+      message: `User not found.`
+    };
+  }
+}
+
 
 
 module.exports = {
@@ -284,4 +298,5 @@ module.exports = {
   getOneEntry,
   addOrUpdateEntry,
   deleteOneEntry,
+  getUser,
  };

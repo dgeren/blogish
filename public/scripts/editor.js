@@ -102,15 +102,16 @@ const upload = async () => {
   // upload changes to db
   const result = await useFetch({
     method: 'POST',
-    url: `/editor/`,
+    url: `/editor`,
     entryData
   });
 
-  // if no error, then reset save and loading flags 
+  // if no error, then reset save and loading flags
   if(!result.error) {
     isSaved = true;
     loadEditor = false;
   }
+
   // render content and message from server
   updatePreview();
   updateMessage(result);

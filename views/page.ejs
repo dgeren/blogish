@@ -1,4 +1,5 @@
 <%- include('functions'); %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,45 +25,50 @@
 
     <nav>
       <ul class="nav">
-        <% if(user) { %>
-        <ul>
-          <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
-          <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
-          <li class="label"><a href="/admin">ADMIN</a></li>
-          <li class="label"><a href="/users">USERS</a></li>
-        </ul>
+        <% if(user.role === 'admin') { %>
+        <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
+        <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
         <% } %>
+        <% if(user) { %>
+        <li class="label"><a href="/admin">ADMIN</a></li>
+        <% } %>
+        <li class="label"><a href="/users">CONTRIBUTORS</a></li>
+        <li class="label"><a href="/about">ABOUT</a></li>
+      </ul>
 
-        <%- buildTopics(topics); %>
-        <%- buildArchive(archive); %>
-        <div id="login-state" class="login-state">
-          <% if(!user) { %>
-          <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
-          <% } else { %>
-          <p id="logged-in-as" class="small">'<%= user.email %>' [ <a href="/logout">Log Out</a> ]</p>
-          <% } %>
-          <form id="signin-form" class="signin-form" style="display: none;">
-            <input class="signin-el" type="text" name="email" placeholder="Email address" required>
-            <br>
-            <input class="signin-el" type="password" name="password" placeholder="Password" required>
-            <br>
-            <button class="signin-el login">Log in </button>
-          </form>
-        </div>
+      <%- buildTopics(topics); %>
+      <%- buildArchive(archive); %>
+      <div id="login-state" class="login-state">
+        <% if(!user) { %>
+        <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
+        <% } else { %>
+        <p id="logged-in-as" class="small"><%= user.email %> [ <a href="/logout">Log Out</a> ]</p>
+        <% } %>
+        <form id="signin-form" class="signin-form" style="display: none;">
+          <input class="signin-el" type="text" name="email" placeholder="Email address" required>
+          <br>
+          <input class="signin-el" type="password" name="password" placeholder="Password" required>
+          <br>
+          <button class="signin-el login">Log in </button>
+        </form>
+      </div>
     </nav>
   </header>
+  
   <main>
     <%- include('partials/' + type); %>
-    
   </main>
 
   <footer class="footer">
     <p class="small">Copyright &copy; 2021-2023 David Geren</p>
   </footer>
 
+  <% if(script) { %>
+    <script src="/scripts/<%= script %>.js"></script>
+  <% } %>
+  
   <% if(!user){ %>
   <script src="/scripts/login.js"></script>
-  <% } else { %>
   <script src="/scripts/interface.js"></script>
-  <script src="/scripts/<%- type %>"></script>
   <% } %>
+</body>

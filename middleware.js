@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
+// const { getUser } = require('./db.js');
 
-const checkUser = (req, res, next) => {
+const checkUser = async (req, res, next) => {
   const token = req.cookies.jwt;
   if(token){
     jwt.verify(token, 'net ninja secret', async (err, decodedToken) => {
@@ -10,10 +11,10 @@ const checkUser = (req, res, next) => {
         res.locals.user = null;
         next();
       } else {
-        let user = await User
+        res.locals.user = await User
           .findById(decodedToken.id)
-          .select( '-password -creator' );
-        res.locals.user = user;
+          .select( '-password -creator' )
+          .lean();
         next();
       }
     });
@@ -22,5 +23,21 @@ const checkUser = (req, res, next) => {
     next();
   }
 }
+
+// const requireAuth = (req, res, next) => {
+//   const token = req.cookies.jwt;
+//   if(token){
+//     jwt.verify(token, 'net ninja secret', (err, decodedToken) => {
+//       if(err) {
+//         console.log('🟧 authMiddleware > requireAuth() > login error:', err);
+//         res.redirect('/login');
+//       } else {
+//         next();
+//       }
+//     });
+//   } else {
+//     res.redirect('/');
+//   }
+// }
 
 module.exports =  { checkUser };
