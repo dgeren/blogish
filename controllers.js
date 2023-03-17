@@ -146,34 +146,37 @@ module.exports.getEntry = async (req, res) => {
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
+  if(!req.body.user) {
+    res.redirect('/');
+  } else {
+    // page elements
+    res.locals.topics = await db.getCategories(res.locals.user);
+    res.locals.archive = await db.getArchive(res.locals.user);
   
-  // page elements
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
-
-  // rendering variavles
-  res.locals.css = 'editor';
-  res.locals.type = 'editor';
-  res.locals.script = 'editor';
-
-  // chosen entry to edit or new entry
-  res.locals.entry = {};
-  const { slug } = req.params;
+    // rendering variavles
+    res.locals.css = 'editor';
+    res.locals.type = 'editor';
+    res.locals.script = 'editor';
   
-  if(slug){
-    const entry = await db.getOneEntry(slug);
-
-    // body
-    entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
-
-    // entry reader to render 🔸 is the seaparate entry variable still needed?
-    res.locals.entry = entry;
-
-    // disabled items
-    res.locals.pagination = { next: null, previous: null };
+    // chosen entry to edit or new entry
+    res.locals.entry = {};
+    const { slug } = req.params;
+    
+    if(slug){
+      const entry = await db.getOneEntry(slug);
+  
+      // body
+      entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
+  
+      // entry reader to render 🔸 is the seaparate entry variable still needed?
+      res.locals.entry = entry;
+  
+      // disabled items
+      res.locals.pagination = { next: null, previous: null };
+    }
+  
+    res.render('page');
   }
-
-  res.render('page');
 }
 
 
@@ -267,16 +270,20 @@ module.exports.getError = async (req, res) => {
 
 // * RENDER ADMIN PAGE
 module.exports.getAdmin = async (req, res) => {
-  // rendering variables
-  res.locals.css = "editor";
-  res.locals.type = 'admin';
-  res.locals.script = 'admin';
+  if(!req.body.user) {
+    res.redirect('/');
+  } else {
+    // rendering variables
+    res.locals.css = "editor";
+    res.locals.type = 'admin';
+    res.locals.script = 'admin';
 
-  // queries
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
-  
-  res.render('page');
+    // queries
+    res.locals.topics = await db.getCategories(res.locals.user);
+    res.locals.archive = await db.getArchive(res.locals.user);
+    
+    res.render('page');
+  }
 }
 
 
