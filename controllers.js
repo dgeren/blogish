@@ -30,7 +30,7 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
 
-  // css
+  // inclusions
   res.locals.css = 'list';
   res.locals.type = 'list';
   res.locals.script = null;
@@ -281,23 +281,14 @@ module.exports.getAdmin = async (req, res) => {
 
 
 // * CREATER NEW USERS
-module.exports.createAccount = async (req, res) => {
-  console.log('🔸 made it to createAccount'); // 🔴
-  const { isEditor, isAdmin, email, password, pseudonym, byline, shortText, longText } = req.body;
-  console.log('🔸 isEditor', isEditor); // 🔴
+module.exports.createUser = async (req, res) => {
   try {
-    res.locals.user = await User.create({ isEditor, isAdmin, email, password, pseudonym, byline, shortText, longText });
-    const token = createToken(user._id);
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      maxAge: maxAge * 1000
-    });
-    res.status(200);
-    res.render('page');
+    db.createUser(req.body.user);
+    return true;
   }
   catch(err) {
-    const errors = handleErrors(err);
-    res.status(400).json({ errors });
+    console.log(err);
+    return false;
   }
 }
 

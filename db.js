@@ -4,7 +4,7 @@ const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, ch
 const User = require('./models/User');
 const { limit, logError } = require("./util");
 
-// * === error content
+// * === ERROR CONTENT
 const errMsg = {
   begin: "An error occurred when accessing ",
   end: "It is logged for review. Apologies for any inconvenience.",
@@ -13,7 +13,8 @@ const errMsg = {
   contact: `Contact your admin right away.`,
 }
 
-// * === returns archive date hierarchy in the sidebar
+
+// * === RETURNS DATE HEIRARCHY FOR SIDEBAR
 const getArchive = async (user) => {
   const _now = new Date();
   const filter = user ? { pubDate: {$ne: null } } : { publish: true, pubDate: { $lt: _now } };
@@ -39,7 +40,8 @@ const getArchive = async (user) => {
   }
 }
 
-// * === returns Topics section in the sidebar
+
+// * === RETURNS LIST OF TOPICS FOR SIDEBAR
 const getCategories = async (user) => {
   const _now = new Date();
   const filter = user ? {} : { publish: true, pubDate: { $lt: _now } };
@@ -61,11 +63,10 @@ const getCategories = async (user) => {
   } finally {
     return result;
   }
-
-    
 }
 
-// * === returns ˙number of entries by topic or without topic
+
+// * === RETURNS NUMBER OF ENTRIES BY TOPIC FOR SIDEBAR
 const getEntryCount = async (topic, user) => {
   const _now = new Date();
   const filterByTag = topic ? { tags: topic } : {};
@@ -85,7 +86,8 @@ const getEntryCount = async (topic, user) => {
   return result;
 }
 
-// * === returns Next/previoius navigation in the reader
+
+// * === RETURNS NEXT/PREVIOUS NAVIGATION LINKS FOR READER
 const getAdjacents = async (date, user) => { // ! May be origin of unpub pagination error
   let next, prev;
   let filterNext = { publish: true };
@@ -125,7 +127,8 @@ const getAdjacents = async (date, user) => { // ! May be origin of unpub paginat
   }
 }
 
-// * === returns limited number of entries to populate list cards
+
+// * === RETURNS LIMITED ENTRIES BY DATE FOR LIST
 const getListOfEntriesByDate = async (skip, user) => {
   const _now = new Date();
   const filter = user ? {} : { publish: true, pubDate: { $lt: _now } };
@@ -160,7 +163,8 @@ const getListOfEntriesByDate = async (skip, user) => {
   return result;
 }
 
-// * === returns unlimited entries by topic to populate list cards
+
+// * === RETURNS ALL ENTRIES BY TOPIC FOR LIST
 const getListOfEntriesByCategory = async (topic, user) => {
   const _now = new Date();
   const filter = user ? { tags: topic } : { tags: topic, publish: true , pubDate: { $lt: _now } };
@@ -191,7 +195,8 @@ const getListOfEntriesByCategory = async (topic, user) => {
   return result;
 }
 
-// * === returns unlimited entries where publish is false to populate list cards
+
+// * === RETURNS ALL UNPUBLISHED ENTRIES FOR LIST
 const getListOfUnpublishedEntries = async () => {
   let result;
 
@@ -218,7 +223,7 @@ const getListOfUnpublishedEntries = async () => {
 }
 
 
-// * === returns one entry for reader or editor
+// * === RETURNS AN ENTRY FOR READER OR EDITOR
 const getOneEntry = async (slug, _id) => {
   try {
     const filter = slug ? { slug } : { _id };
@@ -234,8 +239,9 @@ const getOneEntry = async (slug, _id) => {
   }
 }
 
-// * === adds new entries or saves changes to exising
-const addOrUpdateEntry = async (entry) => {
+
+// * === ADD NEW OR UPDATE EXISTING ENTRY
+const addOrUpdateEntry = async entry => {
   try {
     await Entry.findOneAndUpdate(
       entry.id ? { _id: entry.id } : {},
@@ -255,6 +261,8 @@ const addOrUpdateEntry = async (entry) => {
   }
 }
 
+
+// * === PERMANENTLY DELETE AN ENTRY; NO BACKSIES
 const deleteOneEntry = async _id => {
   try {
     await Entry.findByIdAndDelete( _id );
@@ -271,13 +279,16 @@ const deleteOneEntry = async _id => {
   }
 }
 
+
+// * RETRIEVE A USER
 const getUser = async _id => {
   try {
     await User
       .findById(_id)
-      .select( '-password -creator' )
+      .select( '-password' )
       .lean();
   } catch (err) {
+    // todo: add logging
     return {
       error: true,
       message: `User not found.`
@@ -285,6 +296,39 @@ const getUser = async _id => {
   }
 }
 
+
+// * ADD A NEW USER
+const createUser = async user => {
+  try {
+    const newUser = await await User.create(user).save();
+  } catch(err) {
+    // todo: add logging
+    return {
+      error: true,
+      message: 'User not saved.'
+    };
+  }
+}
+
+
+// * UPDATE USER
+const saveUser = async user => {
+//   try {
+//     const newUser = await User.findOneAndUpdate(
+//       user.id ? { _id: user.id } : {},
+//       user,
+//       { new: true, upsert: true }
+//     );
+//     console.log("🟢", newuser); // 🔴
+//     return newUser;
+//   } catch (err) {
+//     // todo: add logging
+//     return {
+//       error: true,
+//       message: 'User not saved.'
+//     }
+//   }
+}
 
 
 module.exports = {
@@ -299,4 +343,6 @@ module.exports = {
   addOrUpdateEntry,
   deleteOneEntry,
   getUser,
+  createUser,
+  saveUser,
  };

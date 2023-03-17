@@ -3,8 +3,6 @@ const bcrypt = require('bcrypt');
 const { isEmail } = require('validator');
 
 const userSchema = new mongoose.Schema({
-  isEditor: Boolean,
-  isAdmin: Boolean,
   email: {
     type: String,
     unique: [true, "Email address already registered."],
@@ -17,6 +15,10 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password required."],
     minlength: [8, "Minimum length is six characters."],
     maxlength: [64, "Maximum length is sixty-four characters."]
+  },
+  role: {
+    type: String,
+    required: [true, "Role selection required."]
   },
   pseudonym: {
     type: String,
@@ -34,16 +36,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Short description required."],
     minlength: [12, "Minimum length is twelve characters."],
-    maxlength: [128, "Maximum length is 128 characters."]
+    maxlength: [256, "Maximum length is 128 characters."]
   },
   longText: {
     type: String,
     required: [true, "Long description required."],
-    minlength: [true, "Minimum length is twelved characters."]
+    minlength: [12, "Minimum length is twelve characters."]
   },
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('validate', async function (next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
   next();

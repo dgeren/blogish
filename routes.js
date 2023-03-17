@@ -36,7 +36,7 @@ router.get('/admin', checkUser, controllers.getAdmin);
 router.get('/listUnpublished', checkUser, controllers.getListUnpublished);
 
 router.post('/login', controllers.login);
-router.post('/createAccount', checkUser, controllers.createAccount);
+router.post('/createAccount', controllers.createUser);
 
 // STATIC CONTENT ROUTES
 router.get('/about', (req, res) => res.render('getAbout'));

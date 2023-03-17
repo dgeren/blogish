@@ -25,11 +25,9 @@
 
     <nav>
       <ul class="nav">
-        <% if(user.role === 'admin') { %>
+        <% if(user) { %>
         <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
         <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
-        <% } %>
-        <% if(user) { %>
         <li class="label"><a href="/admin">ADMIN</a></li>
         <% } %>
         <li class="label"><a href="/users">CONTRIBUTORS</a></li>

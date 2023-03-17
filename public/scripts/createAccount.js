@@ -1,4 +1,4 @@
-
+// this may be deprecated
 const form = document.querySelector('form');
 const emailError = document.querySelector('.email.error');
 const passwordError = document.querySelector('.password.error');

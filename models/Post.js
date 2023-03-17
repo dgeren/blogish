@@ -26,7 +26,7 @@ const postSchema = new mongoose.Schema({
     required: [true, "admin error message: user id required"]
   },
   publish: Boolean,
-  pubDate: Date
+  pubDate: Date,
 });
 
 const Post = mongoose.model('post', postSchema);
