@@ -74,6 +74,7 @@ const buildEntryObj = () => {
   const entryData = {};
   formElements.forEach(el => entryData[el.attributes.getNamedItem('name').value] = el.value);
   entryData.publish = formElements[4].checked;
+  if(entryData.entryID === '') entryData.entryID = null;
   return entryData;
 }
 

@@ -146,7 +146,7 @@ module.exports.getEntry = async (req, res) => {
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
-  if(!req.body.user) {
+  if(!res.locals.user) {
     res.redirect('/');
   } else {
     // page elements
@@ -161,7 +161,7 @@ module.exports.getEditor =  async (req, res) => {
     // chosen entry to edit or new entry
     res.locals.entry = {};
     const { slug } = req.params;
-    
+
     if(slug){
       const entry = await db.getOneEntry(slug);
   
@@ -182,28 +182,32 @@ module.exports.getEditor =  async (req, res) => {
 
 // * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
+  let result = {};
 
   // HANDLE ENTRY AND DB
   const entry = req.body;
   const { tags } = req.body;
 
-  entry.slug = slugify(entry.title, { lower: true });
-  if(entry.entryID) {
-    entry.id = entry.entryID;
-    delete entry.entryID;
-  }
-
   // prep date format
   entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
     new Date(`${entry.datePicker}T${entry.timePicker}`);
 
-  // prep 
+  // prep topics
   entry.tags = tags
     .split(",")
     .filter(tags => tags.trim() !== "")
     .map(tags => tags.trim());
   
-  const result = await db.addOrUpdateEntry(entry);
+  entry.slug = slugify(entry.title, { lower: true });
+
+  if(entry.entryID) {
+    entry.id = entry.entryID;
+    delete entry.entryID;
+    result = await db.updateEntry(entry);
+  } else {
+    result = await db.saveEntry(entry);
+  }
+  
   res.send((result.message));
 }
 
@@ -239,7 +243,7 @@ module.exports.deleteEntry = async (req, res) => {
 
 
 // * RENDER LIST BY DATE WITH ERROR MESSAGE
-// ! IS THIS STILL NEEDED?
+// ! IS THIS STILL NEEDED? Check router before deleting
 module.exports.getError = async (req, res) => {
 
   // css
@@ -263,14 +267,13 @@ module.exports.getError = async (req, res) => {
   res.locals.requestedTag = null;
 
   res.render('list');
-
 }
 
 
 
 // * RENDER ADMIN PAGE
 module.exports.getAdmin = async (req, res) => {
-  if(!req.body.user) {
+  if(!res.locals.user) {
     res.redirect('/');
   } else {
     // rendering variables
@@ -284,6 +287,10 @@ module.exports.getAdmin = async (req, res) => {
     
     res.render('page');
   }
+}
+
+module.exports.getAdminPreview = (req, res) => {
+
 }
 
 

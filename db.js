@@ -240,19 +240,36 @@ const getOneEntry = async (slug, _id) => {
 }
 
 
-// * === ADD NEW OR UPDATE EXISTING ENTRY
-const addOrUpdateEntry = async entry => {
+// * === UPDATE EXISTING ENTRY
+const updateEntry = async entry => { 
   try {
-    await Entry.findOneAndUpdate(
-      entry.id ? { _id: entry.id } : {},
-      entry,
-      { new: true, upsert: true }
+    await Entry.updateOne(
+      { _id: entry.id },
+      entry
     );
     return {
       error: false,
       message: "Entry data successfully saved to the database."
     };
   } catch(err){
+    // todo: add logging
+    return {
+      error: true,
+      message: `${errMsg.begin} the editor's entry saving process. ${errMsg.contact} ${errMsg.end}`,
+      sysmessage: err
+    }
+  }
+}
+
+// * === ADD NEW ENTRY
+const saveEntry = async entry => {
+  delete entry.entryID;
+  try {
+    console.log('🔸 ', entry.title);//🔴
+    const result = await Entry.collection.insertOne(entry);
+    // const result = await Entry.create(entry);
+    return result;
+  } catch(err) {
     // todo: add logging
     return {
       error: true,
@@ -280,7 +297,7 @@ const deleteOneEntry = async _id => {
 }
 
 
-// * RETRIEVE A USER
+// * === RETRIEVE A USER
 const getUser = async _id => {
   try {
     await User
@@ -297,7 +314,7 @@ const getUser = async _id => {
 }
 
 
-// * ADD A NEW USER
+// * === ADD A NEW USER
 const createUser = async user => {
   try {
     const newUser = await await User.create(user).save();
@@ -311,7 +328,7 @@ const createUser = async user => {
 }
 
 
-// * UPDATE USER
+// * === UPDATE USER
 const saveUser = async user => {
 //   try {
 //     const newUser = await User.findOneAndUpdate(
@@ -340,7 +357,8 @@ module.exports = {
   getListOfEntriesByCategory,
   getListOfUnpublishedEntries,
   getOneEntry,
-  addOrUpdateEntry,
+  updateEntry,
+  saveEntry,
   deleteOneEntry,
   getUser,
   createUser,
