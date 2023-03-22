@@ -12,6 +12,7 @@ const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, ch
 const { fixHtmlTags, limit, maxAge } = require('./util');
 const { ppid } = require('process'); // can't remove even though it appears to not be in use
 const e = require('express'); // is this still needed?
+const { insertMany } = require('./models/Post');
 
 
 /*
@@ -44,6 +45,11 @@ module.exports.getListByPubDate = async (req, res) => {
 
   // queries
   res.locals.entries = await db.getListOfEntriesByDate( skip );
+  let userIDs = [];
+  res.locals.entries.map(entry => {
+    if(!userIDs.includes(entry.authorID)) userIDs.push(entry.authorID);
+  });
+  res.locals.users = db.getUsers(userIDs);
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
 
@@ -191,6 +197,8 @@ module.exports.postEntry = async (req, res) => {
   // prep date format
   entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
     new Date(`${entry.datePicker}T${entry.timePicker}`);
+  delete entry.datePicker;
+  delete entry.timePicker;
 
   // prep topics
   entry.tags = tags

@@ -3,8 +3,8 @@
     <% } %>
 
     <% entries.forEach(entry => { %>
-      <%- include('card', { entry }) -%>
-    <% });
+      <%- include('card', { entry, user }) -%>
+    <% }); 
     let previous = null, next = null;
     
     const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`;

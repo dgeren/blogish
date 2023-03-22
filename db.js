@@ -14,6 +14,10 @@ const errMsg = {
 }
 
 
+/* ====================================================
+        NAVIGATION AND SIDEBAR
+   ====================================================
+*/
 // * === RETURNS DATE HEIRARCHY FOR SIDEBAR
 const getArchive = async (user) => {
   const _now = new Date();
@@ -128,10 +132,87 @@ const getAdjacents = async (date, user) => { // ! May be origin of unpub paginat
 }
 
 
+/* ====================================================
+        USERS
+   ====================================================
+*/
+// * === RETRIEVE A USER
+const getUser = async _id => {
+  try {
+    return await User
+      .findById({_id})
+      .select( '-password' )
+      .lean()
+      .exec();
+  } catch (err) {
+    // todo: add logging
+    return {
+      error: true,
+      message: `User not found.`
+    };
+  }
+}
+
+
+// * === RETRIEVE A USER
+const getUsers = ids => {
+  let results = { };
+  try {
+    ids.forEach(async _id => {
+      results[_id] = await getUser(_id.toString());
+    });
+  } catch (err) {
+    // todo: add logging
+    results.error = true;
+    results.message = `${errMsg.begin} attribution. ${errMsg.contact} ${errMsg.end}`;
+  }
+  return results;
+}
+
+
+// * === ADD A NEW USER
+const createUser = async user => {
+  try {
+    const newUser = await await User.create(user).save();
+  } catch(err) {
+    // todo: add logging
+    return {
+      error: true,
+      message: 'User not saved.'
+    };
+  }
+}
+
+
+// * === UPDATE USER
+const saveUser = async user => {
+//   try {
+//     const newUser = await User.findOneAndUpdate(
+//       user.id ? { _id: user.id } : {},
+//       user,
+//       { new: true, upsert: true }
+//     );
+//     console.log("🟢", newuser); // 🔴
+//     return newUser;
+//   } catch (err) {
+//     // todo: add logging
+//     return {
+//       error: true,
+//       message: 'User not saved.'
+//     }
+//   }
+}
+
+
+/* ====================================================
+         ENTRIES
+   ====================================================
+*/
 // * === RETURNS LIMITED ENTRIES BY DATE FOR LIST
 const getListOfEntriesByDate = async (skip, user) => {
   const _now = new Date();
   const filter = user ? {} : { publish: true, pubDate: { $lt: _now } };
+
   
   let result;
   
@@ -261,13 +342,11 @@ const updateEntry = async entry => {
   }
 }
 
+
 // * === ADD NEW ENTRY
 const saveEntry = async entry => {
-  delete entry.entryID;
   try {
-    console.log('🔸 ', entry.title);//🔴
-    const result = await Entry.collection.insertOne(entry);
-    // const result = await Entry.create(entry);
+    const result = await Entry.create(entry);
     return result;
   } catch(err) {
     // todo: add logging
@@ -297,62 +376,15 @@ const deleteOneEntry = async _id => {
 }
 
 
-// * === RETRIEVE A USER
-const getUser = async _id => {
-  try {
-    await User
-      .findById(_id)
-      .select( '-password' )
-      .lean();
-  } catch (err) {
-    // todo: add logging
-    return {
-      error: true,
-      message: `User not found.`
-    };
-  }
-}
-
-
-// * === ADD A NEW USER
-const createUser = async user => {
-  try {
-    const newUser = await await User.create(user).save();
-  } catch(err) {
-    // todo: add logging
-    return {
-      error: true,
-      message: 'User not saved.'
-    };
-  }
-}
-
-
-// * === UPDATE USER
-const saveUser = async user => {
-//   try {
-//     const newUser = await User.findOneAndUpdate(
-//       user.id ? { _id: user.id } : {},
-//       user,
-//       { new: true, upsert: true }
-//     );
-//     console.log("🟢", newuser); // 🔴
-//     return newUser;
-//   } catch (err) {
-//     // todo: add logging
-//     return {
-//       error: true,
-//       message: 'User not saved.'
-//     }
-//   }
-}
-
-
 module.exports = {
   getArchive,
   getCategories,
   getAdjacents,
   getEntryCount,
+  getUser,
+  getUsers,
+  createUser,
+  saveUser,
   getListOfEntriesByDate,
   getListOfEntriesByCategory,
   getListOfUnpublishedEntries,
@@ -360,7 +392,4 @@ module.exports = {
   updateEntry,
   saveEntry,
   deleteOneEntry,
-  getUser,
-  createUser,
-  saveUser,
  };
