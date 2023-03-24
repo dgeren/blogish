@@ -31,6 +31,10 @@ const createToken = id => { // 🟠 why can't this work from util.js?
 // * GET LIST OF RECENT ARTICLES
 module.exports.getListByPubDate = async (req, res) => {
 
+  // get sidebar data
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
+
   // inclusions
   res.locals.css = 'list';
   res.locals.type = 'list';
@@ -43,15 +47,20 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.pages = parseInt(Math.ceil(docs / limit));
   if(!res.locals.user) res.locals.user = null;
 
-  // queries
+  // get entries
   res.locals.entries = await db.getListOfEntriesByDate( skip );
+
+  // get attribution data
   let userIDs = [];
-  res.locals.entries.map(entry => {
+  res.locals.entries.forEach(entry => {
     if(!userIDs.includes(entry.authorID)) userIDs.push(entry.authorID);
   });
-  res.locals.users = db.getUsers(userIDs);
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
+  
+  res.locals.users = {};
+  for(const id of userIDs){
+    const result = await db.getUser(id);
+    res.locals.users[id] = result[0];
+  }
 
   // disabled items
   res.locals.adjacentEntries = null;
@@ -65,17 +74,24 @@ module.exports.getListByPubDate = async (req, res) => {
 // * GET LIST OF UNPUBLISHED ARTICLES
 module.exports.getListUnpublished = async (req, res) => {
 
-  // data for sidebar
+  // get sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
 
-  // css
+  // inclusions
   res.locals.css = 'list';
   res.locals.type = 'list';
   res.locals.script = null;
 
-  // entry data
+  // get entries
   res.locals.entries = await db.getListOfUnpublishedEntries();
+
+  // get attribution data
+  let userIDs = [];
+  res.locals.entries.map(entry => {
+    if(!userIDs.includes(entry.authorID)) userIDs.push(entry.authorID);
+  });
+  res.locals.users = db.getUsers(userIDs);
   
   // disabled items
   res.locals.pages = 0;

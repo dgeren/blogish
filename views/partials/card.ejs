@@ -13,7 +13,7 @@
       <div class="card--pseudymn smaller"><%- users[authorID].pseudonym %></div>
       <h4 class="card--title">
         <a href="/reader/slug/<%= slug %>/id/<%= _id %>"><%- title %></a>
-        <% if(user) { %>
+        <% if(user !== null && (user._id.toString() === authorID || user.role === "admin")) { %>
         <a href="/editor/slug/<%= slug %>/id/<%= _id %>" class="edit-button">[ &#9998; ]</a>
         <% } %> 
       </h4>

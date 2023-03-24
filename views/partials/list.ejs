@@ -3,7 +3,7 @@
     <% } %>
 
     <% entries.forEach(entry => { %>
-      <%- include('card', { entry, user }) -%>
+      <%- include('card', { entry, user, users }) -%>
     <% }); 
     let previous = null, next = null;
     

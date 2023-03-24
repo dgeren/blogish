@@ -14,9 +14,10 @@ const errMsg = {
 }
 
 
-/* ====================================================
+/*
+====================================================
         NAVIGATION AND SIDEBAR
-   ====================================================
+====================================================
 */
 // * === RETURNS DATE HEIRARCHY FOR SIDEBAR
 const getArchive = async (user) => {
@@ -132,18 +133,18 @@ const getAdjacents = async (date, user) => { // ! May be origin of unpub paginat
 }
 
 
-/* ====================================================
+/*
+====================================================
         USERS
-   ====================================================
+====================================================
 */
 // * === RETRIEVE A USER
 const getUser = async _id => {
   try {
     return await User
-      .findById({_id})
-      .select( '-password' )
-      .lean()
-      .exec();
+      .find({_id})
+      .select( '-_id -password -email -__v' )
+      .lean();
   } catch (err) {
     // todo: add logging
     return {
@@ -151,22 +152,6 @@ const getUser = async _id => {
       message: `User not found.`
     };
   }
-}
-
-
-// * === RETRIEVE A USER
-const getUsers = ids => {
-  let results = { };
-  try {
-    ids.forEach(async _id => {
-      results[_id] = await getUser(_id.toString());
-    });
-  } catch (err) {
-    // todo: add logging
-    results.error = true;
-    results.message = `${errMsg.begin} attribution. ${errMsg.contact} ${errMsg.end}`;
-  }
-  return results;
 }
 
 
@@ -204,9 +189,10 @@ const saveUser = async user => {
 }
 
 
-/* ====================================================
+/* 
+====================================================
          ENTRIES
-   ====================================================
+====================================================
 */
 // * === RETURNS LIMITED ENTRIES BY DATE FOR LIST
 const getListOfEntriesByDate = async (skip, user) => {
@@ -381,9 +367,8 @@ module.exports = {
   getCategories,
   getAdjacents,
   getEntryCount,
-  getUser,
-  getUsers,
   createUser,
+  getUser,
   saveUser,
   getListOfEntriesByDate,
   getListOfEntriesByCategory,
