@@ -24,6 +24,22 @@ const createToken = id => { // 🟠 why can't this work from util.js?
   });
 }
 
+// get user data for attribution and contributor lists 
+const getAttributionData = async entries => {
+  let userIDs = [];
+  entries.forEach(entry => {
+    if(!userIDs.includes(entry.authorID)) userIDs.push(entry.authorID);
+  });
+  
+  let users = {};
+  for(const id of userIDs){
+    const result = await db.getUser(id);
+    users[id] = result[0];
+  }
+
+  return users;
+}
+
 
 /*
 * EXPORTED METHODS
@@ -49,18 +65,9 @@ module.exports.getListByPubDate = async (req, res) => {
 
   // get entries
   res.locals.entries = await db.getListOfEntriesByDate( skip );
-
-  // get attribution data
-  let userIDs = [];
-  res.locals.entries.forEach(entry => {
-    if(!userIDs.includes(entry.authorID)) userIDs.push(entry.authorID);
-  });
   
-  res.locals.users = {};
-  for(const id of userIDs){
-    const result = await db.getUser(id);
-    res.locals.users[id] = result[0];
-  }
+  // get attribution data
+  res.locals.users = await getAttributionData(res.locals.entries);
 
   // disabled items
   res.locals.adjacentEntries = null;
@@ -85,13 +92,9 @@ module.exports.getListUnpublished = async (req, res) => {
 
   // get entries
   res.locals.entries = await db.getListOfUnpublishedEntries();
-
+  
   // get attribution data
-  let userIDs = [];
-  res.locals.entries.map(entry => {
-    if(!userIDs.includes(entry.authorID)) userIDs.push(entry.authorID);
-  });
-  res.locals.users = db.getUsers(userIDs);
+  res.locals.users = await getAttributionData(res.locals.entries);
   
   // disabled items
   res.locals.pages = 0;
@@ -125,6 +128,9 @@ module.exports.getListByTag = async (req, res) => {
 
   // entry data
   res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, res.locals.user);
+  
+  // get attribution data
+  res.locals.users = await getAttributionData(res.locals.entries);
 
   // enabled items
   res.locals.publish = true;
@@ -152,6 +158,9 @@ module.exports.getEntry = async (req, res) => {
   const { slug = null, _id } = req.params;
   res.locals.entry = await db.getOneEntry( slug, _id );
   res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+  
+  // get attribution data
+  res.locals.attribution = await getAttributionData([res.locals.entry]);
   
   // pagination
   res.locals.pagination = await db.getAdjacents(res.locals.entry.pubDate);
@@ -192,6 +201,9 @@ module.exports.getEditor =  async (req, res) => {
   
       // entry reader to render 🔸 is the seaparate entry variable still needed?
       res.locals.entry = entry;
+  
+      // get attribution data
+      res.locals.attribution = await getAttributionData([res.locals.entry]);
   
       // disabled items
       res.locals.pagination = { next: null, previous: null };
@@ -241,6 +253,9 @@ module.exports.getEditorPreview = async (req, res) => {
 
   res.locals.entry = req.body;
   res.locals.preview = true;
+  
+  // get attribution data
+  res.locals.attribution = await getAttributionData([res.locals.entry]);
   
   // * PREP DATA
   res.locals.entry.slug = slugify(res.locals.entry.title, { lower: true });
