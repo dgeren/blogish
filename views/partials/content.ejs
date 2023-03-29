@@ -1,7 +1,8 @@
 <%- include('../functions'); %>
 <%
 const { title, slug, description, HTML, preview, _id, pubDate = null, tags = null } = entry;
-const { pseudonym, shortText } = attribution[ Object.getOwnPropertyNames(attribution)[0]];
+const pseudonym = !attribution ? user.pseudonym : attribution[ Object.getOwnPropertyNames(attribution)[0]].pseudonym;
+const shortText = !attribution ? user.shortText : attribution[ Object.getOwnPropertyNames(attribution)[0]].shortText;
 const dateDisplay = pubDate === null ? "" : prepDates(entry.pubDate).dateDisplay;
 const topicsDisplay = tags ? "" : prepTopics(entry.tags);
 %>
