@@ -180,6 +180,10 @@ module.exports.getEditor =  async (req, res) => {
   if(!res.locals.user) {
     res.redirect('/');
   } else {
+    // roles
+    res.locals.errorMsg = "Unauthorized request."
+    res.locals.attribution = null;
+
     // page elements
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
@@ -196,19 +200,23 @@ module.exports.getEditor =  async (req, res) => {
     if(slug){
       const entry = await db.getOneEntry(slug);
   
-      // body
-      entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
-  
-      // entry reader to render 🔸 is the seaparate entry variable still needed?
-      res.locals.entry = entry;
-  
       // get attribution data
-      res.locals.attribution = await getAttributionData([res.locals.entry]);
-  
-      // disabled items
-      res.locals.pagination = { next: null, previous: null };
+      const attribution = await getAttributionData([entry]);
+      if(res.locals.attribution.role === "admin" || res.locals.entry.authorID === res.locals.attribution._id){
+        // body
+        entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
+    
+        // entry reader to render 🔸 is the seaparate entry variable still needed?
+        res.locals.entry = entry;
+        res.locals.attribution = attribution;
+    
+        // disabled items
+        res.locals.pagination = { next: null, previous: null };
+        res.locals.errorMsg = null;
+        
+      }
     }
-  
+    console.log(res.locals.errorMsg); // 🔴
     res.render('page');
   }
 }
@@ -217,6 +225,7 @@ module.exports.getEditor =  async (req, res) => {
 // * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
   let result = {};
+  // todo: add a role test to prevent unauthorized edits from saving
 
   // HANDLE ENTRY AND DB
   const entry = req.body;

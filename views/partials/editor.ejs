@@ -10,6 +10,9 @@ const isPublished = publish ? " checked" : "";
   <div class="title-box">
     <h2 class="pageTitle">Editor</h2>
   </div>
+  <% if(errorMsg) {%>
+  <p class="errorMsg"><%- errorMsg %></p>
+  <% } %>
   <form id="toolbar" class="toolbar" name="toolbar">
     <button id="tools_update" class="tools label" name="updatePreview" alt="Update Preview section.">PREVIEW</button>
     &nbsp; | &nbsp;
