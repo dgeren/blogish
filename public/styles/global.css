@@ -178,11 +178,11 @@ input.signin-el {
   background-color: var(--label);
 }
 
-.categories ul {
+.categories, .contributors ul {
   display: block;
 }
 
-.categories li {
+.categories li, .contributors li {
   background-color: var(--label);
   display: flex;
   justify-content: space-between;
@@ -192,12 +192,12 @@ input.signin-el {
   font-weight: bold;
 }
 
-.categories--key {
+.categories--key, .contributors--key {
   color:#2d30eb;
   padding-left: 5px;
 }
 
-.categories--count {
+.categories--count, .contributors--count {
   background-color: var(--value);
   width: 30px;
   text-align: right;

@@ -1,9 +1,9 @@
 <% 
-const { pseudonym, shortText, _id } = user;
+const { pseudonym, shortText, _id } = contributor;
 %>
 
 <div class="card">
-  <img src="/images/<%= _id %>.JPG" class="profile-pic--list">
+  <img src="/images/contributor-pics/<%= _id %>.JPG" class="profile-pic--list">
   <h3><a href="/contributors/<%= _id %>"><%= pseudonym %></a> <%= _id %></h3>
   <p class="description"><%= shortText %></p>
 

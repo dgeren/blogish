@@ -129,8 +129,27 @@ buildContent = entry => {
 }
 
 
-testing = () => {
-  console.log("testing working"); // 🔴
+buildContributors = contributors => {  
+  
+  if(contributors.error){
+    return `
+      <div class="contributors">\n
+        <h3>Contributors</h3>\n
+          <p>${contributors.message}</p>\n
+      </div>\n
+    `;
+  }
+  let section = `<div class="categories"><h3><a href="/contributors">CONTRIBUTORS</a></h3><ul>`;
+  contributors.forEach(contributor => {
+    section += `
+      <li>
+        <div class="contributors--key"><a href="" >${contributor.pseudonym}</a></div>
+        <div class="contributors--count">${contributor.entries.length}</div>
+      </li>
+    `;
+  });
+  return section += `</ul></div>`; 
+
 }
 
 %>

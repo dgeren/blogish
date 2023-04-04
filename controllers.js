@@ -51,6 +51,7 @@ module.exports.getListByPubDate = async (req, res) => {
   // get sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
+  res.locals.contributors = await db.getUsers(res.locals.user);
 
   // inclusions
   res.locals.css = 'list';
@@ -85,6 +86,7 @@ module.exports.getListUnpublished = async (req, res) => {
   // get sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
+  res.locals.contributors = await db.getUsers(res.locals.user);
 
   // inclusions
   res.locals.css = 'list';
@@ -111,15 +113,16 @@ module.exports.getListUnpublished = async (req, res) => {
 // * GET ARTICLE LIST BASED ON A TOPIC
 module.exports.getListByTag = async (req, res) => {
 
-  // 
+  // inclusions
   res.locals.css = 'list';
   res.locals.type = 'list';
   res.locals.script = null;
+  res.locals.requestedTag = req.params.tag;
 
-  // page elements
+  // get sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
-  res.locals.requestedTag = req.params.tag;
+  res.locals.contributors = await db.getUsers(res.locals.user);
 
   // pageination
   res.locals.page = parseInt(req.params.page) || 1;
@@ -149,6 +152,7 @@ module.exports.getEntry = async (req, res) => {
   // page elements
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
+  res.locals.contributors = await db.getUsers(res.locals.user);
 
   // rendering variables
   res.locals.css = 'reader';
@@ -188,6 +192,7 @@ module.exports.getEditor =  async (req, res) => {
     // page elements
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
+    res.locals.contributors = await db.getUsers(res.locals.user);
   
     // rendering variavles
     res.locals.css = 'editor';
@@ -326,6 +331,7 @@ module.exports.getAdmin = async (req, res) => {
     // queries
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
+    res.locals.contributors = await db.getUsers(res.locals.user);
     
     res.render('page');
   }
@@ -340,16 +346,16 @@ module.exports.getAdminPreview = (req, res) => {
 
 // * LIST CONTRIBUTORS
 module.exports.getContributors = async (req, res) => {
-  res.locals.users = await db.getUsers();
+
+  // queries
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
+  res.locals.contributors = await db.getUsers(res.locals.user);
 
   // rendering variables
   res.locals.css = 'list';
   res.locals.type = 'contributors';
   res.locals.script = null;
-
-  // queries
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
 
   res.render('page');
 }

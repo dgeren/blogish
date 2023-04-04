@@ -3,6 +3,7 @@ const { isObjectIdOrHexString, default: mongoose } = require("mongoose");
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 const User = require('./models/User');
 const { limit, logError } = require("./util");
+const e = require("express");
 
 // * === ERROR CONTENT
 const errMsg = {
@@ -154,12 +155,39 @@ const getUser = async _id => {
   }
 }
 
+// const getUsers = async () => {
+//   try {
+//     const users = await User
+//       .find()
+//       .select('-password -email -__v')
+//       .lean();
+//     users.forEach(async user => {
+//       user.entryCount = await Entry.countDocuments({ 'authorID': user._id });
+//       console.log(user); // 🔴
+//     });
+//     return users;
+//   } catch (err) {
+//     return {
+//       error: true,
+//       message: `There was a problem with the server.`
+//     }
+//   }
+// }
+
+
 const getUsers = async () => {
   try {
-    return await User
+    const users = await User
       .find()
       .select('-password -email -__v')
       .lean();
+    for(const user of users) {
+      user.entries = await Entry
+        .find({ 'authorID': user._id})
+        .select('title')
+        .lean();
+    };
+    return users;
   } catch (err) {
     return {
       error: true,
@@ -169,10 +197,11 @@ const getUsers = async () => {
 }
 
 
+
 // * === ADD A NEW USER
 const createUser = async user => {
   try {
-    const newUser = await await User.create(user).save();
+    const newUser = await User.create(user).save();
   } catch(err) {
     // todo: add logging
     return {
