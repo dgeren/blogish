@@ -11,12 +11,12 @@ router.get('/', checkUser, controllers.getListByPubDate);
 router.get('/listByDate/:page', checkUser, controllers.getListByPubDate);
 router.get('/listByTags/:tag', checkUser, controllers.getListByTag);
 router.get('/listByTags/:tag/:page', checkUser, controllers.getListByTag);
+router.get('/contributors', checkUser, controllers.getContributors);
 
 // READER ROUTES
 router.get('/reader/slug/:slug', checkUser, controllers.getEntry);
 router.get('/reader/id/:_id', checkUser, controllers.getEntry);
 router.get('/reader/slug/:slug/id/:id', checkUser, controllers.getEntry);
-router.get('/reader*', checkUser, controllers.getError);
 
 // EDITOR ROUTES
 router.get('/editor/slug/:slug', checkUser, controllers.getEditor);
@@ -32,6 +32,7 @@ router.delete('/:_id', checkUser, controllers.deleteEntry);
 
 // AUTHENTICATION ROUTES
 router.get('/logout', checkUser, controllers.logout);
+router.get('/admin/:requestedUser', checkUser, controllers.getAdmin);
 router.get('/admin', checkUser, controllers.getAdmin);
 router.get('/listUnpublished', checkUser, controllers.getListUnpublished);
 

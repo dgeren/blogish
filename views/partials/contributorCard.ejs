@@ -1,0 +1,10 @@
+<% 
+const { pseudonym, shortText, _id } = user;
+%>
+
+<div class="card">
+  <img src="/images/<%= _id %>.JPG" class="profile-pic--list">
+  <h3><a href="/contributors/<%= _id %>"><%= pseudonym %></a> <%= _id %></h3>
+  <p class="description"><%= shortText %></p>
+
+</div>

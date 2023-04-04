@@ -13,6 +13,7 @@ const { fixHtmlTags, limit, maxAge } = require('./util');
 const { ppid } = require('process'); // can't remove even though it appears to not be in use
 const e = require('express'); // is this still needed?
 const { insertMany } = require('./models/Post');
+const { runInNewContext } = require('vm');
 
 
 /*
@@ -181,7 +182,7 @@ module.exports.getEditor =  async (req, res) => {
     res.redirect('/');
   } else {
     // roles
-    res.locals.errorMsg = "Unauthorized request."
+    res.locals.errorMsg = null;
     res.locals.attribution = null;
 
     // page elements
@@ -211,12 +212,12 @@ module.exports.getEditor =  async (req, res) => {
         res.locals.attribution = attribution;
     
         // disabled items
-        res.locals.pagination = { next: null, previous: null };
-        res.locals.errorMsg = null;
+        res.locals.pagination = { next: null, previous: null }; 
         
+      } else {
+        res.locals.errorMsg = "Unauthorized request.";
       }
     }
-    console.log(res.locals.errorMsg); // 🔴
     res.render('page');
   }
 }
@@ -290,40 +291,33 @@ module.exports.deleteEntry = async (req, res) => {
 }
 
 
-// * RENDER LIST BY DATE WITH ERROR MESSAGE
-// ! IS THIS STILL NEEDED? Check router before deleting
-module.exports.getError = async (req, res) => {
-
-  // css
-  res.locals.css = "list";
-  res.locals.errMessage = `The requested URL is invalid.`;
-
-  // data for list pagination
-  res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await db.getEntryCount(null, res.locals.user);
-  const skip = (res.locals.page * limit) - limit;
-  res.locals.pages = parseInt(Math.ceil(docs / limit));
-
-  // queries
-  res.locals.entries = await db.getListOfEntriesByDate( skip );
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
-
-  // disabled items
-  res.locals.adjacentEntries = null;
-  res.locals.publish = true;
-  res.locals.requestedTag = null;
-
-  res.render('list');
-}
-
-
-
 // * RENDER ADMIN PAGE
 module.exports.getAdmin = async (req, res) => {
+  // * build the contributors page first so you can add the edit button and give it scope
+  // todo: add info for existing user and add scope
+  // todo: add an email confirmation system
+  // todo: change the email checkbox to only appear if the email address changes
+
   if(!res.locals.user) {
     res.redirect('/');
   } else {
+    const { requestedUser = null } = req.params;
+    res.locals.errorMsg = null;
+
+    // if requestedUser exists use that otherwise use the logged in user's ID
+    const requestedID = requestedUser || res.locals.user._id;
+
+
+    // ? 1 opens w/o id: sees owned profile
+    // ? 2 opens w/ id:
+    // - if ids match: -> 1
+    // - if ids don't match:
+    // - - if role is admin: -> 1
+    // - unauthorized request
+    // ? id lookup in DB returns error: no such user
+    if(!requestedUser){
+      
+    }
     // rendering variables
     res.locals.css = "editor";
     res.locals.type = 'admin';
@@ -337,8 +331,27 @@ module.exports.getAdmin = async (req, res) => {
   }
 }
 
+
+// * ADMIN PREVIEW
 module.exports.getAdminPreview = (req, res) => {
 
+}
+
+
+// * LIST CONTRIBUTORS
+module.exports.getContributors = async (req, res) => {
+  res.locals.users = await db.getUsers();
+
+  // rendering variables
+  res.locals.css = 'list';
+  res.locals.type = 'contributors';
+  res.locals.script = null;
+
+  // queries
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
+
+  res.render('page');
 }
 
 

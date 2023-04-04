@@ -154,6 +154,20 @@ const getUser = async _id => {
   }
 }
 
+const getUsers = async () => {
+  try {
+    return await User
+      .find()
+      .select('-password -email -__v')
+      .lean();
+  } catch (err) {
+    return {
+      error: true,
+      message: `There was a problem with the server.`
+    }
+  }
+}
+
 
 // * === ADD A NEW USER
 const createUser = async user => {
@@ -369,6 +383,7 @@ module.exports = {
   getEntryCount,
   createUser,
   getUser,
+  getUsers,
   saveUser,
   getListOfEntriesByDate,
   getListOfEntriesByCategory,
