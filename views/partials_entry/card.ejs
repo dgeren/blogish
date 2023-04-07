@@ -1,8 +1,9 @@
 <%- include('../functions'); %>
 
     <% // can ai remove tagHTML from the destructuring
-    const { title, description, slug, _id, authorID, tagHTML = "", tags = null, pubDate = null } = entry;
+    const { title, description, slug, _id, authorID, publish, tagHTML = "", tags = null, pubDate = null } = entry;
     const dateDisplay = pubDate ? prepDates(pubDate).dateDisplay : null;
+    const pseudonym = users ? users[authorID].pseudonym : "";
     %>
 
 
@@ -10,7 +11,7 @@
       <div class="card--date smaller">
         <%- publish ? `${dateDisplay}` : "Unpublished" %>
       </div>
-      <div class="card--pseudymn smaller"><%- users[authorID].pseudonym %></div>
+      <div class="card--pseudonym smaller"><%- pseudonym %></div>
       <h4 class="card--title">
         <a href="/reader/slug/<%= slug %>/id/<%= _id %>"><%- title %></a>
         <% if(user !== null && (user._id.toString() === authorID || user.role === "admin")) { %>

@@ -143,7 +143,7 @@ buildContributors = contributors => {
   contributors.forEach(contributor => {
     section += `
       <li>
-        <div class="contributors--key"><a href="" >${contributor.pseudonym}</a></div>
+        <div class="contributors--key"><a href="/contributor/${contributor._id}" >${contributor.pseudonym}</a></div>
         <div class="contributors--count">${contributor.entries.length}</div>
       </li>
     `;

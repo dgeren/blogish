@@ -11,6 +11,7 @@ router.get('/', checkUser, controllers.getListByPubDate);
 router.get('/listByDate/:page', checkUser, controllers.getListByPubDate);
 router.get('/listByTags/:tag', checkUser, controllers.getListByTag);
 router.get('/listByTags/:tag/:page', checkUser, controllers.getListByTag);
+router.get('/contributor/:id', checkUser, controllers.getContributor);
 router.get('/contributors', checkUser, controllers.getContributors);
 
 // READER ROUTES

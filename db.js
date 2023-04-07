@@ -94,7 +94,7 @@ const getEntryCount = async (topic, user) => {
 
 
 // * === RETURNS NEXT/PREVIOUS NAVIGATION LINKS FOR READER
-const getAdjacents = async (date, user) => { // ! May be origin of unpub pagination error
+const getAdjacents = async (date, user) => {
   let next, prev;
   let filterNext = { publish: true };
   let filterPrev = { publish: true };
@@ -184,7 +184,7 @@ const getUsers = async () => {
     for(const user of users) {
       user.entries = await Entry
         .find({ 'authorID': user._id})
-        .select('title')
+        .select('')
         .lean();
     };
     return users;
@@ -251,6 +251,39 @@ const getListOfEntriesByDate = async (skip, user) => {
       .sort({ pubDate: -1 })
       .skip(skip)
       .limit(limit)
+      .lean();
+
+    if(result.length === 0) throw { results: 0 };
+    return result;
+
+  } catch(err) {
+    // todo: add logging
+    if(results = 0) {
+      result = [{
+        error: true,
+        message: errMsg.noResults
+      }];
+      return result;
+    }
+    result = [{
+      error: true,
+      message: `${errMsg.begin} the list of entries. ${errMsg.end}`,
+    }];
+  }
+  return result;
+}
+
+
+// * === RETURNS LIMITED ENTRIES BY DATE FOR LIST
+const getListOfEntriesByUser = async (user, authorID) => {
+  const _now = new Date();
+  const filter = user ? { authorID } : { authorID, publish: true, pubDate: { $lt: _now } };
+  let result;
+  
+  try {
+    result = await Entry
+      .find(filter)
+      .sort({ pubDate: -1 })
       .lean();
 
     if(result.length === 0) throw { results: 0 };
@@ -415,6 +448,7 @@ module.exports = {
   getUsers,
   saveUser,
   getListOfEntriesByDate,
+  getListOfEntriesByUser,
   getListOfEntriesByCategory,
   getListOfUnpublishedEntries,
   getOneEntry,

@@ -1,0 +1,18 @@
+<%
+const { _id, pseudonym, longText, entries, byline } = contributors[i];
+%>
+
+<div class="title-box">
+    <h2><%- pseudonym %></h2>
+    <h3><%- byline %></h3>
+</div>
+
+<div class="reader--contributor">js
+  <%- longText %>
+</div>
+
+<h2>Entries by <%- pseudonym %></h2>
+
+<% entries.forEach(entry => { %>
+<%- include('../partials_entry/card', { entry, users: false }); %>
+<% }); %>

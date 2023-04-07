@@ -45,7 +45,7 @@ const getAttributionData = async entries => {
 /*
 * EXPORTED METHODS
 */
-// * GET LIST OF RECENT ARTICLES
+// * GET LIST OF ARTICLES SORTED BY DESCENDING DATE AND LIMITED
 module.exports.getListByPubDate = async (req, res) => {
 
   // get sidebar data
@@ -55,7 +55,7 @@ module.exports.getListByPubDate = async (req, res) => {
 
   // inclusions
   res.locals.css = 'list';
-  res.locals.type = 'list';
+  res.locals.type = 'partials_entry/list';
   res.locals.script = null;
   
   // data for list pagination
@@ -75,6 +75,7 @@ module.exports.getListByPubDate = async (req, res) => {
   res.locals.adjacentEntries = null;
   res.locals.publish = true;
   res.locals.requestedTag = null;
+  res.locals.css2 = null;
 
   res.render('page');
 } 
@@ -90,7 +91,7 @@ module.exports.getListUnpublished = async (req, res) => {
 
   // inclusions
   res.locals.css = 'list';
-  res.locals.type = 'list';
+  res.locals.type = 'partials_entry/list';
   res.locals.script = null;
 
   // get entries
@@ -105,6 +106,7 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.adjacentEntries = null;
   res.locals.publish = false;
   res.locals.requestedTag = null;
+  res.locals.css2 = null;
 
   res.render('page');
 }
@@ -115,7 +117,7 @@ module.exports.getListByTag = async (req, res) => {
 
   // inclusions
   res.locals.css = 'list';
-  res.locals.type = 'list';
+  res.locals.type = 'partials_entry/list';
   res.locals.script = null;
   res.locals.requestedTag = req.params.tag;
 
@@ -141,6 +143,7 @@ module.exports.getListByTag = async (req, res) => {
 
   // disabled items
   res.locals.adjacentEntries = null;
+  res.locals.css2 = null;
 
   res.render('page');
 }
@@ -156,7 +159,7 @@ module.exports.getEntry = async (req, res) => {
 
   // rendering variables
   res.locals.css = 'reader';
-  res.locals.type = 'reader';
+  res.locals.type = 'partials_entry/reader';
   res.locals.script = null;
 
   // retrieve chosen entry to read
@@ -175,6 +178,7 @@ module.exports.getEntry = async (req, res) => {
   res.locals.pages = null;
   res.locals.requestedTag = null
   res.locals.preview = false;
+  res.locals.css2 = null;
 
   res.render('page');
 }
@@ -182,6 +186,7 @@ module.exports.getEntry = async (req, res) => {
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
+  // ! rendering an existing entry broken due to a role issue
   if(!res.locals.user) {
     res.redirect('/');
   } else {
@@ -196,7 +201,7 @@ module.exports.getEditor =  async (req, res) => {
   
     // rendering variavles
     res.locals.css = 'editor';
-    res.locals.type = 'editor';
+    res.locals.type = 'partials_entry/editor';
     res.locals.script = 'editor';
   
     // chosen entry to edit or new entry
@@ -283,6 +288,9 @@ module.exports.getEditorPreview = async (req, res) => {
   res.locals.entry.tags = Array.isArray(tags) ? tags : tags.split(",").map(element => element.trim());
   res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
 
+  // ! This was changed from 'partials/content' to fit new entry/user partials structure
+  // ! but the function is broken due to a role issue with the editor when rendering an
+  // ! existing entry
   res.render('partials/content');
 }
 
@@ -325,7 +333,7 @@ module.exports.getAdmin = async (req, res) => {
     }
     // rendering variables
     res.locals.css = "editor";
-    res.locals.type = 'admin';
+    res.locals.type = 'partials_user/admin';
     res.locals.script = 'admin';
 
     // queries
@@ -354,10 +362,29 @@ module.exports.getContributors = async (req, res) => {
 
   // rendering variables
   res.locals.css = 'list';
-  res.locals.type = 'contributors';
+  res.locals.type = 'partials_user/contributors';
   res.locals.script = null;
 
   res.render('page');
+}
+
+module.exports.getContributor = async (req, res) => {
+  // queries
+  res.locals.topics = await db.getCategories(res.locals.user);
+  res.locals.archive = await db.getArchive(res.locals.user);
+  res.locals.contributors = await db.getUsers(res.locals.user);
+
+  // get the i(ndex) of the requested user
+  res.locals.i = res.locals.contributors.findIndex(obj => obj._id.toString() === req.params.id);
+  
+
+  // rendering variables
+  res.locals.css = 'list';
+  res.locals.css2 = 'reader';
+  res.locals.type = 'partials_user/contributor';
+  res.locals.script = null;
+
+  res.render('page');  
 }
 
 
