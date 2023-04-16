@@ -3,5 +3,6 @@
 <br><br><br>
 
 <% contributors.forEach(contributor => { %>
-  <%- include('./contributorCard', { contributor }); %>
+  
+  <%- include('./contributorCard', { contributor, user }); %>
 <% }); %>

@@ -1,17 +1,25 @@
 <%
 const { _id, pseudonym, longText, entries, byline } = contributors[i];
+const contributorID = contributors[i]._id.toString(); // requested contributor
+let userID = null;
+if(user) userID = user._id.toString(); // logged in user
 %>
 
 <div class="title-box">
-    <h2><%- pseudonym %></h2>
-    <h3><%- byline %></h3>
+
+  <% if(user !== null && (userID === contributorID || role === "admin")) { %>
+    <a href="/admin/<%= contributorID %>" class="edit-button">[ &#9998; ]</a>
+  <% } %>
+
+  <h2><%- pseudonym %></h2>
+  <h3><%- byline %></h3>
 </div>
 
-<div class="reader--contributor">js
+<div class="reader--contributor">
   <%- longText %>
 </div>
-
-<h2>Entries by <%- pseudonym %></h2>
+<br><br><br>
+<h3><%- pseudonym %>'s Entries</h3>
 
 <% entries.forEach(entry => { %>
 <%- include('../partials_entry/card', { entry, users: false }); %>

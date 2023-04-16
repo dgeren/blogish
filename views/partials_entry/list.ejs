@@ -1,3 +1,14 @@
+<% 
+
+const {
+  requestedTag = null,
+  pages = 0,
+  page = 0
+} = pageDetails;
+
+%>
+
+
     <% if (requestedTag) { %>
       <h2 class="pageTitle">Entries by Topic: "<%= requestedTag %>"</h2>
     <% } %>

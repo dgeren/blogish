@@ -14,6 +14,7 @@ const { ppid } = require('process'); // can't remove even though it appears to n
 const e = require('express'); // is this still needed?
 const { insertMany } = require('./models/Post');
 const { runInNewContext } = require('vm');
+const { isFloat32Array } = require('util/types');
 
 
 /*
@@ -48,34 +49,29 @@ const getAttributionData = async entries => {
 // * GET LIST OF ARTICLES SORTED BY DESCENDING DATE AND LIMITED
 module.exports.getListByPubDate = async (req, res) => {
 
-  // get sidebar data
+  // sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.contributors = await db.getUsers(res.locals.user);
 
-  // inclusions
-  res.locals.css = 'list';
-  res.locals.type = 'partials_entry/list';
-  res.locals.script = null;
+  // start page parameters
+  res.locals.pageDetails = {
+    css: 'list',
+    type: 'partials_entry/list'
+  };
   
-  // data for list pagination
-  res.locals.page = parseInt(req.params.page) || 1;
+  // pagination data
+  const pageNum = parseInt(req.params.page) || 1;
   const docs = await db.getEntryCount(null, res.locals.user);
-  const skip = (res.locals.page * limit) - limit;
-  res.locals.pages = parseInt(Math.ceil(docs / limit));
+  const skip = (pageNum * limit) - limit;
   if(!res.locals.user) res.locals.user = null;
 
-  // get entries
-  res.locals.entries = await db.getListOfEntriesByDate( skip );
-  
-  // get attribution data
-  res.locals.users = await getAttributionData(res.locals.entries);
+  res.locals.pageDetails.pages = pages = parseInt(Math.ceil(docs / limit));
+  res.locals.pageDetails.page = pageNum;
 
-  // disabled items
-  res.locals.adjacentEntries = null;
-  res.locals.publish = true;
-  res.locals.requestedTag = null;
-  res.locals.css2 = null;
+  // get entry and attribution data
+  res.locals.entries = await db.getListOfEntriesByDate( skip );
+  res.locals.users = await getAttributionData(res.locals.entries);
 
   res.render('page');
 } 
@@ -89,24 +85,16 @@ module.exports.getListUnpublished = async (req, res) => {
   res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.contributors = await db.getUsers(res.locals.user);
 
-  // inclusions
-  res.locals.css = 'list';
-  res.locals.type = 'partials_entry/list';
-  res.locals.script = null;
+  // start page parameters
+  res.locals.pageDetails = {
+    css: 'list',
+    type: 'partials_entry/list',
+    publish: false
+  }
 
-  // get entries
+  // entry and attribution data
   res.locals.entries = await db.getListOfUnpublishedEntries();
-  
-  // get attribution data
   res.locals.users = await getAttributionData(res.locals.entries);
-  
-  // disabled items
-  res.locals.pages = 0;
-  res.locals.page = 0;
-  res.locals.adjacentEntries = null;
-  res.locals.publish = false;
-  res.locals.requestedTag = null;
-  res.locals.css2 = null;
 
   res.render('page');
 }
@@ -115,35 +103,22 @@ module.exports.getListUnpublished = async (req, res) => {
 // * GET ARTICLE LIST BASED ON A TOPIC
 module.exports.getListByTag = async (req, res) => {
 
-  // inclusions
-  res.locals.css = 'list';
-  res.locals.type = 'partials_entry/list';
-  res.locals.script = null;
-  res.locals.requestedTag = req.params.tag;
-
   // get sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.contributors = await db.getUsers(res.locals.user);
 
-  // pageination
-  res.locals.page = parseInt(req.params.page) || 1;
-  const docs = await db.getEntryCount(req.params.tag, res.locals.user);
-  const skip = (res.locals.page * limit) - limit;
-  res.locals.pages = parseInt(Math.ceil(docs / limit));
+  // start page parameters
+  res.locals.pageDetails = {
+    css: 'list',
+    type: 'partials_entry/list',
+    publish: true,
+    requestedTag: req.params.tag
+  };
 
-  // entry data
+  // entry and attribution data
   res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, res.locals.user);
-  
-  // get attribution data
   res.locals.users = await getAttributionData(res.locals.entries);
-
-  // enabled items
-  res.locals.publish = true;
-
-  // disabled items
-  res.locals.adjacentEntries = null;
-  res.locals.css2 = null;
 
   res.render('page');
 }
@@ -157,28 +132,20 @@ module.exports.getEntry = async (req, res) => {
   res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.contributors = await db.getUsers(res.locals.user);
 
-  // rendering variables
-  res.locals.css = 'reader';
-  res.locals.type = 'partials_entry/reader';
-  res.locals.script = null;
+  // start page parameters
+  res.locals.pageDetails = {
+    css: 'reader',
+    type: 'partials_entry/reader'
+  };
 
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
   res.locals.entry = await db.getOneEntry( slug, _id );
   res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
   
-  // get attribution data
+  // get entry and attribution data
   res.locals.attribution = await getAttributionData([res.locals.entry]);
-  
-  // pagination
   res.locals.pagination = await db.getAdjacents(res.locals.entry.pubDate);
-
-  // disabled items
-  res.locals.page = null;
-  res.locals.pages = null;
-  res.locals.requestedTag = null
-  res.locals.preview = false;
-  res.locals.css2 = null;
 
   res.render('page');
 }
@@ -186,43 +153,39 @@ module.exports.getEntry = async (req, res) => {
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
-  // ! rendering an existing entry broken due to a role issue
   if(!res.locals.user) {
     res.redirect('/');
   } else {
-    // roles
-    res.locals.errorMsg = null;
-    res.locals.attribution = null;
 
     // page elements
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
     res.locals.contributors = await db.getUsers(res.locals.user);
-  
-    // rendering variavles
-    res.locals.css = 'editor';
-    res.locals.type = 'partials_entry/editor';
-    res.locals.script = 'editor';
+
+    // set default values
+    res.locals.errorMsg = null;
+    res.locals.entry = {};
+    res.locals.preview = false;
+    res.locals.attribution = null;
+
+    res.locals.pageDetails = {
+      css: 'editor',
+      type: 'partials_entry/editor',
+      script: 'editor'
+    };
   
     // chosen entry to edit or new entry
     res.locals.entry = {};
-    const { slug } = req.params;
+    const { slug = null } = req.params;
 
     if(slug){
-      const entry = await db.getOneEntry(slug);
-  
-      // get attribution data
-      const attribution = await getAttributionData([entry]);
-      if(res.locals.attribution.role === "admin" || res.locals.entry.authorID === res.locals.attribution._id){
-        // body
-        entry.HTML = converter.makeHtml(entry.markdown); // 🔸 move to util and add to scrubbing HTML
-    
-        // entry reader to render 🔸 is the seaparate entry variable still needed?
-        res.locals.entry = entry;
-        res.locals.attribution = attribution;
-    
-        // disabled items
-        res.locals.pagination = { next: null, previous: null }; 
+      res.locals.entry = await db.getOneEntry(slug);
+      res.locals.attribution = await getAttributionData([res.locals.entry]);
+      const key = Object.keys(res.locals.attribution)[0];
+
+      if(res.locals.attribution.role === "admin" || res.locals.entry.authorID === key){
+        // 🔸 move to util and add to scrubbing HTML
+        res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
         
       } else {
         res.locals.errorMsg = "Unauthorized request.";
@@ -288,10 +251,7 @@ module.exports.getEditorPreview = async (req, res) => {
   res.locals.entry.tags = Array.isArray(tags) ? tags : tags.split(",").map(element => element.trim());
   res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
 
-  // ! This was changed from 'partials/content' to fit new entry/user partials structure
-  // ! but the function is broken due to a role issue with the editor when rendering an
-  // ! existing entry
-  res.render('partials/content');
+  res.render('partials_entry/content');
 }
 
 
@@ -304,43 +264,42 @@ module.exports.deleteEntry = async (req, res) => {
 }
 
 
-// * RENDER ADMIN PAGE
+// * RENDER ADMIN PAGE 🔹
 module.exports.getAdmin = async (req, res) => {
-  // * build the contributors page first so you can add the edit button and give it scope
-  // todo: add info for existing user and add scope
-  // todo: add an email confirmation system
-  // todo: change the email checkbox to only appear if the email address changes
+  // ! stopped here trying to populate the form when a user is requested and apply scope
+  // * if user === null then redirect to home with unauthorized message
+  // * if requestedID === null then render empty form
+  // * else if user _id !== requestid or user.role !== admin then render empty form + unauthorized message
+  // * else get user data and render populated form
 
-  if(!res.locals.user) {
-    res.redirect('/');
+  // check if visitor or user
+  if(!res.locals.user){
+    res.locals.errorMsg = "Unauthorized request.";
+    res.redirect("/");
   } else {
-    const { requestedUser = null } = req.params;
-    res.locals.errorMsg = null;
 
-    // if requestedUser exists use that otherwise use the logged in user's ID
-    const requestedID = requestedUser || res.locals.user._id;
+    const isAuthorized =
+      res.locals.user.role !== 'admin' || req.params._id.toString() !== res.locals.user._id.toString();
 
-
-    // ? 1 opens w/o id: sees owned profile
-    // ? 2 opens w/ id:
-    // - if ids match: -> 1
-    // - if ids don't match:
-    // - - if role is admin: -> 1
-    // - unauthorized request
-    // ? id lookup in DB returns error: no such user
-    if(!requestedUser){
-      
-    }
-    // rendering variables
-    res.locals.css = "editor";
-    res.locals.type = 'partials_user/admin';
-    res.locals.script = 'admin';
+    res.locals.errorMsg = isAuthorized ? null : "Not Authorized.";
 
     // queries
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
     res.locals.contributors = await db.getUsers(res.locals.user);
-    
+
+    // isAuthorized is true
+    const requestedID = req.parameters === undefined ? null : req.parameters._id;
+
+
+    res.locals.pageDetails = {
+      css: 'editor',
+      type: 'partials_user/admin',
+      script: 'admin'
+    };
+    if(!requestedID){
+      
+    }
     res.render('page');
   }
 }
@@ -354,37 +313,42 @@ module.exports.getAdminPreview = (req, res) => {
 
 // * LIST CONTRIBUTORS
 module.exports.getContributors = async (req, res) => {
+  if(!res.locals.user) res.locals.user = null;
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.contributors = await db.getUsers(res.locals.user);
 
-  // rendering variables
-  res.locals.css = 'list';
-  res.locals.type = 'partials_user/contributors';
-  res.locals.script = null;
+  // page details
+  res.locals.pageDetails = {
+    css: 'list',
+    type: 'partials_user/contributors'
+  }
 
   res.render('page');
 }
 
+
 module.exports.getContributor = async (req, res) => {
+  if(!res.locals.user) res.locals.user = null;
+
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
   res.locals.archive = await db.getArchive(res.locals.user);
   res.locals.contributors = await db.getUsers(res.locals.user);
 
+  // page details
+  res.locals.pageDetails =  {
+    css: 'list',
+    css2: 'reader',
+    type: 'partials_user/contributor'
+  }
+
   // get the i(ndex) of the requested user
-  res.locals.i = res.locals.contributors.findIndex(obj => obj._id.toString() === req.params.id);
-  
+  res.locals.i = res.locals.contributors.findIndex(obj => obj._id.toString() === req.params._id);
 
-  // rendering variables
-  res.locals.css = 'list';
-  res.locals.css2 = 'reader';
-  res.locals.type = 'partials_user/contributor';
-  res.locals.script = null;
-
-  res.render('page');  
+  res.render('page');
 }
 
 

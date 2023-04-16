@@ -1,7 +1,14 @@
 <%
-const { title, description, markdown = "", tags = null, pubDate = null, publish, _id, authorID, } = entry;
-const preview = true;
-
+const {
+  title = "",
+  description = "",
+  markdown = "",
+  tags = null,
+  pubDate = null,
+  publish = "",
+  _id = "",
+  authorID = "",
+} = entry;
 const tagString = tags !== null ? tags.join(", ") : ""; // used for the tags field in the editor form
 
 const { dateDisplay, dateString, timeString } = prepDates(pubDate);
