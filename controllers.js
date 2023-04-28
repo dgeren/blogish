@@ -265,44 +265,62 @@ module.exports.deleteEntry = async (req, res) => {
 
 
 // * RENDER ADMIN PAGE 🔹
-module.exports.getAdmin = async (req, res) => {
-  // ! stopped here trying to populate the form when a user is requested and apply scope
-  // * if user === null then redirect to home with unauthorized message
-  // * if requestedID === null then render empty form
-  // * else if user _id !== requestid or user.role !== admin then render empty form + unauthorized message
-  // * else get user data and render populated form
+module.exports.getAdminBlank = async (req, res) => {
+  res.locals.contributor = { blank: true };
+  res.locals.contributor[0] = {};
 
-  // check if visitor or user
-  if(!res.locals.user){
+  if(!res.locals.user) {
     res.locals.errorMsg = "Unauthorized request.";
     res.redirect("/");
   } else {
-
-    const isAuthorized =
-      res.locals.user.role !== 'admin' || req.params._id.toString() !== res.locals.user._id.toString();
-
-    res.locals.errorMsg = isAuthorized ? null : "Not Authorized.";
-
-    // queries
+    // page elements
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
     res.locals.contributors = await db.getUsers(res.locals.user);
 
-    // isAuthorized is true
-    const requestedID = req.parameters === undefined ? null : req.parameters._id;
+    res.locals.pageDetails = {
+      css: 'editor',
+      type: 'partials_user/admin',
+      script: 'admin',
+      blank: true
+    };
 
+    res.render('page');
+  }
+}
+
+
+module.exports.getAdminFilled = async (req, res) => {
+  res.locals.contributor = { blank: false };
+
+  const isAuthorized =
+    !!res.locals.user && (
+      req.params._id === res.locals.user._id.toString() ||
+      res.locals.user.role === 'admin'
+    );
+    
+  if(!isAuthorized) {
+    res.locals.errorMsg = "Unauthorized request.";
+    res.locals.contributor = [{}];
+    res.redirect("/");
+  } else {
+    res.locals.contributor = await db.getUser(req.params._id, true);
+    
+    // page elements
+    res.locals.topics = await db.getCategories(res.locals.user);
+    res.locals.archive = await db.getArchive(res.locals.user);
+    res.locals.contributors = await db.getUsers(res.locals.user);
 
     res.locals.pageDetails = {
       css: 'editor',
       type: 'partials_user/admin',
-      script: 'admin'
+      script: 'admin',
+      blank: false
     };
-    if(!requestedID){
-      
-    }
+
     res.render('page');
   }
-}
+};
 
 
 // * ADMIN PREVIEW
@@ -361,6 +379,15 @@ module.exports.createUser = async (req, res) => {
   catch(err) {
     console.log(err);
     return false;
+  }
+}
+
+// * SAVE USER CHANGES
+module.exports.updateUser = async (req, res) => {
+  try {
+    
+  } catch { 
+    
   }
 }
 

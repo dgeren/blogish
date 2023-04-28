@@ -140,11 +140,12 @@ const getAdjacents = async (date, user) => {
 ====================================================
 */
 // * === RETRIEVE A USER
-const getUser = async _id => {
+const getUser = async (_id, includeEmail = false) => {
+  const filter = includeEmail ? '-password -__v' : '-password -email -__v';
   try {
     return await User
       .find({_id})
-      .select( '-_id -password -email -__v' )
+      .select( filter )
       .lean();
   } catch (err) {
     // todo: add logging
@@ -155,26 +156,7 @@ const getUser = async _id => {
   }
 }
 
-// const getUsers = async () => {
-//   try {
-//     const users = await User
-//       .find()
-//       .select('-password -email -__v')
-//       .lean();
-//     users.forEach(async user => {
-//       user.entryCount = await Entry.countDocuments({ 'authorID': user._id });
-//       console.log(user); // 🔴
-//     });
-//     return users;
-//   } catch (err) {
-//     return {
-//       error: true,
-//       message: `There was a problem with the server.`
-//     }
-//   }
-// }
-
-
+// get list of users for contributor page and sidebar
 const getUsers = async () => {
   try {
     const users = await User

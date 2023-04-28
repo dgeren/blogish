@@ -1,6 +1,16 @@
 <% 
 
-%>  
+const {
+  role = null,
+  email = "",
+  pseudonym = "",
+  byline = "",
+  shortText = "",
+  longText = ""
+  } = contributor[0];
+
+  const contributorID = contributor.blank ? user._id : contributor[0]._id.toString();
+  %>  
   
   <h2>Create Acccount</h2>
 
@@ -19,13 +29,13 @@
       <fieldset id="select-role-group" class="form-el editor" name="role">
         <legend>Select a Role:</legend>
 
-        <input type="radio" id="select-contributor" name="selectRole" value="contributor">
+        <input type="radio" id="select-contributor" name="selectRole" value="contributor" <%- role === 'contributor' ? 'checked' : ''; %>>
         <label for="select-contributor">Contributor</label><br>
         
-        <input type="radio" id="select-editor" name="selectRole" value="editor">
+        <input type="radio" id="select-editor" name="selectRole" value="editor" <%- role === 'editor' ? 'checked' : ''; %>>
         <label for="select-editor">Editor</label><br>
         
-        <input type="radio" id="select-admin" name="selectRole" value="admin">
+        <input type="radio" id="select-admin" name="selectRole" value="admin" <%- role === 'admin' ? 'checked' : ''; %>>
         <label for="select-admin">Administrator</label>
         
         <p class="message" id="error-select-role"></p>
@@ -33,13 +43,13 @@
 
       <div class="fields">
         <label for="email">Email</label>
-        <input type="text" class="form-el editor" id="email" name="email" placeholder="example@service.com" required>
+        <input type="text" class="form-el editor" id="email" name="email" placeholder="example@service.com" value="<%- email %>" required>
         <p class="message" id="error-email"></p>
       </div>
 
       <div class="fields">
         <label for="confirm-email">Confirm Email</label>
-        <input type="checkbox" id="confirm-email" class="form-el editor" name="confirm-email" required>
+        <input type="checkbox" id="confirm-email" class="form-el editor" name="confirm-email" <%- email !== "" ? 'checked' : "" %> required>
         <p>If you recieved the email, please check this box. Otherwise, confirm your email address and try again.</p><s></s>
         <p class="message" id="error-confirm-email"></p>
       </div>
@@ -60,29 +70,37 @@
 
       <div class="fields">
         <label for="pseudonym">Pseudonym</label>
-        <input type="text" class="form-el editor" name="pseudonym" placeholder="Public-facing name" required>
+        <input type="text" class="form-el editor" name="pseudonym" placeholder="Public-facing name" value="<%- pseudonym %>" required>
         <p class="hint">4 - 64 characters</p>
         <p class="message" id="error-Psuedonym"></p>
       </div>
 
       <div class="fields">
         <label for="byline">By-Line</label>
-        <input type="text" class="form-el editor" name="byline" placeholder="Author extras." required>
+        <input type="text" class="form-el editor" name="byline" placeholder="Author extras." value="<%- byline %>" required>
         <p class="hint">12 - 64 characters.</p>
         <p class="message" id="error-byline"></p>
       </div>
 
       <div class="fields">
         <label for="short-description">Short Description</label>
-        <input type="textarea" class="form-el editor" name="shortText" placeholder="Tell our readers a bit about yourself." required>
+        <input type="textarea" class="form-el editor" name="shortText" placeholder="Tell our readers a bit about yourself." value="<%- shortText %>" required>
         <p class="hint">12 - 256 characters.</p>
         <p class="message" id="error-short-description"></p>
       </div>
       
       <div class="fields">
         <label for="long-description">Long Description</label>
-        <input type="textarea" class="form-el editor" name="longText" placeholder="Tell our readers more detail about yourself." required>
+        <input type="textarea" class="form-el editor" name="longText" placeholder="Tell our readers more detail about yourself." value="<%- longText %>" required>
         <p class="message" id="error-long-description"></p>
+      </div>
+<!-- 🔹 stopped here trying to complete the fill admin page
+left to do: hide the following items
+populate the contributorID
+fix the password logic so if the user and contributor ids are the same, the password fields appear -->
+      <div class="hidden">
+        <input type="text" name="contributorID" id="contributorID" value="<%- contributorID %>">
+        <input type="text" name="userID" id="userID" value="<%- user._id %>">
       </div>
 
   <!-- template in case a new field is needed in the future

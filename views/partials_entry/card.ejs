@@ -11,7 +11,11 @@
       <div class="card--date smaller">
         <%- publish ? `${dateDisplay}` : "Unpublished" %>
       </div>
-      <div class="card--pseudonym smaller"><%- pseudonym %></div>
+      <div class="card--pseudonym smaller">
+        <a href="/contributor/<%- authorID %>">
+          <%- pseudonym %>
+        </a>
+      </div>
       <h4 class="card--title">
         <a href="/reader/slug/<%= slug %>/id/<%= _id %>"><%- title %></a>
         <% if(user !== null && (user._id.toString() === authorID || user.role === "admin")) { %>

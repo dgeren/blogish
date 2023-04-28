@@ -89,6 +89,7 @@ const del = async () => {
 
 // * OPERATIONS
 password.addEventListener('blur', () => {
+  // ! password may return an error when the page does not render it
   countFocusChange === 0 ? ++countFocusChange : comparePasswordFields();
 });
 

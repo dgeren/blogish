@@ -1,8 +1,7 @@
 <% 
 const { pseudonym, shortText } = contributor;
 const contributorID = contributor._id.toString();
-
-// const { role } = user;
+const { role = null } = user;
 const userID = user ? user._id.toString() : null;
 %>
 
