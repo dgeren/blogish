@@ -48,6 +48,7 @@ const getAttributionData = async entries => {
 */
 // * GET LIST OF ARTICLES SORTED BY DESCENDING DATE AND LIMITED
 module.exports.getListByPubDate = async (req, res) => {
+  if(!res.locals.user) res.locals.user = {};
 
   // sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -64,7 +65,6 @@ module.exports.getListByPubDate = async (req, res) => {
   const pageNum = parseInt(req.params.page) || 1;
   const docs = await db.getEntryCount(null, res.locals.user);
   const skip = (pageNum * limit) - limit;
-  if(!res.locals.user) res.locals.user = null;
 
   res.locals.pageDetails.pages = pages = parseInt(Math.ceil(docs / limit));
   res.locals.pageDetails.page = pageNum;
@@ -102,6 +102,7 @@ module.exports.getListUnpublished = async (req, res) => {
 
 // * GET ARTICLE LIST BASED ON A TOPIC
 module.exports.getListByTag = async (req, res) => {
+  if(!res.locals.user) res.locals.user = {};
 
   // get sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -126,6 +127,7 @@ module.exports.getListByTag = async (req, res) => {
 
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
+  if(!res.locals.user) res.locals.user = {};
 
   // page elements
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -264,7 +266,7 @@ module.exports.deleteEntry = async (req, res) => {
 }
 
 
-// * RENDER ADMIN PAGE 🔹
+// * RENDER ADMIN PAGE
 module.exports.getAdminBlank = async (req, res) => {
   res.locals.contributor = { blank: true };
   res.locals.contributor[0] = {};
@@ -331,7 +333,7 @@ module.exports.getAdminPreview = (req, res) => {
 
 // * LIST CONTRIBUTORS
 module.exports.getContributors = async (req, res) => {
-  if(!res.locals.user) res.locals.user = null;
+  if(!res.locals.user) res.locals.user = {};
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -349,7 +351,7 @@ module.exports.getContributors = async (req, res) => {
 
 
 module.exports.getContributor = async (req, res) => {
-  if(!res.locals.user) res.locals.user = null;
+  if(!res.locals.user) res.locals.user = {};
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -373,8 +375,13 @@ module.exports.getContributor = async (req, res) => {
 // * CREATER NEW USERS
 module.exports.createUser = async (req, res) => {
   try {
-    db.createUser(req.body.user);
-    return true;
+    if(!res.locals.user && res.locals.user.role !== "admin") {
+      res.redirect('/');
+    } else {
+      if(!res.locals.user) res.locals.user = {};
+      db.createUser(req.body.user);
+      return true;
+    }
   }
   catch(err) {
     console.log(err);

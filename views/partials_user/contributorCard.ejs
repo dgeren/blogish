@@ -1,17 +1,16 @@
 <% 
-const { pseudonym, shortText } = contributor;
-const contributorID = contributor._id.toString();
-const { role = null } = user;
-const userID = user ? user._id.toString() : null;
+const { pseudonym, shortText, _id } = contributor;
+const role = user.roll || null;
+const userID = user._id ? user._id.toString() : null;
 %>
 
 <div class="card">
-  <img src="/images/contributor-pics/<%= contributorID %>.JPG" class="profile-pic--list">
+  <img src="/images/contributor-pics/<%= _id %>.JPG" class="profile-pic--list">
 
-  <% if(user !== null && (userID === contributorID || role === "admin")) { %>
-    <a href="/admin/<%= contributorID %>" class="edit-button">[ &#9998; ]</a>
+  <% if(userID !== null && (userID === _id || role === "admin")) { %>
+    <a href="/admin/<%= _id %>" class="edit-button">[ &#9998; ]</a>
   <% } %>
-  <h3><a href="/contributor/<%= contributorID %>"><%= pseudonym %></a> <%= contributorID %></h3>
+  <h3><a href="/contributor/<%= _id %>"><%= pseudonym %></a> <%= _id %></h3>
 
   <p class="description"><%= shortText %></p>
 

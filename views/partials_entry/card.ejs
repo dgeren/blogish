@@ -18,7 +18,7 @@
       </div>
       <h4 class="card--title">
         <a href="/reader/slug/<%= slug %>/id/<%= _id %>"><%- title %></a>
-        <% if(user !== null && (user._id.toString() === authorID || user.role === "admin")) { %>
+        <% if("_id" in user && (user._id.toString() === authorID || user.role === "admin")) { %>
         <a href="/editor/slug/<%= slug %>/id/<%= _id %>" class="edit-button">[ &#9998; ]</a>
         <% } %> 
       </h4>

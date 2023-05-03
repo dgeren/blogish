@@ -39,7 +39,7 @@ const {
 
     <nav>
       <ul class="nav">
-        <% if(user) { %>
+        <% if("_id" in user) { %>
         <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
         <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
         <li class="label"><a href="/admin">ADMIN</a></li>
