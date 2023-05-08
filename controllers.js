@@ -155,6 +155,7 @@ module.exports.getEntry = async (req, res) => {
 
 // * OPEN ARTICLE IN EDITOR OR SERVE EMPTY EDITOR
 module.exports.getEditor =  async (req, res) => {
+
   if(!res.locals.user) {
     res.redirect('/');
   } else {
@@ -266,63 +267,57 @@ module.exports.deleteEntry = async (req, res) => {
 }
 
 
-// * RENDER ADMIN PAGE
-module.exports.getAdminBlank = async (req, res) => {
-  res.locals.contributor = { blank: true };
-  res.locals.contributor[0] = {};
+// * NEW ADMIN CONTROLLER
+module.exports.getAdmin = async (req, res) => {
+  // initialize variables
+  const userID = res.locals.user._id.toString() || "";
+  const userRole = res.locals.user.role || "";
+  const requestID = req.params._id || null;
+  const url = req.url;
+  const isBlank = userRole === 'admin' && url === '/admin';
+  
+  res.locals.pageDetails = {
+    css: 'editor',
+    type: 'partials_user/admin',
+    script: 'admin',
+    blank: isBlank
+  };
 
-  if(!res.locals.user) {
-    res.locals.errorMsg = "Unauthorized request.";
-    res.redirect("/");
-  } else {
+  // if criteria are not met, send user to home page
+  if(!res.locals.user || (userRole !== 'admin' && userID !== requestID )) {
+    res.locals.message = 'Unauthorized request.';
+    res.redirect('/');
+  // but if criteria for a blank for are met, send an empty contributor object
+  } else if(isBlank) {
     // page elements
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
     res.locals.contributors = await db.getUsers(res.locals.user);
+    res.locals.contributor = [];
+    res.locals.contributor[0] = {
+      _id: "",
+      email: "",
+      role: "",
+      pseudonym: "",
+      byline: "",
+      shortText: "",
+      longText: ""
+    }
 
-    res.locals.pageDetails = {
-      css: 'editor',
-      type: 'partials_user/admin',
-      script: 'admin',
-      blank: true
-    };
+    res.render('page');
 
+  //  otherwise get the user info and send a filled form
+  } else {
+    res.locals.contributor = await db.getUser(requestID, true);
+    
+    // page elements
+    res.locals.topics = await db.getCategories(res.locals.user);
+    res.locals.archive = await db.getArchive(res.locals.user);
+    res.locals.contributors = await db.getUsers(res.locals.user);
+    
     res.render('page');
   }
 }
-
-
-module.exports.getAdminFilled = async (req, res) => {
-  res.locals.contributor = { blank: false };
-
-  const isAuthorized =
-    !!res.locals.user && (
-      req.params._id === res.locals.user._id.toString() ||
-      res.locals.user.role === 'admin'
-    );
-    
-  if(!isAuthorized) {
-    res.locals.errorMsg = "Unauthorized request.";
-    res.locals.contributor = [{}];
-    res.redirect("/");
-  } else {
-    res.locals.contributor = await db.getUser(req.params._id, true);
-    
-    // page elements
-    res.locals.topics = await db.getCategories(res.locals.user);
-    res.locals.archive = await db.getArchive(res.locals.user);
-    res.locals.contributors = await db.getUsers(res.locals.user);
-
-    res.locals.pageDetails = {
-      css: 'editor',
-      type: 'partials_user/admin',
-      script: 'admin',
-      blank: false
-    };
-
-    res.render('page');
-  }
-};
 
 
 // * ADMIN PREVIEW

@@ -2,12 +2,13 @@
 const { pseudonym, shortText, _id } = contributor;
 const role = user.roll || null;
 const userID = user._id ? user._id.toString() : null;
+console.log("🔸 contributorCard.ejs:\n", _id);//🔴f
 %>
 
 <div class="card">
   <img src="/images/contributor-pics/<%= _id %>.JPG" class="profile-pic--list">
 
-  <% if(userID !== null && (userID === _id || role === "admin")) { %>
+  <% if(userID !== null && (userID === _id.toString() || role === "admin")) { %>
     <a href="/admin/<%= _id %>" class="edit-button">[ &#9998; ]</a>
   <% } %>
   <h3><a href="/contributor/<%= _id %>"><%= pseudonym %></a> <%= _id %></h3>

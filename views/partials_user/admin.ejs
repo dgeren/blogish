@@ -1,16 +1,10 @@
-<% 
-
+<%
 const {
-  role = null,
-  email = "",
-  pseudonym = "",
-  byline = "",
-  shortText = "",
-  longText = ""
-  } = contributor[0];
+  _id, email, role, pseudonym, byline, shortText, longText
+} = contributor[0];
 
-  const contributorID = contributor.blank ? user._id : contributor[0]._id.toString();
-  %>  
+const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._id.toString();
+%>  
   
   <h2>Create Acccount</h2>
 
@@ -45,13 +39,6 @@ const {
         <label for="email">Email</label>
         <input type="text" class="form-el editor" id="email" name="email" placeholder="example@service.com" value="<%- email %>" required>
         <p class="message" id="error-email"></p>
-      </div>
-
-      <div class="fields">
-        <label for="confirm-email">Confirm Email</label>
-        <input type="checkbox" id="confirm-email" class="form-el editor" name="confirm-email" <%- email !== "" ? 'checked' : "" %> required>
-        <p>If you recieved the email, please check this box. Otherwise, confirm your email address and try again.</p><s></s>
-        <p class="message" id="error-confirm-email"></p>
       </div>
 
       <div class="fields">

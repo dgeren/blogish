@@ -6,7 +6,8 @@ const {
   type,
   css2 = null,
   script = null,
-  errorMsg = null
+  errorMsg = null,
+  blank
 } = pageDetails;
 
 %>
@@ -51,7 +52,7 @@ const {
       <%- buildTopics(topics); %>
       <%- buildArchive(archive); %>
       <div id="login-state" class="login-state">
-        <% if(!user) { %>
+        <% if(!("_id" in user)) { %>
         <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
         <% } else { %>
         <p id="logged-in-as" class="small"><%= user.email %> [ <a href="/logout">Log Out</a> ]</p>
@@ -79,7 +80,7 @@ const {
     <script src="/scripts/<%= script %>.js"></script>
   <% } %>
   
-  <% if(!user){ %>
+  <% if(!("_id" in user)){ %>
   <script src="/scripts/login.js"></script>
   <script src="/scripts/interface.js"></script>
   <% } %>

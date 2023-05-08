@@ -33,8 +33,8 @@ router.delete('/:_id', checkUser, controllers.deleteEntry);
 
 // AUTHENTICATION ROUTES
 router.get('/logout', checkUser, controllers.logout);
-router.get('/admin/:_id', checkUser, controllers.getAdminFilled);
-router.get('/admin', checkUser, controllers.getAdminBlank);
+router.get('/admin/:_id', checkUser, controllers.getAdmin);
+router.get('/admin', checkUser, controllers.getAdmin);
 router.get('/update/:_id', checkUser, controllers.updateUser);
 router.get('/listUnpublished', checkUser, controllers.getListUnpublished);
 

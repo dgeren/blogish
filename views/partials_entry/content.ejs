@@ -5,10 +5,11 @@ const pseudonym = !attribution ? user.pseudonym : attribution[ Object.getOwnProp
 const shortText = !attribution ? user.shortText : attribution[ Object.getOwnPropertyNames(attribution)[0]].shortText;
 const dateDisplay = pubDate === null ? "" : prepDates(entry.pubDate).dateDisplay;
 const topicsDisplay = tags ? "" : prepTopics(entry.tags);
+  console.log("🔸 controller.js:\n", user);//🔴
 %>
   <div class="date-display small">
   <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
-  <% if(user && !preview) { %>
+  <% if(user._id && !preview) { %>
   <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
   <% } %>
   </div>
