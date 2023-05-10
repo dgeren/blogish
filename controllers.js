@@ -275,6 +275,7 @@ module.exports.getAdmin = async (req, res) => {
   const requestID = req.params._id || null;
   const url = req.url;
   const isBlank = userRole === 'admin' && url === '/admin';
+  // * determine if the logged in user is the owner of the account
   
   res.locals.pageDetails = {
     css: 'editor',
@@ -308,7 +309,9 @@ module.exports.getAdmin = async (req, res) => {
 
   //  otherwise get the user info and send a filled form
   } else {
+    // 2nd arg determines if email address returns with user; function defaults to false
     res.locals.contributor = await db.getUser(requestID, true);
+    res.locals.isOwner = userID === requestID;
     
     // page elements
     res.locals.topics = await db.getCategories(res.locals.user);

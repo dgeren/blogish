@@ -1,17 +1,17 @@
 <% 
-const { pseudonym, shortText, _id } = contributor;
-const role = user.roll || null;
-const userID = user._id ? user._id.toString() : null;
-console.log("🔸 contributorCard.ejs:\n", _id);//🔴f
+const { pseudonym, shortText } = contributor;
+const contributorID = contributor._id.toString();
+const isOwner = user._id.toString() === contributorID;
 %>
 
 <div class="card">
-  <img src="/images/contributor-pics/<%= _id %>.JPG" class="profile-pic--list">
+  <img src="/images/contributor-pics/<%= contributorID %>.JPG" class="profile-pic--list">
 
-  <% if(userID !== null && (userID === _id.toString() || role === "admin")) { %>
-    <a href="/admin/<%= _id %>" class="edit-button">[ &#9998; ]</a>
+  <% if(isOwner || user.role === "admin") { %>
+    <a href="/admin/<%= contributorID %>" class="edit-button">[ &#9998; ]</a>
   <% } %>
-  <h3><a href="/contributor/<%= _id %>"><%= pseudonym %></a> <%= _id %></h3>
+  <!-- remove the last contributorID from this line VVV -->
+  <h3><a href="/contributor/<%= contributorID %>"><%= pseudonym %></a> <%= contributorID %></h3>
 
   <p class="description"><%= shortText %></p>
 

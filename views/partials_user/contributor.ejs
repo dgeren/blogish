@@ -1,10 +1,11 @@
 <%
 const { _id, pseudonym, longText, entries, byline } = contributors[i];
 const contributorID = contributors[i]._id.toString(); // requested contributor
+const isOwner = contributorID === user._id.toString();
 %>
 
 <div class="title-box">
-  <% if("_id" in user && (user._id === contributorID || user.role === "admin")) { %>
+  <% if(isOwner || user.role === "admin") { %>
     <a href="/admin/<%= contributorID %>" class="edit-button">[ &#9998; ]</a>
   <% } %>
 

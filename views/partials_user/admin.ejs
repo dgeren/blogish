@@ -3,6 +3,7 @@ const {
   _id, email, role, pseudonym, byline, shortText, longText
 } = contributor[0];
 
+// 🔸🟥🔸 is this line VVV needed? If so, move to controller --
 const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._id.toString();
 %>  
   
@@ -41,18 +42,24 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
         <p class="message" id="error-email"></p>
       </div>
 
-      <div class="fields">
-        <label for="password">Password</label>
-        <input type="password" class="form-el editor" id="password" name="password" required>
-        <p class="hint">8 - 64 characters</p>
-        <p class="message" id="error-password"></p>
-      </div>
+      <div id="passwordFields">
+      <% if(isOwner){ %>
 
-      <div class="fields">
-        <label for="password2">Password (Confirm)</label>
-        <input type="password" class="form-el editor" id="password2" name="password2" required>
-        <p class="hint">8 - 64 characters</p>
-        <p class="message" id="error-password"></p>
+        <div class="fields">
+          <label for="password">Password</label>
+          <input type="password" class="form-el editor" id="password" name="password" required>
+          <p class="hint">8 - 64 characters</p>
+          <p class="message" id="error-password"></p>
+        </div>
+  
+        <div class="fields">
+          <label for="password2">Password (Confirm)</label>
+          <input type="password" class="form-el editor" id="password2" name="password2" required>
+          <p class="hint">8 - 64 characters</p>
+          <p class="message" id="error-password"></p>
+        </div>
+
+      <% } %>
       </div>
 
       <div class="fields">
@@ -84,7 +91,8 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
 <!-- 🔹 stopped here trying to complete the fill admin page
 left to do: hide the following items
 populate the contributorID
-fix the password logic so if the user and contributor ids are the same, the password fields appear -->
+fix the password logic so if the user and contributor ids are the same, the password fields appear
+What is this section for? Will it be used for validation when updating a user? Only the password matters -->
       <div class="hidden">
         <input type="text" name="contributorID" id="contributorID" value="<%- contributorID %>">
         <input type="text" name="userID" id="userID" value="<%- user._id %>">

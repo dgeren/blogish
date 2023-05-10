@@ -1,15 +1,15 @@
 <%- include('../functions'); %>
 <%
-const { title, slug, description, HTML, preview = false, _id, pubDate = null, tags = null } = entry;
+const { title, slug, description, HTML, preview = false, _id, authorID, pubDate = null, tags = null } = entry;
 const pseudonym = !attribution ? user.pseudonym : attribution[ Object.getOwnPropertyNames(attribution)[0]].pseudonym;
 const shortText = !attribution ? user.shortText : attribution[ Object.getOwnPropertyNames(attribution)[0]].shortText;
-const dateDisplay = pubDate === null ? "" : prepDates(entry.pubDate).dateDisplay;
+const dateDisplay = pubDate === null ? "unpublished" : prepDates(entry.pubDate).dateDisplay;
 const topicsDisplay = tags ? "" : prepTopics(entry.tags);
-  console.log("🔸 controller.js:\n", user);//🔴
+const isOwner = user._id.toString() === authorID;
 %>
   <div class="date-display small">
   <%= dateDisplay === "undefined NaN, NaN" ? "Unpublished" : dateDisplay %>
-  <% if(user._id && !preview) { %>
+  <% if((isOwner || user.role === 'admin') && !preview) { %>
   <a href="/editor/slug/<%= slug %>" class="button">[ &#9998; ] </a>
   <% } %>
   </div>

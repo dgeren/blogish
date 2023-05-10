@@ -1,13 +1,12 @@
 const toolbar = document.getElementById('toolbar');
 const elements = document.querySelectorAll('.form-el');
+const passwordFields = document.getElementById('passwordFields');
+const errorField = document.getElementById('error-password');
 
 let countFocusChange = 0;
 
 // * COFIRM PASSWORD
 const comparePasswordFields = () => {
-  const password = document.getElementById('password');
-  const password2 = document.getElementById('password2');
-  const errorField = document.getElementById('error-password');
 
   if(password.value !== password2.value) {
     password.focus;
@@ -25,6 +24,17 @@ const isEmailConfirmed = () => {
 
   document.getElementById('error-confirm-email').innerHTML = "If you did not reveive an email, check the email address. If you did, check this box.";
   return false;
+}
+
+// * IF PASSWORD FIELDS EXIST ADD EVENT LISTENERS
+if(passwordFields.children.length !== 0) {
+
+  document.getElementById('password').addEventListener('blur', function() {
+    countFocusChange === 0 ? ++countFocusChange : comparePasswordFields();
+  });
+
+  document.getElementById('password2').addEventListener('blur', comparePasswordFields);
+  
 }
 
 
@@ -86,14 +96,6 @@ const del = async () => {
   console.log("🔸 del"); // 🔴
 }
 
-
-// * OPERATIONS
-password.addEventListener('blur', () => {
-  // ! password may return an error when the page does not render it
-  countFocusChange === 0 ? ++countFocusChange : comparePasswordFields();
-});
-
-password2.addEventListener('blur', comparePasswordFields);
 
 toolbar.addEventListener('click', async e => {
   e.preventDefault();

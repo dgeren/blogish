@@ -4,6 +4,7 @@
     const { title, description, slug, _id, authorID, publish, tagHTML = "", tags = null, pubDate = null } = entry;
     const dateDisplay = pubDate ? prepDates(pubDate).dateDisplay : null;
     const pseudonym = users ? users[authorID].pseudonym : "";
+    const isOwner = user._id.toString() === authorID;
     %>
 
 
@@ -18,7 +19,7 @@
       </div>
       <h4 class="card--title">
         <a href="/reader/slug/<%= slug %>/id/<%= _id %>"><%- title %></a>
-        <% if("_id" in user && (user._id.toString() === authorID || user.role === "admin")) { %>
+        <% if(isOwner || user.role === "admin") { %>
         <a href="/editor/slug/<%= slug %>/id/<%= _id %>" class="edit-button">[ &#9998; ]</a>
         <% } %> 
       </h4>
