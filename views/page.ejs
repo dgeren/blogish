@@ -1,6 +1,5 @@
 <%- include('functions'); %>
 <% 
-
 const {
   css,
   type,
@@ -9,7 +8,6 @@ const {
   errorMsg = null,
   blank
 } = pageDetails;
-
 %>
 
 <!DOCTYPE html>
@@ -40,7 +38,7 @@ const {
 
     <nav>
       <ul class="nav">
-        <% if("_id" in user) { %>
+        <% if(user) { %>
         <li class="label"><a href="/listUnpublished">UNPUBLISHED</a></li>
         <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
         <li class="label"><a href="/admin">ADMIN</a></li>
@@ -52,10 +50,10 @@ const {
       <%- buildTopics(topics); %>
       <%- buildArchive(archive); %>
       <div id="login-state" class="login-state">
-        <% if(!("_id" in user)) { %>
-        <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
+        <% if(user) { %>
+          <p id="logged-in-as" class="small"><%= user.email %> [ <a href="/logout">Log Out</a> ]</p>
         <% } else { %>
-        <p id="logged-in-as" class="small"><%= user.email %> [ <a href="/logout">Log Out</a> ]</p>
+          <a id="signin-form-toggle" class="signin-form-toggle" href="">&nbsp;&#8680;]&nbsp; Login</a>
         <% } %>
         <form id="signin-form" class="signin-form" style="display: none;">
           <input class="signin-el" type="text" name="email" placeholder="Email address" required>
@@ -80,7 +78,7 @@ const {
     <script src="/scripts/<%= script %>.js"></script>
   <% } %>
   
-  <% if(!("_id" in user)){ %>
+  <% if(!user){ %>
   <script src="/scripts/login.js"></script>
   <script src="/scripts/interface.js"></script>
   <% } %>

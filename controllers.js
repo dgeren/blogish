@@ -48,7 +48,7 @@ const getAttributionData = async entries => {
 */
 // * GET LIST OF ARTICLES SORTED BY DESCENDING DATE AND LIMITED
 module.exports.getListByPubDate = async (req, res) => {
-  if(!res.locals.user) res.locals.user = {};
+  if(!res.locals.user) res.locals.user = null;
 
   // sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -80,29 +80,35 @@ module.exports.getListByPubDate = async (req, res) => {
 // * GET LIST OF UNPUBLISHED ARTICLES
 module.exports.getListUnpublished = async (req, res) => {
 
-  // get sidebar data
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
-  res.locals.contributors = await db.getUsers(res.locals.user);
+  if(!res.locals.user) {
+    res.locals.user = null;
+    res.locals.message = "Unauthorized request.";
+    res.redirect('/');
+  } else {
+    // get sidebar data
+    res.locals.topics = await db.getCategories(res.locals.user);
+    res.locals.archive = await db.getArchive(res.locals.user);
+    res.locals.contributors = await db.getUsers(res.locals.user);
 
-  // start page parameters
-  res.locals.pageDetails = {
-    css: 'list',
-    type: 'partials_entry/list',
-    publish: false
+    // start page parameters
+    res.locals.pageDetails = {
+      css: 'list',
+      type: 'partials_entry/list',
+      publish: false
+    }
+
+    // entry and attribution data
+    res.locals.entries = await db.getListOfUnpublishedEntries();
+    res.locals.users = await getAttributionData(res.locals.entries);
+
+    res.render('page');
   }
-
-  // entry and attribution data
-  res.locals.entries = await db.getListOfUnpublishedEntries();
-  res.locals.users = await getAttributionData(res.locals.entries);
-
-  res.render('page');
 }
 
 
 // * GET ARTICLE LIST BASED ON A TOPIC
 module.exports.getListByTag = async (req, res) => {
-  if(!res.locals.user) res.locals.user = {};
+  if(!res.locals.user) res.locals.user = null;
 
   // get sidebar data
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -127,7 +133,7 @@ module.exports.getListByTag = async (req, res) => {
 
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
-  if(!res.locals.user) res.locals.user = {};
+  if(!res.locals.user) res.locals.user = null;
 
   // page elements
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -157,6 +163,8 @@ module.exports.getEntry = async (req, res) => {
 module.exports.getEditor =  async (req, res) => {
 
   if(!res.locals.user) {
+    res.locals.user = null;
+    res.locals.message = "Unauthorized request.";
     res.redirect('/');
   } else {
 
@@ -201,69 +209,90 @@ module.exports.getEditor =  async (req, res) => {
 
 // * SAVE NEW OR EXISTING ENTRIES
 module.exports.postEntry = async (req, res) => {
-  let result = {};
-  // todo: add a role test to prevent unauthorized edits from saving
 
-  // HANDLE ENTRY AND DB
-  const entry = req.body;
-  const { tags } = req.body;
-
-  // prep date format
-  entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
-    new Date(`${entry.datePicker}T${entry.timePicker}`);
-  delete entry.datePicker;
-  delete entry.timePicker;
-
-  // prep topics
-  entry.tags = tags
-    .split(",")
-    .filter(tags => tags.trim() !== "")
-    .map(tags => tags.trim());
-  
-  entry.slug = slugify(entry.title, { lower: true });
-
-  if(entry.entryID) {
-    entry.id = entry.entryID;
-    delete entry.entryID;
-    result = await db.updateEntry(entry);
+  if(!res.locals.user) {
+    res.locals.user = null;
+    res.locals.message = "Unauthorized request.";
+    res.redirect('/');
   } else {
-    result = await db.saveEntry(entry);
+    let result = {};
+    // todo: add a role test to prevent unauthorized edits from saving
+
+    // HANDLE ENTRY AND DB
+    const entry = req.body;
+    const { tags } = req.body;
+
+    // prep date format
+    entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
+      new Date(`${entry.datePicker}T${entry.timePicker}`);
+    delete entry.datePicker;
+    delete entry.timePicker;
+
+    // prep topics
+    entry.tags = tags
+      .split(",")
+      .filter(tags => tags.trim() !== "")
+      .map(tags => tags.trim());
+    
+    entry.slug = slugify(entry.title, { lower: true });
+
+    if(entry.entryID) {
+      entry.id = entry.entryID;
+      delete entry.entryID;
+      result = await db.updateEntry(entry);
+    } else {
+      result = await db.saveEntry(entry);
+    }
+    
+    res.send((result.message));
   }
-  
-  res.send((result.message));
 }
 
 
 // * GET HTML FOR EDITOR PREVIEW
 module.exports.getEditorPreview = async (req, res) => {
 
-  res.locals.entry = req.body;
-  res.locals.preview = true;
-  
-  // get attribution data
-  res.locals.attribution = await getAttributionData([res.locals.entry]);
-  
-  // * PREP DATA
-  res.locals.entry.slug = slugify(res.locals.entry.title, { lower: true });
-  const tags = res.locals.entry.tags;
+  if(!res.locals.user) {
+    res.locals.user = null;
+    res.locals.message = "Unauthorized request.";
+    res.redirect('/');
+  } else {
 
-  // prep date format
-  res.locals.entry.pubDate = !res.locals.entry.datePicker || !res.locals.entry.timePicker ? "" :
-    new Date(`${res.locals.entry.datePicker}T${res.locals.entry.timePicker}`);
+    res.locals.entry = req.body;
+    res.locals.preview = true;
+    
+    // get attribution data
+    res.locals.attribution = await getAttributionData([res.locals.entry]);
+    
+    // * PREP DATA
+    res.locals.entry.slug = slugify(res.locals.entry.title, { lower: true });
+    const tags = res.locals.entry.tags;
 
-  res.locals.entry.tags = Array.isArray(tags) ? tags : tags.split(",").map(element => element.trim());
-  res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+    // prep date format
+    res.locals.entry.pubDate = !res.locals.entry.datePicker || !res.locals.entry.timePicker ? "" :
+      new Date(`${res.locals.entry.datePicker}T${res.locals.entry.timePicker}`);
 
-  res.render('partials_entry/content');
+    res.locals.entry.tags = Array.isArray(tags) ? tags : tags.split(",").map(element => element.trim());
+    res.locals.entry.HTML = converter.makeHtml(res.locals.entry.markdown);
+
+    res.render('partials_entry/content');
+  }
 }
 
 
 // * DELETE EXISTING ENTRIES
 module.exports.deleteEntry = async (req, res) => {
-  const { _id } = req.params;
-  const result = await db.deleteOneEntry({_id});
-  
-  res.send(result.message);
+
+  if(!res.locals.user) {
+    res.locals.user = null;
+    res.locals.message = "Unauthorized request.";
+    res.redirect('/');
+  } else {
+    const { _id } = req.params;
+    const result = await db.deleteOneEntry({_id});
+    
+    res.send(result.message);
+  }
 }
 
 
@@ -326,12 +355,21 @@ module.exports.getAdmin = async (req, res) => {
 // * ADMIN PREVIEW
 module.exports.getAdminPreview = (req, res) => {
 
+  if(!res.locals.user) {
+    res.locals.user = null;
+    res.locals.message = "Unauthorized request.";
+    res.redirect('/');
+  } else {
+    res.locals.message = "Path incomplete.";
+    res.redirect('/');
+  }
+
 }
 
 
 // * LIST CONTRIBUTORS
 module.exports.getContributors = async (req, res) => {
-  if(!res.locals.user) res.locals.user = {};
+  if(!res.locals.user) res.locals.user = null;
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -349,7 +387,7 @@ module.exports.getContributors = async (req, res) => {
 
 
 module.exports.getContributor = async (req, res) => {
-  if(!res.locals.user) res.locals.user = {};
+  if(!res.locals.user) res.locals.user = null;
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -374,6 +412,8 @@ module.exports.getContributor = async (req, res) => {
 module.exports.createUser = async (req, res) => {
   try {
     if(!res.locals.user && res.locals.user.role !== "admin") {
+      res.locals.user = null;
+      res.locals.message = "Unauthorized request.";
       res.redirect('/');
     } else {
       if(!res.locals.user) res.locals.user = {};
@@ -390,8 +430,17 @@ module.exports.createUser = async (req, res) => {
 // * SAVE USER CHANGES
 module.exports.updateUser = async (req, res) => {
   try {
+    if(!res.locals.user && res.locals.user.role !== "admin") {
+      res.locals.message = "Unauthorized request.";
+      res.redirect('/');
+    } else {
+      res.locals.message = "Path incomplete";
+
+      db.createUser(req.body.user);
+      return true;
+    }
     
-  } catch { 
+  } catch(err) { 
     
   }
 }
