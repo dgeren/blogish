@@ -298,57 +298,52 @@ module.exports.deleteEntry = async (req, res) => {
 
 // * NEW ADMIN CONTROLLER
 module.exports.getAdmin = async (req, res) => {
-  // initialize variables
-  const userID = res.locals.user._id.toString() || "";
-  const userRole = res.locals.user.role || "";
+
+  const notLoggedIn = !res.locals.user;
   const requestID = req.params._id || null;
-  const url = req.url;
-  const isBlank = userRole === 'admin' && url === '/admin';
-  // * determine if the logged in user is the owner of the account
-  
-  res.locals.pageDetails = {
-    css: 'editor',
-    type: 'partials_user/admin',
-    script: 'admin',
-    blank: isBlank
-  };
+  const userID    = notLoggedIn ? "" : res.locals.user._id.toString();
+  const isAdmin   = notLoggedIn ? false : res.locals.user.role === 'admin';
+  const isOwner   = requestID === userID;
 
-  // if criteria are not met, send user to home page
-  if(!res.locals.user || (userRole !== 'admin' && userID !== requestID )) {
-    res.locals.message = 'Unauthorized request.';
+  if(notLoggedIn || !(isOwner || isAdmin)) {
+
+    res.locals.user = null;
+    res.locals.message = "Unauthorized request.";
     res.redirect('/');
-  // but if criteria for a blank for are met, send an empty contributor object
-  } else if(isBlank) {
-    // page elements
-    res.locals.topics = await db.getCategories(res.locals.user);
-    res.locals.archive = await db.getArchive(res.locals.user);
-    res.locals.contributors = await db.getUsers(res.locals.user);
-    res.locals.contributor = [];
-    res.locals.contributor[0] = {
-      _id: "",
-      email: "",
-      role: "",
-      pseudonym: "",
-      byline: "",
-      shortText: "",
-      longText: ""
-    }
 
-    res.render('page');
-
-  //  otherwise get the user info and send a filled form
   } else {
-    // 2nd arg determines if email address returns with user; function defaults to false
-    res.locals.contributor = await db.getUser(requestID, true);
-    res.locals.isOwner = userID === requestID;
+
+    const isBlank = isAdmin && req.url === '/admin';
+    res.locals.pageDetails = {
+      css: 'editor',
+      type: 'partials_user/admin',
+      script: 'admin',
+      blank: isBlank
+    };
     
-    // page elements
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
     res.locals.contributors = await db.getUsers(res.locals.user);
-    
-    res.render('page');
+    res.locals.isOwner = isOwner;
+    res.locals.isAdmin = isAdmin;
+    res.locals.i = 0;
+  
+    if(isBlank){
+      res.locals.contributor = [];
+      res.locals.contributor[0] = {
+        _id: "",
+        email: "",
+        role: "",
+        pseudonym: "",
+        byline: "",
+        shortText: "",
+        longText: ""
+      }
+    } else {
+      res.locals.contributor = await db.getUser(requestID, true);
+    }
   }
+  res.render('page');
 }
 
 

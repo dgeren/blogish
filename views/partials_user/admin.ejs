@@ -5,7 +5,7 @@ const {
 
 // 🔸🟥🔸 is this line VVV needed? If so, move to controller --
 const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._id.toString();
-%>  
+%>
   
   <h2>Create Acccount</h2>
 
@@ -21,9 +21,9 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
     <form id="editor" name="userEditor" action="/createAccount">
       <p class="hint">All fields required.</p>
 
-      <% if(role === "admin") {%>
+      <% if(user.role === "admin") {%>
       <fieldset id="select-role-group" class="form-el editor" name="role">
-        <legend>Select a Role:</legend>
+        <legend>Select a Role:<sup>&dagger;</sup></legend>
 
         <input type="radio" id="select-contributor" name="selectRole" value="contributor" <%- role === 'contributor' ? 'checked' : ''; %>>
         <label for="select-contributor">Contributor</label><br>
@@ -43,7 +43,7 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
       
 
       <div class="fields">
-        <label for="email">Email</label>
+        <label for="email">Email<sup>&dagger;</sup></label>
         <input type="text" class="form-el editor" id="email" name="email" placeholder="example@service.com" value="<%- email %>" required>
         <p class="message" id="error-email"></p>
       </div>
@@ -69,55 +69,55 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
       </div>
 
       <div class="fields">
-        <label for="pseudonym">Pseudonym</label>
+        <label for="pseudonym">Pseudonym*</label>
         <input type="text" class="form-el editor" name="pseudonym" placeholder="Public-facing name" value="<%- pseudonym %>" required>
         <p class="hint">4 - 64 characters</p>
         <p class="message" id="error-Psuedonym"></p>
       </div>
 
       <div class="fields">
-        <label for="byline">By-Line</label>
+        <label for="byline">By-Line*</label>
         <input type="text" class="form-el editor" name="byline" placeholder="Author extras." value="<%- byline %>" required>
         <p class="hint">12 - 64 characters.</p>
         <p class="message" id="error-byline"></p>
       </div>
 
       <div class="fields">
-        <label for="short-description">Short Description</label>
+        <label for="short-description">Short Description*</label>
         <input type="textarea" class="form-el editor" name="shortText" placeholder="Tell our readers a bit about yourself." value="<%- shortText %>" required>
         <p class="hint">12 - 256 characters.</p>
         <p class="message" id="error-short-description"></p>
       </div>
       
       <div class="fields">
-        <label for="long-description">Long Description</label>
+        <label for="long-description">Long Description&dagger;</label>
         <input type="textarea" class="form-el editor" name="longText" placeholder="Tell our readers more detail about yourself." value="<%- longText %>" required>
         <p class="message" id="error-long-description"></p>
       </div>
-<!-- 🔹 stopped here trying to complete the fill admin page
-left to do: hide the following items
-populate the contributorID
-fix the password logic so if the user and contributor ids are the same, the password fields appear
-What is this section for? Will it be used for validation when updating a user? Only the password matters -->
+      
       <div class="hidden">
         <input type="text" name="contributorID" id="contributorID" value="<%- contributorID %>">
         <input type="text" name="userID" id="userID" value="<%- user._id %>">
       </div>
 
   <!-- template in case a new field is needed in the future
-
       <div class="fields">
         <label for=""></label>
         <input type="textarea" class="form-el editor" name="" placeholder="" required>
         <p class="hint">x - y characters</p>
         <p class="message" id="error-long-"></p>
-      </div>
-      
-  -->
-
-    </section>
-    <section class="userPreview">
-      
+      </div> 
+    -->
+    
+    <ul>
+      <li>* Do not use Markdown.</li>
+      <li>&dagger; Required field.</li>
+    </ul>
 
     </section>
   </form>
+  <% if(!pageDetails.blank) { %>
+  <section class="userPreview">
+    <%- include('../partials_user/contributor', contributor) %>
+  <% } %>
+  </section>
