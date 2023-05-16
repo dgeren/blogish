@@ -216,7 +216,7 @@ module.exports.postEntry = async (req, res) => {
     res.redirect('/');
   } else {
     let result = {};
-    // todo: add a role test to prevent unauthorized edits from saving
+    // todo: add a role test to prevent unauthorized edits from savingppppnpm startnpm start    
 
     // HANDLE ENTRY AND DB
     const entry = req.body;
@@ -316,6 +316,7 @@ module.exports.getAdmin = async (req, res) => {
     const isBlank = isAdmin && req.url === '/admin';
     res.locals.pageDetails = {
       css: 'editor',
+      css2: 'list',
       type: 'partials_user/admin',
       script: 'admin',
       blank: isBlank
@@ -341,24 +342,10 @@ module.exports.getAdmin = async (req, res) => {
       }
     } else {
       res.locals.contributor = await db.getUser(requestID, true);
+      res.locals.contributor[0].html = converter.makeHtml(res.locals.contributor[0].longText);
     }
   }
   res.render('page');
-}
-
-
-// * ADMIN PREVIEW
-module.exports.getAdminPreview = (req, res) => {
-
-  if(!res.locals.user) {
-    res.locals.user = null;
-    res.locals.message = "Unauthorized request.";
-    res.redirect('/');
-  } else {
-    res.locals.message = "Path incomplete.";
-    res.redirect('/');
-  }
-
 }
 
 
@@ -398,6 +385,8 @@ module.exports.getContributor = async (req, res) => {
 
   // get the i(ndex) of the requested user
   res.locals.i = res.locals.contributors.findIndex(obj => obj._id.toString() === req.params._id);
+  res.locals.contributors[res.locals.i].html =
+    converter.makeHtml(res.locals.contributors[res.locals.i].longText);
 
   res.render('page');
 }

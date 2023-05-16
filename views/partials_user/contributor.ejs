@@ -1,5 +1,5 @@
 <%
-const { _id, pseudonym, longText, entries, byline } = contributors[i];
+const { _id, pseudonym, html, entries, byline } = contributors[i];
 const contributorID = contributors[i]._id.toString(); // requested contributor
 const isOwner = user ? contributorID === user._id.toString() : false;
 const role = user ? user.role : "";
@@ -15,7 +15,7 @@ const role = user ? user.role : "";
 </div>
 
 <div class="reader--contributor">
-  <%- longText %>
+  <%- html %>
 </div>
 <br><br><br>
 <h3><%- pseudonym %>'s Entries</h3>
