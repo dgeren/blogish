@@ -3,7 +3,7 @@ const {
   _id, email, role, pseudonym, byline, shortText, longText
 } = contributor[0];
 
-// 🔸🟥🔸 is this line VVV needed? If so, move to controller --
+// This may not be needed for anything on this page
 const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._id.toString();
 %>
   
@@ -14,7 +14,9 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
     &nbsp; | &nbsp;
     <button id="tools_preview" class="tools label" name="preview">PREVIEW</button>
     &nbsp; | &nbsp;
-    <button id="tools_delete" class="tools label" name="del">DELETE</button>
+    <button id="tools_delete" class="tools label" name="del" disabled>DELETE</button>
+    <br>
+    <p class="message" id="error-form"></p>
   </form>
 
   <section class="editorSection">
@@ -50,7 +52,7 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
       </div>
 
       <div id="passwordFields">
-      <% if(isOwner){ %>
+      <% if(isOwner || role === ''){ %>
 
         <div class="fields">
           <label for="password">Password</label>
@@ -60,10 +62,10 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
         </div>
   
         <div class="fields">
-          <label for="password2">Password (Confirm)</label>
-          <input type="password" class="form-el editor" id="password2" name="password2" required>
+          <label for="confirm">Password (Confirm)</label>
+          <input type="password" class="form-el editor" id="confirm" name="confirm" required>
           <p class="hint">8 - 64 characters</p>
-          <p class="message" id="error-password"></p>
+          <p class="message" id="error-confirm"></p>
         </div>
 
       <% } %>
@@ -71,29 +73,30 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
 
       <div class="fields">
         <label for="pseudonym">Pseudonym*</label>
-        <input type="text" class="form-el editor" name="pseudonym" placeholder="Public-facing name" value="<%- pseudonym %>" required>
-        <p class="hint">4 - 64 characters</p>
-        <p class="message" id="error-Psuedonym"></p>
+        <input type="text" class="form-el editor" id="pseudonym" name="pseudonym" placeholder="Public-facing name" value="<%- pseudonym %>" required>
+        <p class="hint">4 - 256 characters</p>
+        <p class="message" id="error-pseudonym"></p>
       </div>
 
       <div class="fields">
         <label for="byline">By-Line*</label>
-        <input type="text" class="form-el editor" name="byline" placeholder="Author extras." value="<%- byline %>" required>
-        <p class="hint">12 - 64 characters.</p>
+        <input type="text" class="form-el editor" id="byline" name="byline" placeholder="Author extras." value="<%- byline %>" required>
+        <p class="hint">8 - 512 characters.</p>
         <p class="message" id="error-byline"></p>
       </div>
 
       <div class="fields">
         <label for="short-description">Short Description*</label>
-        <input type="textarea" class="form-el editor" name="shortText" placeholder="Tell our readers a bit about yourself." value="<%- shortText %>" required>
-        <p class="hint">12 - 256 characters.</p>
-        <p class="message" id="error-short-description"></p>
+        <input type="textarea" class="form-el editor" id="shortText" name="shortText" placeholder="Tell our readers a bit about yourself." value="<%- shortText %>" required>
+        <p class="hint">8 - 1024 characters.</p>
+        <p class="message" id="error-shortText"></p>
       </div>
       
       <div class="fields">
         <label for="long-description">Long Description&dagger;</label>
-        <input type="textarea" class="form-el editor" name="longText" placeholder="Tell our readers more detail about yourself." value="<%- longText %>" required>
-        <p class="message" id="error-long-description"></p>
+        <input type="textarea" class="form-el editor" id="longText" name="longText" placeholder="Tell our readers more detail about yourself." value="<%- longText %>" required>
+        <p class="hint">8 - 12000 characters.</p>
+        <p class="message" id="error-longText"></p>
       </div>
       
       <div class="hidden">
@@ -110,10 +113,7 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
       </div> 
     -->
     
-    <ul>
-      <li>* Do not use Markdown.</li>
-      <li>&dagger; Required field.</li>
-    </ul>
+      <p>* Do not use Markdown.</p>
 
     </section>
   </form>

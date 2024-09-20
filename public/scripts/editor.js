@@ -1,3 +1,5 @@
+"use strict";
+
 const allElements = document.querySelectorAll('*');
 const toolbar = document.getElementById('toolbar');
 const formElements = document.querySelectorAll('.form-el'); // * used to upload changes

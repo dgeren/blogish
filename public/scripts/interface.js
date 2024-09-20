@@ -1,3 +1,5 @@
+"use strict";
+
 const loginForm = document.getElementById("signin-form");
 const loginLink = document.getElementById("signin-form-toggle");
 

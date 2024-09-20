@@ -3,7 +3,7 @@ const { isObjectIdOrHexString, default: mongoose } = require("mongoose");
 const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
 const User = require('./models/User');
 const { limit, logError } = require("./util");
-const e = require("express");
+const e = require("express"); // 🟠 Is this needed? If yes, change e to express
 
 // * === ERROR CONTENT
 const errMsg = {
@@ -408,7 +408,7 @@ const deleteOneEntry = async _id => {
     await Entry.findByIdAndDelete( _id );
     return {
       error: false,
-      message: `Entry deleted. The action logged for review. Use [Upload] to create a new entry with a new ID.`
+      message: `Entry deleted. The action logged for review. Use [Upload] to create a new entry.`
     };
   } catch (err) {
     // todo: add logging

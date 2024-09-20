@@ -2,7 +2,7 @@ const slugify = require('slugify');
 const jwt = require('jsonwebtoken');
 const showdown = require('showdown');
 const converter = new showdown.Converter({ 'noHeaderId': true });
-// const functions = require('./views/functions.js');
+// const functions = require('./views/functions.js'); // ? why is this commented out; delete?
 
 const db = require('./db.js');
 
@@ -42,35 +42,64 @@ const getAttributionData = async entries => {
   return users;
 }
 
+const setPageRainment = async (res, req, { css, type, paginate = true }) => {
+  console.log("🔸 setPageRainment", css, type, paginate); // 🔴
+
+  // SIDEBAR
+  // tags/categories/topcis
+  res.locals.topics = await db.getCategories(res.locals.user);
+
+  // entry titles, pub dates, and url
+  res.locals.archive = await db.getArchive(res.locals.user);
+
+  // user names and IDs
+  res.locals.contributors = await db.getUsers(res.locals.user);
+
+  res.locals.pageDetails = {};
+  // PAGINATION
+  if(paginate){
+    // number of entries in the db based on login status
+    const numberOfEntries = await db.getEntryCount(null, res.locals.user);
+
+    // get || set page number
+    const pageNum = parseInt(req.params.page) || 1;
+    
+    // set the number of total pages
+    res.locals.pageDetails.pages = parseInt(Math.ceil(numberOfEntries / limit));
+
+    // set the page number
+    res.locals.pageDetails.page = pageNum;
+
+    // set the number of entries to skip
+    res.locals.pageDetails.skip = (pageNum * limit) - limit;
+  }
+
+  // RENDERING data
+  // define page for rendering engine
+  res.locals.pageDetails.css = css;                                                                                 
+  res.locals.pageDetails.type = type;
+} 
+
 
 /*
 * EXPORTED METHODS
 */
+
+// * GET STATIC PAGES
+module.exports.getAbout = async (reg, res) => {
+  // ! stopped here
+}
+
+
 // * GET LIST OF ARTICLES SORTED BY DESCENDING DATE AND LIMITED
 module.exports.getListByPubDate = async (req, res) => {
   if(!res.locals.user) res.locals.user = null;
 
-  // sidebar data
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
-  res.locals.contributors = await db.getUsers(res.locals.user);
-
-  // start page parameters
-  res.locals.pageDetails = {
-    css: 'list',
-    type: 'partials_entry/list'
-  };
-  
-  // pagination data
-  const pageNum = parseInt(req.params.page) || 1;
-  const docs = await db.getEntryCount(null, res.locals.user);
-  const skip = (pageNum * limit) - limit;
-
-  res.locals.pageDetails.pages = pages = parseInt(Math.ceil(docs / limit));
-  res.locals.pageDetails.page = pageNum;
+  // set sidebar data and pagination details
+  await setPageRainment(res, req, { css: 'list', type: 'partials_entry/list' });
 
   // get entry and attribution data
-  res.locals.entries = await db.getListOfEntriesByDate( skip );
+  res.locals.entries = await db.getListOfEntriesByDate( res.locals.pageDetails.skip );
   res.locals.users = await getAttributionData(res.locals.entries);
 
   res.render('page');
@@ -85,17 +114,12 @@ module.exports.getListUnpublished = async (req, res) => {
     res.locals.message = "Unauthorized request.";
     res.redirect('/');
   } else {
-    // get sidebar data
-    res.locals.topics = await db.getCategories(res.locals.user);
-    res.locals.archive = await db.getArchive(res.locals.user);
-    res.locals.contributors = await db.getUsers(res.locals.user);
 
-    // start page parameters
-    res.locals.pageDetails = {
-      css: 'list',
-      type: 'partials_entry/list',
-      publish: false
-    }
+    // set sidebar data and pagination details
+    await setPageRainment(res, req, { css: 'list', type: 'partials_entry/list', paginate: false });
+
+    // enable unpublished only
+    res.locals.pageDetails.publish = false;
 
     // entry and attribution data
     res.locals.entries = await db.getListOfUnpublishedEntries();
@@ -110,18 +134,12 @@ module.exports.getListUnpublished = async (req, res) => {
 module.exports.getListByTag = async (req, res) => {
   if(!res.locals.user) res.locals.user = null;
 
-  // get sidebar data
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
-  res.locals.contributors = await db.getUsers(res.locals.user);
+  // set sidebar data and pagination details
+  await setPageRainment(res, req, { css: 'list', type: 'partials_entry/list', paginate: false });
 
   // start page parameters
-  res.locals.pageDetails = {
-    css: 'list',
-    type: 'partials_entry/list',
-    publish: true,
-    requestedTag: req.params.tag
-  };
+  res.locals.pageDetails.requestedTag = req.params.tag;
+
 
   // entry and attribution data
   res.locals.entries = await db.getListOfEntriesByCategory(req.params.tag, res.locals.user);
@@ -134,17 +152,9 @@ module.exports.getListByTag = async (req, res) => {
 // * OPEN ARTICLES IN READER
 module.exports.getEntry = async (req, res) => {
   if(!res.locals.user) res.locals.user = null;
-
-  // page elements
-  res.locals.topics = await db.getCategories(res.locals.user);
-  res.locals.archive = await db.getArchive(res.locals.user);
-  res.locals.contributors = await db.getUsers(res.locals.user);
-
-  // start page parameters
-  res.locals.pageDetails = {
-    css: 'reader',
-    type: 'partials_entry/reader'
-  };
+  
+  // set sidebar data and pagination details
+  await setPageRainment(res, req, { css: 'reader', type: 'partials_entry/reader', paginate: false });
 
   // retrieve chosen entry to read
   const { slug = null, _id } = req.params;
@@ -167,23 +177,16 @@ module.exports.getEditor =  async (req, res) => {
     res.locals.message = "Unauthorized request.";
     res.redirect('/');
   } else {
-
-    // page elements
-    res.locals.topics = await db.getCategories(res.locals.user);
-    res.locals.archive = await db.getArchive(res.locals.user);
-    res.locals.contributors = await db.getUsers(res.locals.user);
+  
+    // set sidebar data and pagination details
+    await setPageRainment(res, req, { css: 'editor', type: 'partials_entry/editor', paginate: false });
+    res.locals.pageDetails.script = 'editor';
 
     // set default values
     res.locals.errorMsg = null;
     res.locals.entry = {};
     res.locals.preview = false;
     res.locals.attribution = null;
-
-    res.locals.pageDetails = {
-      css: 'editor',
-      type: 'partials_entry/editor',
-      script: 'editor'
-    };
   
     // chosen entry to edit or new entry
     res.locals.entry = {};
@@ -314,6 +317,14 @@ module.exports.getAdmin = async (req, res) => {
   } else {
 
     const isBlank = isAdmin && req.url === '/admin';
+    
+    /* 🟠🟠🟠 
+    Distraction from this branch's purpose, placing on hold until adding roles is
+    merged with main
+    
+    Disabled for refactoring 🔴 delete when done
+    🔸 Is it really necessary to set this in PageRainment? We set values to send to set values
+    without any decision making, data manipulation, or other steps. Seems redundant. 🔸
     res.locals.pageDetails = {
       css: 'editor',
       css2: 'list',
@@ -325,6 +336,11 @@ module.exports.getAdmin = async (req, res) => {
     res.locals.topics = await db.getCategories(res.locals.user);
     res.locals.archive = await db.getArchive(res.locals.user);
     res.locals.contributors = await db.getUsers(res.locals.user);
+       🟠🟠🟠 */
+    
+    // set sidebar data and pagination details
+    await setPageRainment(res, req, { css: 'editor', type: 'partials_entry/editor', paginate: false });
+
     res.locals.isOwner = isOwner;
     res.locals.isAdmin = isAdmin;
     res.locals.i = 0;

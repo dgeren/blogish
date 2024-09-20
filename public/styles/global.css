@@ -52,6 +52,10 @@ h3 {
   background-color: var(--label);
 }
 
+.loginError {
+  display: none;
+}
+
 .tagline1 {
   font-size: 1.75em;
   margin: 0;
