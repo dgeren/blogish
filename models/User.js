@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 const bcrypt = require('bcrypt');
 const { isEmail } = require('validator');
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
   email: {
     type: String,
     unique: [true, "Email address already registered."],

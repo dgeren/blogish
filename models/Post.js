@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const postSchema = new mongoose.Schema({
+const postSchema = new Schema({
   title: {
     type: String,
     unique: [true, "This title already exists. Change the title."],

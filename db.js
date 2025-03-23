@@ -1,9 +1,9 @@
 const mongo = require("mongodb");
 const { isObjectIdOrHexString, default: mongoose } = require("mongoose");
-const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
+const Post = require('./models/Post');
 const User = require('./models/User');
 const { limit, logError } = require("./util");
-const e = require("express"); // 🟠 Is this needed? If yes, change e to express
+const e = require("express"); // 🔸 Is this needed? If yes, change e to express
 
 // * === ERROR CONTENT
 const errMsg = {
@@ -27,7 +27,7 @@ const getArchive = async (user) => {
   let result;
   
   try {
-    result = await Entry
+    result = await Post
       .find(
         filter,
         { title: 1, slug: 1, pubDate: 1 })
@@ -40,7 +40,7 @@ const getArchive = async (user) => {
       error: true,
       message: `${errMsg.begin} the archive data. ${errMsg.end}`
     };
-    console.log(err); // 🟠
+    console.log(err); // 🔸 finish error logging and display
   } finally {
     return result;
   }
@@ -54,7 +54,7 @@ const getCategories = async (user) => {
   let result;
 
   try {
-    result = await Entry
+    result = await Post
       .find(
         filter,
         { _id: 0, tags: 1 })
@@ -80,7 +80,7 @@ const getEntryCount = async (topic, user) => {
   let result;
   
   try {
-    result = await Entry.countDocuments({ $and: [ filterByUser, filterByTag ] });
+    result = await Post.countDocuments({ $and: [ filterByUser, filterByTag ] });
     if(result === 0) throw { results: false };
   } catch (err) {
     // todo: add logging
@@ -104,7 +104,7 @@ const getAdjacents = async (date, user) => {
   }
   
   try{
-    next = await Entry
+    next = await Post
       .find(
         filterNext,
         { slug: 1, title: 1 })
@@ -112,7 +112,8 @@ const getAdjacents = async (date, user) => {
       .sort({ pubDate:  1 })
       .limit(1);
 
-    prev = await Entry
+
+    prev = await Post
     .find(
       filterPrev,
       { slug: 1, title: 1 })
@@ -126,6 +127,7 @@ const getAdjacents = async (date, user) => {
     
   } catch(err) {
     // todo: add logging
+
     return {
       error: true,
       message: errMsg.pagination,
@@ -164,7 +166,7 @@ const getUsers = async () => {
       .select('-password -email -__v')
       .lean();
     for(const user of users) {
-      user.entries = await Entry
+      user.entries = await Post
         .find({ 'authorID': user._id})
         .select('')
         .lean();
@@ -202,7 +204,7 @@ const saveUser = async user => {
 //       user,
 //       { new: true, upsert: true }
 //     );
-//     console.log("🟢", newuser); // 🔴
+//     console.log("🟢", newuser);
 //     return newUser;
 //   } catch (err) {
 //     // todo: add logging
@@ -220,15 +222,15 @@ const saveUser = async user => {
 ====================================================
 */
 // * === RETURNS LIMITED ENTRIES BY DATE FOR LIST
-const getListOfEntriesByDate = async (skip, user) => {
+const getListOfEntriesByDate = async ({skip}, user) => {
   const _now = new Date();
   const filter = user ? {} : { publish: true, pubDate: { $lt: _now } };
-
   
   let result;
   
   try {
-    result = await Entry
+
+    result = await Post
       .find(filter)
       .sort({ pubDate: -1 })
       .skip(skip)
@@ -239,7 +241,8 @@ const getListOfEntriesByDate = async (skip, user) => {
     return result;
 
   } catch(err) {
-    // todo: add logging
+    // 🔸 TODO: add logging
+
     if(results = 0) {
       result = [{
         error: true,
@@ -252,6 +255,7 @@ const getListOfEntriesByDate = async (skip, user) => {
       message: `${errMsg.begin} the list of entries. ${errMsg.end}`,
     }];
   }
+  
   return result;
 }
 
@@ -263,7 +267,7 @@ const getListOfEntriesByUser = async (user, authorID) => {
   let result;
   
   try {
-    result = await Entry
+    result = await Post
       .find(filter)
       .sort({ pubDate: -1 })
       .lean();
@@ -296,7 +300,7 @@ const getListOfEntriesByCategory = async (topic, user) => {
   let result;
 
   try {
-    result = await Entry
+    result = await Post
       .find(filter)
       .sort({ pubDate: -1 })
       .lean();
@@ -326,7 +330,7 @@ const getListOfUnpublishedEntries = async () => {
   let result;
 
   try {
-    result = await Entry
+    result = await Post
       .find({ $or: [ {publish: false }, { pubDate: null } ] })
       .lean()
       .sort({ _id: -1 });
@@ -352,7 +356,7 @@ const getListOfUnpublishedEntries = async () => {
 const getOneEntry = async (slug, _id) => {
   try {
     const filter = slug ? { slug } : { _id };
-    const result = await Entry.findOne( filter ).lean();
+    const result = await Post.findOne( filter ).lean();
     if(!result) throw { results: 0 };
     return result;
   } catch (err) {
@@ -368,7 +372,7 @@ const getOneEntry = async (slug, _id) => {
 // * === UPDATE EXISTING ENTRY
 const updateEntry = async entry => { 
   try {
-    await Entry.updateOne(
+    await Post.updateOne(
       { _id: entry.id },
       entry
     );
@@ -390,7 +394,7 @@ const updateEntry = async entry => {
 // * === ADD NEW ENTRY
 const saveEntry = async entry => {
   try {
-    const result = await Entry.create(entry);
+    const result = await Post.create(entry);
     return result;
   } catch(err) {
     // todo: add logging
@@ -405,7 +409,7 @@ const saveEntry = async entry => {
 // * === PERMANENTLY DELETE AN ENTRY; NO BACKSIES
 const deleteOneEntry = async _id => {
   try {
-    await Entry.findByIdAndDelete( _id );
+    await Post.findByIdAndDelete( _id );
     return {
       error: false,
       message: `Entry deleted. The action logged for review. Use [Upload] to create a new entry.`
@@ -427,10 +431,10 @@ module.exports = {
   getEntryCount,
   createUser,
   getUser,
+  getListOfEntriesByUser,
   getUsers,
   saveUser,
   getListOfEntriesByDate,
-  getListOfEntriesByUser,
   getListOfEntriesByCategory,
   getListOfUnpublishedEntries,
   getOneEntry,

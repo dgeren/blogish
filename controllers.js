@@ -2,12 +2,11 @@ const slugify = require('slugify');
 const jwt = require('jsonwebtoken');
 const showdown = require('showdown');
 const converter = new showdown.Converter({ 'noHeaderId': true });
+const db = require('./db.js');
 // const functions = require('./views/functions.js'); // ? why is this commented out; delete?
 
-const db = require('./db.js');
-
 const User = require('./models/User');
-const Entry = require('./models/Post'); // 🟠 When the database is rebuilt, change to models/Entry
+const Entry = require('./models/Post');
 
 const { fixHtmlTags, limit, maxAge } = require('./util');
 const { ppid } = require('process'); // can't remove even though it appears to not be in use
@@ -20,14 +19,15 @@ const { isFloat32Array } = require('util/types');
 /*
 * INTERNAL METHODS
 */
-const createToken = id => { // 🟠 why can't this work from util.js?
-  return jwt.sign({ id }, 'net ninja secret', { // 🟠 fix secret & make more secure
+const createToken = id => { // 🔸 why can't this work from util.js?
+  return jwt.sign({ id }, 'net ninja secret', { // 🔸 fix secret & make more secure
     expiresIn: maxAge
   });
 }
 
 // get user data for attribution and contributor lists 
 const getAttributionData = async entries => {
+  
   let userIDs = [];
   entries.forEach(entry => {
     if(!userIDs.includes(entry.authorID)) userIDs.push(entry.authorID);
@@ -43,8 +43,6 @@ const getAttributionData = async entries => {
 }
 
 const setPageRainment = async (res, req, { css, type, paginate = true }) => {
-  console.log("🔸 setPageRainment", css, type, paginate); // 🔴
-
   // SIDEBAR
   // tags/categories/topcis
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -99,9 +97,8 @@ module.exports.getListByPubDate = async (req, res) => {
   await setPageRainment(res, req, { css: 'list', type: 'partials_entry/list' });
 
   // get entry and attribution data
-  res.locals.entries = await db.getListOfEntriesByDate( res.locals.pageDetails.skip );
+  res.locals.entries = await db.getListOfEntriesByDate( res.locals.pageDetails, res.locals.user );
   res.locals.users = await getAttributionData(res.locals.entries);
-
   res.render('page');
 } 
 
@@ -318,28 +315,8 @@ module.exports.getAdmin = async (req, res) => {
 
     const isBlank = isAdmin && req.url === '/admin';
     
-    /* 🟠🟠🟠 
-    Distraction from this branch's purpose, placing on hold until adding roles is
-    merged with main
-    
-    Disabled for refactoring 🔴 delete when done
-    🔸 Is it really necessary to set this in PageRainment? We set values to send to set values
-    without any decision making, data manipulation, or other steps. Seems redundant. 🔸
-    res.locals.pageDetails = {
-      css: 'editor',
-      css2: 'list',
-      type: 'partials_user/admin',
-      script: 'admin',
-      blank: isBlank
-    };
-    
-    res.locals.topics = await db.getCategories(res.locals.user);
-    res.locals.archive = await db.getArchive(res.locals.user);
-    res.locals.contributors = await db.getUsers(res.locals.user);
-       🟠🟠🟠 */
-    
     // set sidebar data and pagination details
-    await setPageRainment(res, req, { css: 'editor', type: 'partials_entry/editor', paginate: false });
+    await setPageRainment(res, req, { css: 'editor', type: 'partials_user/admin', paginate: false });
 
     res.locals.isOwner = isOwner;
     res.locals.isAdmin = isAdmin;

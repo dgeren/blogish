@@ -15,16 +15,18 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 
-
-// MONGODB: blogishAdminCredentials 🔴
-// HTTPS SERVER
-mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+// HTTPS SERVER & MONGOOSE
+try {
+mongoose.connect("mongodb://127.0.0.1:27017/blogish")
   .then(result => https.createServer({
     key:  fs.readFileSync('blogish4key.pem'),
     cert: fs.readFileSync('blogish4.pem')
-  }, app).listen(3000, () => console.log('https: p3000')))
+  }, app)
+  .listen(3000, () => console.log('https: p3000')))
   .catch((err) => console.log(err));
-
+} catch (err) {
+  console.log("Mongose error: ", result, err);
+}
 
 // ROUTES
 app.use(routes);

@@ -117,7 +117,15 @@ const contributorID = pageDetails.blank ? user._id.toString() : contributor[0]._
 
     </section>
   </form>
-  <% if(!pageDetails.blank) { %>
+  <%
+  /*
+  🔸  Change this section so that entries do not show. It should only display who is logged in. Plus, this might
+  🔸  work better near the top of the page instead of the bottom.
+  */
+  
+  if(!pageDetails.blank) {
+    
+  %>
   <section class="userPreview">
     <%- include('../partials_user/contributor', contributor) %>
   <% } %>

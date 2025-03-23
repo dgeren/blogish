@@ -43,7 +43,7 @@ router.post('/createAccount', checkUser, controllers.createUser);
 
 // STATIC CONTENT ROUTES
 router.get('/about', (req, res) => res.render('getAbout'));
-router.get('/favicon.ico', (req, res) => res.status(200).send('image/x-icon')); // 🟠 create favicon
+router.get('/favicon.ico', (req, res) => res.status(200).send('image/x-icon')); // 🔸 create favicon
 
 // URL-ERROR ROUTES
 router.get('*', controllers.getListByPubDate); // ! ADD 404 ERROR MESSAGE
