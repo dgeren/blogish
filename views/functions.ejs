@@ -1,4 +1,5 @@
 <%
+
 // * BUILD THE ARCHIVE HTML FOR THE SIDEBAR
 buildArchive = archive => {
 
@@ -59,8 +60,6 @@ buildArchive = archive => {
 
 // * CONVERT TOPICS ARRAY INTO A LIST OF LINKS FOR CARDS AND READERS
 buildTopics = topics => { // expects array of objects: {id, array of topics}
-
-
   if(topics.error){
     return `
       <div class="categories">\n
@@ -93,7 +92,6 @@ buildTopics = topics => { // expects array of objects: {id, array of topics}
 prepTopics = topics => {
   // expects an array of strings
   return topics ? topics.map(topic => `<a class="label smaller" href="/listByTags/${topic}">${topic}</a>`).join(" ") : "";
-
 }
 
 prepDates = pubDate => {
@@ -113,8 +111,15 @@ prepDates = pubDate => {
 
 }
 
+// * BUILD AD HOC PAGES LIST FOR GUTTER
+buildAdhocList = adhocPages => {
+  const html = adhocPages ? adhocPages.map(page => `<li class="label"><a href="/adhoc/${page.slug}">${page.title}</a></li>`).join(" ") : "";
+  return html;
+}
+
+// * BUILD THE MAIN SECTION
 buildContent = entry => {
-  const { title, slug, HTML, preview, _id, pubDate = null, tags = null } = entry;js
+  const { title, slug, HTML, preview, _id, pubDate = null, tags = null } = entry;
   const dateDisplay = pubDate === null ? "" : prepDates(entry.pubDate).dateDisplay;
   const topicsDisplay = tags ? "" : prepTopics(entry.tags);
 
@@ -126,7 +131,7 @@ buildContent = entry => {
   </div>
 
   <section class="reader--entry">
-    <div>${HTML}/div>
+    <div>${HTML}</div>
     <p>${topicsDisplay}</p>
   </section>`
 }

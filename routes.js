@@ -42,7 +42,7 @@ router.post('/login', controllers.login);
 router.post('/createAccount', checkUser, controllers.createUser);
 
 // STATIC CONTENT ROUTES
-router.get('/about', (req, res) => res.render('getAbout'));
+router.get('/adhoc/:page', checkUser, controllers.getAdhoc);
 router.get('/favicon.ico', (req, res) => res.status(200).send('image/x-icon')); // 🔸 create favicon
 
 // URL-ERROR ROUTES

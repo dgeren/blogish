@@ -15,6 +15,7 @@ const checkUser = async (req, res, next) => {
           .findById(decodedToken.id)
           .select( '-password -creator' )
           .lean();
+        console.log(res.locals);
         next();
       }
     });

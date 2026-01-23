@@ -20,10 +20,35 @@ const errMsg = {
         NAVIGATION AND SIDEBAR
 ====================================================
 */
+
+// * === RETURNS ADHOC PAGE LIST FOR SIDEBAR
+const getAdhoc = async () => {
+  let result;
+
+  try {
+    result = await Post
+      .find({
+        isAdhoc: true,
+        publish: true,
+      })
+      .sort({ pubDate: 1 })
+      .lean();
+  } catch (err) {
+    result = {
+      error: true,
+      messages: `${errMsg.begin} the ad hoc pages data.`
+    };
+    console.log(err);
+  } finally {
+    return result;
+  }
+}
+
+
 // * === RETURNS DATE HEIRARCHY FOR SIDEBAR
 const getArchive = async (user) => {
   const _now = new Date();
-  const filter = user ? { pubDate: {$ne: null } } : { publish: true, pubDate: { $lt: _now } };
+  const filter = user ? { pubDate: { $ne: null } } : { publish: true, pubDate: { $lt: _now } };
   let result;
   
   try {
@@ -393,11 +418,13 @@ const updateEntry = async entry => {
 
 // * === ADD NEW ENTRY
 const saveEntry = async entry => {
+  entry.isAdhoc = entry.isAdhoc === "on" ? true : false;
   try {
     const result = await Post.create(entry);
     return result;
   } catch(err) {
     // todo: add logging
+    console.log(err);
     return {
       error: true,
       message: `${errMsg.begin} the editor's entry saving process. ${errMsg.contact} ${errMsg.end}`
@@ -425,6 +452,7 @@ const deleteOneEntry = async _id => {
 
 
 module.exports = {
+  getAdhoc,
   getArchive,
   getCategories,
   getAdjacents,

@@ -6,8 +6,9 @@ const {
   css2 = null,
   script = null,
   errorMsg = null,
-  blank
+  blank,
 } = pageDetails;
+
 %>
 
 <!DOCTYPE html>
@@ -50,7 +51,8 @@ const {
         <li class="label" id="editorBtn"><a href="/editor">EDITOR</a></li>
         <li class="label"><a href="/admin">ADMIN</a></li>
         <% } %>
-        <li class="label"><a href="/about">ABOUT</a></li>
+        <%- buildAdhocList(adhocPages) %>
+        
       </ul>
 
       <%- buildContributors(contributors); %>

@@ -28,6 +28,7 @@ const postSchema = new Schema({
   },
   publish: Boolean,
   pubDate: Date,
+  isAdhoc: Boolean,
 });
 
 const Post = mongoose.model('post', postSchema);

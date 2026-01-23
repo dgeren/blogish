@@ -9,11 +9,13 @@ const {
   publish = "",
   _id = "",
   authorID = "",
+  isAdhoc = false,
 } = entry;
 const tagString = tags !== null ? tags.join(", ") : ""; // used for the tags field in the editor form
 
 const { dateDisplay, dateString, timeString } = prepDates(pubDate);
 const isPublished = publish ? " checked" : "";
+const isAdhocChecked = isAdhoc ? " checked" : "";
 %>
   <div class="title-box">
     <h2 class="pageTitle">Editor</h2>
@@ -41,6 +43,10 @@ const isPublished = publish ? " checked" : "";
           <input type="text" name="title" class="form-el editor" id="editor_title"
           <% if(title) { %>value="<%= title %>" <% } %> autofocus required>
         </div>
+        <div class="adhoc">
+          <label for="isAdhoc">Adhoc?</label>
+          <input type="checkbox" name="isAdhoc" class="form-el editor editor_checkbox" id="editor_checkbox_adhoc"<%= isAdhocChecked %>>
+        </div>
 
         <div>
           <label for="subtitle">Description</label><br>
@@ -60,14 +66,14 @@ const isPublished = publish ? " checked" : "";
         </div>
 
         <div>
-          <label for="publish" class="publish">Publish?</label>
-          <input type="checkbox" name="publish" class="form-el editor publish" id="editor_checkbox"<%= isPublished %>>
+          <label for="publish">Publish?</label>
+          <input type="checkbox" name="publish" class="form-el editor editor_checkbox" id="editor_checkbox_publish"<%= isPublished %>>
           <br>
-          <label for="datePicker" class="publish">Date</label><br>
-          <input type="date" name="datePicker" class="form-el editor publish" id="datePicker" value="<%- dateString %>">
+          <label for="datePicker">Date</label><br>
+          <input type="date" name="datePicker" class="form-el editor" id="datePicker" value="<%- dateString %>">
           <br>
-          <label for="timePicker" class="publish">Time</label><br>
-          <input type="time" name="timePicker" class="form-el editor publish" id="timePicker" value="<%- timeString %>">
+          <label for="timePicker">Time</label><br>
+          <input type="time" name="timePicker" class="form-el editor" id="timePicker" value="<%- timeString %>">
           <p class="message" name="publishError" id="publishError">Please select a date or deselect "Publish?"</p>
         </div>
 

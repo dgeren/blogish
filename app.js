@@ -17,7 +17,7 @@ app.set('view engine', 'ejs');
 
 // HTTPS SERVER & MONGOOSE
 try {
-mongoose.connect("mongodb://127.0.0.1:27017/blogish")
+mongoose.connect("mongodb://localhost:27017/blogish")
   .then(result => https.createServer({
     key:  fs.readFileSync('blogish4key.pem'),
     cert: fs.readFileSync('blogish4.pem')

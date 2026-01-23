@@ -43,8 +43,12 @@ const getAttributionData = async entries => {
 }
 
 const setPageRainment = async (res, req, { css, type, paginate = true }) => {
+  
   // SIDEBAR
-  // tags/categories/topcis
+  // ad hoc links
+  res.locals.adhocPages = await db.getAdhoc();
+
+  // tags/categories/topics
   res.locals.topics = await db.getCategories(res.locals.user);
 
   // entry titles, pub dates, and url
@@ -76,29 +80,40 @@ const setPageRainment = async (res, req, { css, type, paginate = true }) => {
   // define page for rendering engine
   res.locals.pageDetails.css = css;                                                                                 
   res.locals.pageDetails.type = type;
-} 
+}
 
 
 /*
 * EXPORTED METHODS
 */
 
-// * GET STATIC PAGES
-module.exports.getAbout = async (reg, res) => {
-  // ! stopped here
+// * GET ADHOC PAGES
+module.exports.getAdhoc = async (req, res) => {
+
+  // set sidebar data and pagination details
+  await setPageRainment(res, req, {css: 'reader', type: 'partials_entry/reader', paginate: false});
+
+  // get page 
+  // res.local.page = await db.getListOfEntriesByDate( res.locals.pageDetails, res.locals.user );
+
+  // res.render('page');
+
+  // test error block
+  res.redirect('/');
 }
+
 
 
 // * GET LIST OF ARTICLES SORTED BY DESCENDING DATE AND LIMITED
 module.exports.getListByPubDate = async (req, res) => {
   if(!res.locals.user) res.locals.user = null;
+  
 
   // set sidebar data and pagination details
   await setPageRainment(res, req, { css: 'list', type: 'partials_entry/list' });
 
   // get entry and attribution data
   res.locals.entries = await db.getListOfEntriesByDate( res.locals.pageDetails, res.locals.user );
-  res.locals.users = await getAttributionData(res.locals.entries);
   res.render('page');
 } 
 
@@ -222,6 +237,7 @@ module.exports.postEntry = async (req, res) => {
     const entry = req.body;
     const { tags } = req.body;
 
+    // 🔴 Move the functions to modify the data to db.js
     // prep date format
     entry.pubDate = !entry.datePicker || !entry.timePicker ? "" :
       new Date(`${entry.datePicker}T${entry.timePicker}`);
@@ -237,7 +253,7 @@ module.exports.postEntry = async (req, res) => {
     entry.slug = slugify(entry.title, { lower: true });
 
     if(entry.entryID) {
-      entry.id = entry.entryID;
+      entry.id = entry.entryID; // 🔴 why these two lines? 
       delete entry.entryID;
       result = await db.updateEntry(entry);
     } else {
@@ -345,6 +361,9 @@ module.exports.getAdmin = async (req, res) => {
 // * LIST CONTRIBUTORS
 module.exports.getContributors = async (req, res) => {
   if(!res.locals.user) res.locals.user = null;
+  
+  // ad hoc links
+  res.locals.adhocPages = await db.getAdhoc();
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);
@@ -363,6 +382,9 @@ module.exports.getContributors = async (req, res) => {
 
 module.exports.getContributor = async (req, res) => {
   if(!res.locals.user) res.locals.user = null;
+  
+  // ad hoc links
+  res.locals.adhocPages = await db.getAdhoc();
 
   // queries
   res.locals.topics = await db.getCategories(res.locals.user);

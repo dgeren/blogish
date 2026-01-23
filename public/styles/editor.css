@@ -59,16 +59,14 @@ textarea {
   font-family: monospace;
 }
 
-#editor_checkbox {
+.editor_checkbox {
   width: 20px;
   accent-color: var(--accent);
+  display: inline-block;
 }
 
 #datepicker, #timepicker {
   width: 100px;
-}
-
-.publish {
   display: inline-block;
 }
 
