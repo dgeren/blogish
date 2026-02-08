@@ -1,29 +1,31 @@
 <% 
+
 const {
   requestedTag = null,
   pages = 0,
   page = 0,
-  user,
+  use = null,
   users,
 } = pageDetails;
+
+%>
+<% if (requestedTag) { %>
+<h2 class="pageTitle">Entries by Topic: "<%= requestedTag %>"</h2>
+<% } %>
+
+
+<% entries.forEach(entry => { %>
+  <%- include('card', { entry, user, users }); %>
+<% });
+
+let previous = null, next = null;
+
+const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`;
+  if(!requestedTag) {
+    previous = page > 1 ? `<a href="/${pageType}/${ page - 1 }" class="pagination">&lt; Previous </a>` : '';
+    next = page < pages ? `<a id="next" href="/${pageType}/${ page + 1 }" class="pagination">Next &gt;</a><br>` : '';
+  }
 %>
 
-    <% if (requestedTag) { %>
-    <h2 class="pageTitle">Entries by Topic: "<%= requestedTag %>"</h2>
-    <% } %>
-
-    <% entries.forEach(entry => { %>
-    <%- include('card', { entry, user, users }) -%>
-    <% });
-
-    let previous = null, next = null;
-    
-    const pageType = requestedTag ? `listByTags/${requestedTag}` : `listByDate`;
-      if(!requestedTag) {
-        previous = page > 1 ? `<a href="/${pageType}/${ page - 1 }" class="pagination">&lt; Previous </a>` : '';
-        next = page < pages ? `<a id="next" href="/${pageType}/${ page + 1 }" class="pagination">Next &gt;</a><br>` : '';
-      }
-    %>
-
-    <%- previous %>
-    <%- next %>
+<%- previous %>
+<%- next %>

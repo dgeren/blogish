@@ -1,7 +1,6 @@
 <%- include('../functions'); %>
 
-    <% // can I remove tagHTML from the destructuring
-    const { title, description, slug, _id, authorID, publish, tagHTML = "", tags = null, pubDate = null } = entry;
+    const { title, description, slug, _id, authorID, publish, tags = null, pubDate = null } = entry;
     const dateDisplay = pubDate ? prepDates(pubDate).dateDisplay : null;
 
     const pseudonym = users ? users[authorID].pseudonym : "";
